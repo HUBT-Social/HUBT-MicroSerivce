@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.12/signalr.min.js"></script>
+</head>
+<body>
+    <h1>Chat Test</h1>
+
+    <div id="chatSection">
+        <input type="text" id="messageInput" placeholder="Enter message" />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <script>
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        connection.on("CharRecive", function (message) {
+            const msgDiv = document.getElementById("messages");
+            msgDiv.innerHTML += `<li>${message}</li>`;
+        });
+
+
+        connection.on("ReceiveMessage", function (message) {
+            const msgDiv = document.getElementById("messages");
+            msgDiv.innerHTML += `<div>${message}</div>`;
+        });
+
+        connection.start().then(() => {
+            console.log("Connected to SignalR");
+        }).catch(err => console.error(err));
+
+
+        /*function joinGroup() {
+            
+            document.getElementById('joinGroup').style.display = 'none';
+
+            const groupName = document.getElementById("groupNameInput").value;
+            const userName = document.getElementById("userNameInput").value;
+            
+            document.getElementById('chatSection').style.display = 'block';
+
+            const userConnection = {
+                UserName: userName,
+                ChatRoom: groupName
+            };
+
+            connection.invoke("JoinSpecificChatGroup", userConnection).catch(err => console.error(err));
+            console.log(`${userName} joined the group: ${groupName}`);
+           */ 
+        
+        function sendMessage() {
+            const message = document.getElementById("messageInput").value;
+            console.log("send message to all");
+            connection.invoke("SendMessageToGroup", message).catch(err => console.error(err));
+            console.log(console.error(err));
+        }
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HUBT_Social_Core", "HUBT_Social_Core\HUBT_Social_Core.csproj", "{35794AEB-516F-462B-8417-C215E2A36429}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HUBT_Social_Base", "HUBT_Social_Base\HUBT_Social_Base.csproj", "{3815C2BF-B24A-4618-B42F-E97E3A572D88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HUBT_Social_Identity_Service", "HUBT_Social_Identity_Service\HUBT_Social_Identity_Service.csproj", "{C3E740F1-19DF-4934-91F2-4FB8F2486E9E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HUBT_Social_MongoDb_Service", "HUBT_Social_MongoDb_Service\HUBT_Social_MongoDb_Service.csproj", "{BA562087-5755-4A52-9DEA-9798383EF6E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HUBT_Social_Email_Service", "HUBT_Social_Email_Service\HUBT_Social_Email_Service.csproj", "{4137245E-7C78-44FA-BF5E-A007C765C22F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLibary", "TestLibary\TestLibary.csproj", "{7D8BAB06-8C48-49E4-BBA6-F984F887F8AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35794AEB-516F-462B-8417-C215E2A36429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35794AEB-516F-462B-8417-C215E2A36429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35794AEB-516F-462B-8417-C215E2A36429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35794AEB-516F-462B-8417-C215E2A36429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3815C2BF-B24A-4618-B42F-E97E3A572D88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3815C2BF-B24A-4618-B42F-E97E3A572D88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3815C2BF-B24A-4618-B42F-E97E3A572D88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3815C2BF-B24A-4618-B42F-E97E3A572D88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3E740F1-19DF-4934-91F2-4FB8F2486E9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3E740F1-19DF-4934-91F2-4FB8F2486E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3E740F1-19DF-4934-91F2-4FB8F2486E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3E740F1-19DF-4934-91F2-4FB8F2486E9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA562087-5755-4A52-9DEA-9798383EF6E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA562087-5755-4A52-9DEA-9798383EF6E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA562087-5755-4A52-9DEA-9798383EF6E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA562087-5755-4A52-9DEA-9798383EF6E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4137245E-7C78-44FA-BF5E-A007C765C22F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4137245E-7C78-44FA-BF5E-A007C765C22F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4137245E-7C78-44FA-BF5E-A007C765C22F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4137245E-7C78-44FA-BF5E-A007C765C22F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D8BAB06-8C48-49E4-BBA6-F984F887F8AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D8BAB06-8C48-49E4-BBA6-F984F887F8AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D8BAB06-8C48-49E4-BBA6-F984F887F8AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D8BAB06-8C48-49E4-BBA6-F984F887F8AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCB84E41-603F-4A7B-A862-D19B5BFE4C9E}
+	EndGlobalSection
+EndGlobal

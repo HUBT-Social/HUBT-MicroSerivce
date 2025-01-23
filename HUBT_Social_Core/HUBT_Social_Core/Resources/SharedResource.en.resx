@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidInformation" xml:space="preserve">
+    <value>Invalid information.</value>
+  </data>
+  <data name="RegistrationFailed" xml:space="preserve">
+    <value>Registration failed.</value>
+  </data>
+  <data name="UnableToSendOTP" xml:space="preserve">
+    <value>Unable to send OTP code.</value>
+  </data>
+  <data name="RegistrationSuccess" xml:space="preserve">
+    <value>Registration successful.</value>
+  </data>
+  <data name="StepOneVerificationSuccess" xml:space="preserve">
+    <value>Step one verification successful.</value>
+  </data>
+  <data name="AccountLocked" xml:space="preserve">
+    <value>Account locked.</value>
+  </data>
+  <data name="LoginNotAllowed" xml:space="preserve">
+    <value>Login not allowed.</value>
+  </data>
+  <data name="TwoFactorRequired" xml:space="preserve">
+    <value>Two-factor authentication required.</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Invalid login credentials.</value>
+  </data>
+  <data name="VerificationSuccess" xml:space="preserve">
+    <value>Verification successful.</value>
+  </data>
+  <data name="OTPVerificationFailed" xml:space="preserve">
+    <value>OTP verification failed.</value>
+  </data>
+  <data name="InvalidLanguage" xml:space="preserve">
+    <value>Invalid language.</value>
+  </data>
+  <data name="LanguageChanged" xml:space="preserve">
+    <value>Language changed successfully.</value>
+  </data>
+  <data name="LanguageChangeFailed" xml:space="preserve">
+    <value>Failed to change language.</value>
+  </data>
+  <data name="InvalidMessageData" xml:space="preserve">
+    <value>Invalid message data.</value>
+  </data>
+  <data name="MessageSentSuccessfully" xml:space="preserve">
+    <value>Message sent successfully.</value>
+  </data>
+  <data name="FailedToSendMessage" xml:space="preserve">
+    <value>Failed to send message.</value>
+  </data>
+  <data name="ChatRoomIdRequired" xml:space="preserve">
+    <value>Chat room ID is required.</value>
+  </data>
+  <data name="NoMessagesFound" xml:space="preserve">
+    <value>No messages found.</value>
+  </data>
+  <data name="MessageDeletedSuccessfully" xml:space="preserve">
+    <value>Message deleted successfully.</value>
+  </data>
+  <data name="FailedToDeleteMessage" xml:space="preserve">
+    <value>Failed to delete message.</value>
+  </data>
+  <data name="ChatRoomIdAndKeywordRequired" xml:space="preserve">
+    <value>Chat room ID and keyword are required.</value>
+  </data>
+  <data name="MessagesFoundSuccessfully" xml:space="preserve">
+    <value>Messages found successfully.</value>
+  </data>
+  <data name="ImageUploadedSuccessfully" xml:space="preserve">
+    <value>Image uploaded successfully.</value>
+  </data>
+  <data name="FailedToUploadImage" xml:space="preserve">
+    <value>Failed to upload image.</value>
+  </data>
+  <data name="FileUploadedSuccessfully" xml:space="preserve">
+    <value>File uploaded successfully.</value>
+  </data>
+  <data name="FailedToUploadFile" xml:space="preserve">
+    <value>Failed to upload file.</value>
+  </data>
+  <data name="GroupNameRequired" xml:space="preserve">
+    <value>Group name is required.</value>
+  </data>
+  <data name="GroupCreatedSuccessfully" xml:space="preserve">
+    <value>Chat group created successfully.</value>
+  </data>
+  <data name="FailedToCreateGroup" xml:space="preserve">
+    <value>Failed to create chat group.</value>
+  </data>
+  <data name="GroupNameUpdatedSuccessfully" xml:space="preserve">
+    <value>Group name updated successfully.</value>
+  </data>
+  <data name="FailedToUpdateGroup" xml:space="preserve">
+    <value>Failed to update group name.</value>
+  </data>
+  <data name="GroupDeletedSuccessfully" xml:space="preserve">
+    <value>Chat group deleted successfully.</value>
+  </data>
+  <data name="FailedToDeleteGroup" xml:space="preserve">
+    <value>Failed to delete chat group.</value>
+  </data>
+  <data name="GroupNotFound" xml:space="preserve">
+    <value>Chat group not found.</value>
+  </data>
+  <data name="UserAlreadyExists" xml:space="preserve">
+    <value>User account already exists.</value>
+  </data>
+  <data name="UnableToStoreInDatabase" xml:space="preserve">
+    <value>Unable to store in the database.</value>
+  </data>
+  <data name="EmailVerificationCodeSubject" xml:space="preserve">
+    <value>Email verification code.</value>
+  </data>
+  <data name="EmailCannotBeEmpty" xml:space="preserve">
+    <value>Email cannot be empty.</value>
+  </data>
+  <data name="EmailUpdated" xml:space="preserve">
+    <value>Email updated successfully.</value>
+  </data>
+  <data name="EmailUpdateError" xml:space="preserve">
+    <value>Failed to update email.</value>
+  </data>
+  <data name="PasswordCannotBeEmpty" xml:space="preserve">
+    <value>Current password and new password cannot be empty.</value>
+  </data>
+  <data name="PasswordUpdated" xml:space="preserve">
+    <value>Password updated successfully.</value>
+  </data>
+  <data name="PasswordUpdateError" xml:space="preserve">
+    <value>Error updating password.</value>
+  </data>
+  <data name="NameUpdated" xml:space="preserve">
+    <value>User name updated successfully.</value>
+  </data>
+  <data name="NameUpdateError" xml:space="preserve">
+    <value>Error updating user name.</value>
+  </data>
+  <data name="PhoneNumberUpdated" xml:space="preserve">
+    <value>Phone number updated successfully.</value>
+  </data>
+  <data name="PhoneNumberUpdateError" xml:space="preserve">
+    <value>Error updating phone number.</value>
+  </data>
+  <data name="GenderUpdated" xml:space="preserve">
+    <value>Gender updated successfully.</value>
+  </data>
+  <data name="GenderUpdateError" xml:space="preserve">
+    <value>Error updating gender.</value>
+  </data>
+  <data name="DateOfBirthUpdated" xml:space="preserve">
+    <value>Date of birth updated successfully.</value>
+  </data>
+  <data name="DateOfBirthUpdateError" xml:space="preserve">
+    <value>Error updating date of birth.</value>
+  </data>
+  <data name="GeneralUpdateSuccess" xml:space="preserve">
+    <value>User information updated successfully.</value>
+  </data>
+  <data name="GeneralUpdateError" xml:space="preserve">
+    <value>Error updating user information.</value>
+  </data>
+  <data name="CurrentPasswordAndUsernameCannotBeEmpty" xml:space="preserve">
+    <value>Username and current password cannot be empty.</value>
+  </data>
+  <data name="PasswordCorrect" xml:space="preserve">
+    <value>Password is correct.</value>
+  </data>
+  <data name="PasswordIncorrect" xml:space="preserve">
+    <value>Password is incorrect.</value>
+  </data>
+  <data name="UsernameCannotBeEmpty" xml:space="preserve">
+    <value>Username cannot be empty.</value>
+  </data>
+  <data name="InvalidRequest" xml:space="preserve">
+    <value>Invalid request.</value>
+  </data>
+  <data name="OtpSent" xml:space="preserve">
+    <value>OTP code sent.</value>
+  </data>
+  <data name="OtpSendError" xml:space="preserve">
+    <value>Error sending OTP code.</value>
+  </data>
+  <data name="OtpVerificationSuccess" xml:space="preserve">
+    <value>OTP verification successful.</value>
+  </data>
+  <data name="OtpInvalid" xml:space="preserve">
+    <value>OTP code is invalid.</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User not found.</value>
+  </data>
+  <data name="UserInfoUpdatedSuccess" xml:space="preserve">
+    <value>User information updated successfully.</value>
+  </data>
+  <data name="UserInfoUpdateError" xml:space="preserve">
+    <value>Error updating user information.</value>
+  </data>
+  <data name="PasswordCheckEmptyError" xml:space="preserve">
+    <value>Password cannot be empty</value>
+  </data>
+  <data name="OtpVerifyEmptyError" xml:space="preserve">
+    <value>OTP code cannot be empty.</value>
+  </data>
+  <data name="TokenValid" xml:space="preserve">
+    <value>Token is valid.</value>
+  </data>
+  <data name="AvatarUpdated" xml:space="preserve">
+    <value>Avatar Updated.</value>
+  </data>
+  <data name="AvatarUpdateError" xml:space="preserve">
+    <value>Error Updated Avatar.</value>
+  </data>
+  <data name="DefaultLoginError" xml:space="preserve">
+    <value>An unexpected error occurred. Please try again later.</value>
+  </data>
+  <data name="DataNotAllowNull" xml:space="preserve">
+    <value>Information cannot be left blank.</value>
+  </data>
+  <data name="ConfirmPasswordError" xml:space="preserve">
+    <value>Confirm password doesn't match the password above.</value>
+  </data>
+  <data name="UnAuthorize" xml:space="preserve">
+    <value>UnAuthorize.</value>
+  </data>
+  <data name="UserDeleted" xml:space="preserve">
+    <value>User is deleted.</value>
+  </data>
+  <data name="UserDeletedError" xml:space="preserve">
+    <value>Deleted user faild.</value>
+  </data>
+  <data name="TokenDeleted" xml:space="preserve">
+    <value>Token has been deleted successfull</value>
+  </data>
+  <data name="NotEnoughMembers" xml:space="preserve">
+    <value>The number of members is not enough to create a new chat group</value>
+  </data>
+  <data name="EmailContentHeaderContent1" xml:space="preserve">
+    <value>Hanoi</value>
+  </data>
+  <data name="EmailContentHeaderContent2" xml:space="preserve">
+    <value>University of Business and Technology</value>
+  </data>
+  <data name="EmailContentHeaderContent3" xml:space="preserve">
+    <value>HUBT Social – Connecting HUBT students! Share knowledge, stay updated on events, and grow</value>
+  </data>
+  <data name="EmailContentHeaderContent4" xml:space="preserve">
+    <value>together in a vibrant, creative, and passionate community.</value>
+  </data>
+  <data name="EmailContentOTP0" xml:space="preserve">
+    <value>Hello</value>
+  </data>
+  <data name="EmailContentOTP1" xml:space="preserve">
+    <value>Here is your One Time Password (OTP).</value>
+  </data>
+  <data name="EmailContentOTP2" xml:space="preserve">
+    <value>Please enter this code to verify your email address for HUBT Social:</value>
+  </data>
+  <data name="EmailContentOTP3" xml:space="preserve">
+    <value>Copy OTP</value>
+  </data>
+  <data name="EmailContentOTP4" xml:space="preserve">
+    <value>The OTP will expire in 2 minutes 30 seconds.</value>
+  </data>
+  <data name="EmailContentOTP5" xml:space="preserve">
+    <value>Best Regards</value>
+  </data>
+  <data name="EmailContentOTP6" xml:space="preserve">
+    <value>HUBT Social Team</value>
+  </data>
+  <data name="EmailContentFooter1" xml:space="preserve">
+    <value>© 2024 HUBT Social. All rights reserved.</value>
+  </data>
+  <data name="EmailContentFooter2" xml:space="preserve">
+    <value>You are receiving this mail because you registered to join the HUBT Social platform. 
+      If you no longer want to receive mails, click the</value>
+  </data>
+  <data name="EmailContentFooter3" xml:space="preserve">
+    <value>unsubscribe</value>
+  </data>
+  <data name="EmailContentFooter4" xml:space="preserve">
+    <value> link below.</value>
+  </data>
+  <data name="Email2Text0" xml:space="preserve">
+    <value>Dear</value>
+  </data>
+  <data name="Email2Text1" xml:space="preserve">
+    <value>Your one-time code is</value>
+  </data>
+  <data name="Email2Text2" xml:space="preserve">
+    <value>Please verify your identity by entering this</value>
+  </data>
+  <data name="Email2Text3" xml:space="preserve">
+    <value>6-digit code during authentication. Note that this code will expire</value>
+  </data>
+  <data name="Email2Text4" xml:space="preserve">
+    <value>in 2 minutes and 30 seconds for security reasons.</value>
+  </data>
+  <data name="Email2Text5" xml:space="preserve">
+    <value>We noticed access from a </value>
+  </data>
+  <data name="Email2Text6" xml:space="preserve">
+    <value>new location or device.</value>
+  </data>
+  <data name="Email2Text7" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Email2Text8" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="Email2Text9" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Email2Text10" xml:space="preserve">
+    <value>If you have any questions, contact our Website Guides.</value>
+  </data>
+  <data name="Email2Text11" xml:space="preserve">
+    <value>Or, visit our Help Center.</value>
+  </data>
+  <data name="Email2Text12" xml:space="preserve">
+    <value>HUBTSOCIAL - A sanctuary of friendship and enlightenment, fostering profound connections within the HUBT community to inspire sharing, ignite learning, and radiate noble values, building a harmonious haven where hearts and aspirations unite.</value>
+  </data>
+  <data name="Email2Text13" xml:space="preserve">
+    <value>Connect with HUBTSOCIAL on Facebook, Instagram, and Twitter to stay informed, share moments, and grow with our vibrant community!</value>
+  </data>
+  <data name="ApiError" xml:space="preserve">
+    <value>SomeThings Goes wrong</value>
+  </data>
+  <data name="ApiNotFound" xml:space="preserve">
+    <value>API not found</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>InternalServerError</value>
+  </data>
+  <data name="ApiForbibben" xml:space="preserve">
+    <value>You have been fobidden to access this APi</value>
+  </data>
+  <data name="StoreSuccessfull" xml:space="preserve">
+    <value>Store Data Success</value>
+  </data>
+</root>

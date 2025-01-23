@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidInformation" xml:space="preserve">
+    <value>Thông tin không hợp lệ.</value>
+  </data>
+  <data name="RegistrationFailed" xml:space="preserve">
+    <value>Đăng ký thất bại.</value>
+  </data>
+  <data name="UnableToSendOTP" xml:space="preserve">
+    <value>Không thể gửi mã OTP.</value>
+  </data>
+  <data name="RegistrationSuccess" xml:space="preserve">
+    <value>Đăng ký thành công.</value>
+  </data>
+  <data name="StepOneVerificationSuccess" xml:space="preserve">
+    <value>Bước xác thực một thành công.</value>
+  </data>
+  <data name="AccountLocked" xml:space="preserve">
+    <value>Tài khoản bị khóa.</value>
+  </data>
+  <data name="LoginNotAllowed" xml:space="preserve">
+    <value>Không được phép đăng nhập.</value>
+  </data>
+  <data name="TwoFactorRequired" xml:space="preserve">
+    <value>Cần xác thực hai yếu tố.</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Thông tin đăng nhập không hợp lệ.</value>
+  </data>
+  <data name="VerificationSuccess" xml:space="preserve">
+    <value>Xác thực thành công.</value>
+  </data>
+  <data name="OTPVerificationFailed" xml:space="preserve">
+    <value>Xác thực mã OTP không thành công.</value>
+  </data>
+  <data name="InvalidLanguage" xml:space="preserve">
+    <value>Ngôn ngữ không hợp lệ.</value>
+  </data>
+  <data name="LanguageChanged" xml:space="preserve">
+    <value>Đã thay đổi ngôn ngữ thành công.</value>
+  </data>
+  <data name="LanguageChangeFailed" xml:space="preserve">
+    <value>Thay đổi ngôn ngữ thất bại.</value>
+  </data>
+  <data name="InvalidMessageData" xml:space="preserve">
+    <value>Dữ liệu tin nhắn không hợp lệ</value>
+  </data>
+  <data name="MessageSentSuccessfully" xml:space="preserve">
+    <value>Tin nhắn đã được gửi thành công</value>
+  </data>
+  <data name="FailedToSendMessage" xml:space="preserve">
+    <value>Gửi tin nhắn không thành công</value>
+  </data>
+  <data name="ChatRoomIdRequired" xml:space="preserve">
+    <value>ID phòng chat là bắt buộc</value>
+  </data>
+  <data name="NoMessagesFound" xml:space="preserve">
+    <value>Không tìm thấy tin nhắn nào</value>
+  </data>
+  <data name="MessageDeletedSuccessfully" xml:space="preserve">
+    <value>Tin nhắn đã được xóa thành công</value>
+  </data>
+  <data name="FailedToDeleteMessage" xml:space="preserve">
+    <value>Xóa tin nhắn không thành công</value>
+  </data>
+  <data name="ChatRoomIdAndKeywordRequired" xml:space="preserve">
+    <value>ID phòng chat và từ khóa là bắt buộc</value>
+  </data>
+  <data name="MessagesFoundSuccessfully" xml:space="preserve">
+    <value>Tin nhắn đã được tìm thấy thành công</value>
+  </data>
+  <data name="ImageUploadedSuccessfully" xml:space="preserve">
+    <value>Ảnh đã được tải lên thành công</value>
+  </data>
+  <data name="FailedToUploadImage" xml:space="preserve">
+    <value>Tải ảnh lên không thành công</value>
+  </data>
+  <data name="FileUploadedSuccessfully" xml:space="preserve">
+    <value>Tập tin đã được tải lên thành công</value>
+  </data>
+  <data name="FailedToUploadFile" xml:space="preserve">
+    <value>Tải tập tin lên không thành công</value>
+  </data>
+  <data name="GroupNameRequired" xml:space="preserve">
+    <value>Tên nhóm không được để trống</value>
+  </data>
+  <data name="GroupCreatedSuccessfully" xml:space="preserve">
+    <value>Nhóm chat đã được tạo thành công</value>
+  </data>
+  <data name="FailedToCreateGroup" xml:space="preserve">
+    <value>Không thể tạo nhóm chat</value>
+  </data>
+  <data name="GroupNameUpdatedSuccessfully" xml:space="preserve">
+    <value>Tên nhóm đã được cập nhật thành công</value>
+  </data>
+  <data name="FailedToUpdateGroup" xml:space="preserve">
+    <value>Không thể cập nhật tên nhóm</value>
+  </data>
+  <data name="GroupDeletedSuccessfully" xml:space="preserve">
+    <value>Nhóm chat đã được xóa thành công</value>
+  </data>
+  <data name="FailedToDeleteGroup" xml:space="preserve">
+    <value>Không thể xóa nhóm chat</value>
+  </data>
+  <data name="GroupNotFound" xml:space="preserve">
+    <value>Không tìm thấy nhóm chat</value>
+  </data>
+  <data name="UserAlreadyExists" xml:space="preserve">
+    <value>Tài khoản người dùng đã tồn tại.</value>
+  </data>
+  <data name="UnableToStoreInDatabase" xml:space="preserve">
+    <value>Không thể lưu vào cơ sở dữ liệu.</value>
+  </data>
+  <data name="EmailVerificationCodeSubject" xml:space="preserve">
+    <value>Mã xác minh email</value>
+  </data>
+  <data name="EmailCannotBeEmpty" xml:space="preserve">
+    <value>Email không được để trống.</value>
+  </data>
+  <data name="EmailUpdated" xml:space="preserve">
+    <value>Email đã được cập nhật.</value>
+  </data>
+  <data name="EmailUpdateError" xml:space="preserve">
+    <value>Không thể cập nhật email</value>
+  </data>
+  <data name="PasswordCannotBeEmpty" xml:space="preserve">
+    <value>Mật khẩu hiện tại và mật khẩu mới không được để trống.</value>
+  </data>
+  <data name="PasswordUpdated" xml:space="preserve">
+    <value>Mật khẩu đã được cập nhật.</value>
+  </data>
+  <data name="PasswordUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật mật khẩu.</value>
+  </data>
+  <data name="NameUpdated" xml:space="preserve">
+    <value>Tên người dùng đã được cập nhật.</value>
+  </data>
+  <data name="NameUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật tên.</value>
+  </data>
+  <data name="PhoneNumberUpdated" xml:space="preserve">
+    <value>Số điện thoại đã được cập nhật.</value>
+  </data>
+  <data name="PhoneNumberUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật số điện thoại.</value>
+  </data>
+  <data name="GenderUpdated" xml:space="preserve">
+    <value>Giới tính đã được cập nhật.</value>
+  </data>
+  <data name="GenderUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật giới tính.</value>
+  </data>
+  <data name="DateOfBirthUpdated" xml:space="preserve">
+    <value>Ngày sinh đã được cập nhật.</value>
+  </data>
+  <data name="DateOfBirthUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật ngày sinh.</value>
+  </data>
+  <data name="GeneralUpdateSuccess" xml:space="preserve">
+    <value>Thông tin người dùng đã được cập nhật.</value>
+  </data>
+  <data name="GeneralUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật thông tin.</value>
+  </data>
+  <data name="CurrentPasswordAndUsernameCannotBeEmpty" xml:space="preserve">
+    <value>Tên người dùng và mật khẩu hiện tại không được để trống.</value>
+  </data>
+  <data name="PasswordCorrect" xml:space="preserve">
+    <value>Mật khẩu đúng.</value>
+  </data>
+  <data name="PasswordIncorrect" xml:space="preserve">
+    <value>Mật khẩu không đúng.</value>
+  </data>
+  <data name="UsernameCannotBeEmpty" xml:space="preserve">
+    <value>Tên người dùng không được để trống.</value>
+  </data>
+  <data name="InvalidRequest" xml:space="preserve">
+    <value>Yêu cầu không hợp lệ.</value>
+  </data>
+  <data name="OtpSent" xml:space="preserve">
+    <value>Mã OTP đã được gửi.</value>
+  </data>
+  <data name="OtpSendError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi gửi mã OTP.</value>
+  </data>
+  <data name="OtpVerificationSuccess" xml:space="preserve">
+    <value>Mã OTP xác thực thành công.</value>
+  </data>
+  <data name="OtpInvalid" xml:space="preserve">
+    <value>Mã OTP không hợp lệ.</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Không tìm thấy người dùng</value>
+  </data>
+  <data name="UserInfoUpdatedSuccess" xml:space="preserve">
+    <value>Thông tin đã được cập nhật</value>
+  </data>
+  <data name="UserInfoUpdateError" xml:space="preserve">
+    <value>Có lỗi xảy ra khi cập nhật thông tin.</value>
+  </data>
+  <data name="PasswordCheckEmptyError" xml:space="preserve">
+    <value>Mật khẩu không được để trống.</value>
+  </data>
+  <data name="OtpVerifyEmptyError" xml:space="preserve">
+    <value>Mã xác thực không được để trống.</value>
+  </data>
+  <data name="TokenValid" xml:space="preserve">
+    <value>Token hợp lệ.</value>
+  </data>
+  <data name="AvatarUpdated" xml:space="preserve">
+    <value>Avatar đã được cập nhật.</value>
+  </data>
+  <data name="AvatarUpdateError" xml:space="preserve">
+    <value>Cập nhật ảnh đại diện thất bại.</value>
+  </data>
+  <data name="DefaultLoginError" xml:space="preserve">
+    <value>Đăng nhập gặp sự cố không mong muốn. Vui lòng thử lại.</value>
+  </data>
+  <data name="DataNotAllowNull" xml:space="preserve">
+    <value>Thông tin không được bỏ trống.</value>
+  </data>
+  <data name="ConfirmPasswordError" xml:space="preserve">
+    <value>Xác nhận mật khẩu không khớp với mật khẩu ở trên.</value>
+  </data>
+  <data name="UnAuthorize" xml:space="preserve">
+    <value>Không được ủy quyền</value>
+  </data>
+  <data name="UserDeleted" xml:space="preserve">
+    <value>Đã xóa người dùng thành công.</value>
+  </data>
+  <data name="UserDeletedError" xml:space="preserve">
+    <value>Xóa người dùng thất bại.</value>
+  </data>
+  <data name="TokenDeleted" xml:space="preserve">
+    <value>Đã xóa Token thành công</value>
+  </data>
+  <data name="NotEnoughMembers" xml:space="preserve">
+    <value>Số thành viên không đủ để tạo nhóm chat mới</value>
+  </data>
+  <data name="EmailContentHeaderContent1" xml:space="preserve">
+    <value>Hà Nội</value>
+  </data>
+  <data name="EmailContentHeaderContent2" xml:space="preserve">
+    <value>Trường Đại học Kinh Doanh và Công Nghệ</value>
+  </data>
+  <data name="EmailContentHeaderContent3" xml:space="preserve">
+    <value>HUBT Social – Kết nối sinh viên HUBT! Chia sẻ kiến thức, cập nhật các sự kiện và phát triển</value>
+  </data>
+  <data name="EmailContentHeaderContent4" xml:space="preserve">
+    <value>cùng nhau trong một cộng đồng sôi động, sáng tạo và đầy đam mê.</value>
+  </data>
+  <data name="EmailContentOTP0" xml:space="preserve">
+    <value>Xin chào </value>
+  </data>
+  <data name="EmailContentOTP1" xml:space="preserve">
+    <value>Đây là Mã OTP (One Time Password) của bạn.</value>
+  </data>
+  <data name="EmailContentOTP2" xml:space="preserve">
+    <value>Vui lòng nhập mã này để xác minh địa chỉ email của bạn cho HUBT Social:</value>
+  </data>
+  <data name="EmailContentOTP3" xml:space="preserve">
+    <value>Sao chép OTP</value>
+  </data>
+  <data name="EmailContentOTP4" xml:space="preserve">
+    <value>Mã OTP sẽ hết hạn trong 2 phút 30 giây.</value>
+  </data>
+  <data name="EmailContentOTP5" xml:space="preserve">
+    <value>Trân trọng</value>
+  </data>
+  <data name="EmailContentOTP6" xml:space="preserve">
+    <value>Đội ngũ HUBT Social</value>
+  </data>
+  <data name="EmailContentFooter1" xml:space="preserve">
+    <value>© 2024 HUBT Social. Bảo lưu mọi quyền.</value>
+  </data>
+  <data name="EmailContentFooter2" xml:space="preserve">
+    <value>Bạn nhận được email này vì đã đăng ký tham gia nền tảng HUBT Social. 
+      Nếu không muốn nhận email nữa, hãy nhấp vào liên kết</value>
+  </data>
+  <data name="EmailContentFooter3" xml:space="preserve">
+    <value>hủy đăng ký</value>
+  </data>
+  <data name="EmailContentFooter4" xml:space="preserve">
+    <value> dưới đây.</value>
+  </data>
+  <data name="Email2Text0" xml:space="preserve">
+    <value>Kính gửi</value>
+  </data>
+  <data name="Email2Text1" xml:space="preserve">
+    <value>Mã xác minh một lần của bạn là</value>
+  </data>
+  <data name="Email2Text2" xml:space="preserve">
+    <value>Vui lòng xác thực danh tính của bạn bằng cách nhập mã 6 chữ số này</value>
+  </data>
+  <data name="Email2Text3" xml:space="preserve">
+    <value>trong quá trình xác thực. Lưu ý rằng mã này sẽ hết hạn</value>
+  </data>
+  <data name="Email2Text4" xml:space="preserve">
+    <value>sau 2 phút 30 giây vì lý do bảo mật.</value>
+  </data>
+  <data name="Email2Text5" xml:space="preserve">
+    <value>Chúng tôi nhận thấy có sự truy cập từ một </value>
+  </data>
+  <data name="Email2Text6" xml:space="preserve">
+    <value>vị trí hoặc thiết bị mới.</value>
+  </data>
+  <data name="Email2Text7" xml:space="preserve">
+    <value>Thiết bị</value>
+  </data>
+  <data name="Email2Text8" xml:space="preserve">
+    <value>Vị trí</value>
+  </data>
+  <data name="Email2Text9" xml:space="preserve">
+    <value>Ngày</value>
+  </data>
+  <data name="Email2Text10" xml:space="preserve">
+    <value>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với Hướng dẫn Website của chúng tôi.</value>
+  </data>
+  <data name="Email2Text11" xml:space="preserve">
+    <value>Hoặc, truy cập Trung tâm hỗ trợ của chúng tôi.</value>
+  </data>
+  <data name="Email2Text12" xml:space="preserve">
+    <value>HUBTSOCIAL - Một ngôi nhà của tình bạn và sự khai sáng, nuôi dưỡng những kết nối sâu sắc trong cộng đồng HUBT để khơi gợi sự chia sẻ, khơi nguồn học hỏi và tỏa sáng những giá trị cao đẹp, xây dựng một nơi trú ẩn hòa hợp nơi những trái tim và khát vọng hòa quyện.</value>
+  </data>
+  <data name="Email2Text13" xml:space="preserve">
+    <value>Kết nối với HUBTSOCIAL trên Facebook, Instagram và Twitter để luôn cập nhật thông tin, chia sẻ khoảnh khắc và phát triển cùng cộng đồng năng động của chúng tôi!</value>
+  </data>
+  <data name="ApiError" xml:space="preserve">
+    <value>có lỗi xảy ra</value>
+  </data>
+  <data name="ApiNotFound" xml:space="preserve">
+    <value>Không tìm thấy Api</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Lỗi hệ thống</value>
+  </data>
+  <data name="ApiForbibben" xml:space="preserve">
+    <value>Bạn đã bị cấm để truy cập vào api này</value>
+  </data>
+  <data name="StoreSuccessfull" xml:space="preserve">
+    <value>Lưu trữ thành công</value>
+  </data>
+</root>
