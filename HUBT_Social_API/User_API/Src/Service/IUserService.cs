@@ -2,6 +2,7 @@
 using HUBT_Social_Base;
 using HUBT_Social_Core.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using HUBT_Social_Core.Models.Requests;
 
 namespace User_API.Src.Service
 {
@@ -12,7 +13,7 @@ namespace User_API.Src.Service
         Task<ResponseDTO> UpdateAvatarUrlAsync(string userName, UpdateAvatarUrlRequest request);
         Task<ResponseDTO> UpdateEmailAsync(string userName, UpdateEmailRequest request);
         Task<ResponseDTO> VerifyCurrentPasswordAsync(string userName, CheckPasswordRequest request);
-        Task<ResponseDTO> UpdatePasswordAsync(string userName, UpdatePasswordRequest request);
+        Task<ResponseDTO> UpdatePasswordAsync(string userName, UpdatePasswordRequestDTO request);
         Task<ResponseDTO> UpdateNameAsync(string userName, UpdateNameRequest request);
         Task<ResponseDTO> UpdatePhoneNumberAsync(string userName, UpdatePhoneNumberRequest request);
         Task<ResponseDTO> UpdateGenderAsync(string userName, UpdateGenderRequest request);

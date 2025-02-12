@@ -1,4 +1,5 @@
 ﻿using AspNetCore.Identity.MongoDbCore.Models;
+using HUBT_Social_Core.Models.Requests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using MongoDB.Driver.Core.Operations;
@@ -62,7 +63,23 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             return false;
             
         }
+        public async Task<bool> UpdatePasswordAsync(string userName, UpdatePasswordRequestDTO request)
+        {
+            try
+            {
+                var user = await GetUserByNameAsync(userName);
+                if (user == null) return false;
 
+                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, resetToken, request.NewPassword);
+
+                return result.Succeeded;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
         public async Task<bool> DeleteUserAsync(TUser user)
         {
             IdentityResult deleted = await _userManager.DeleteAsync(user);

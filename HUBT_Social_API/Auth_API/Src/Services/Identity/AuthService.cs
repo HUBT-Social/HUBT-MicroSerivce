@@ -52,6 +52,11 @@ namespace Auth_API.Src.Services.Identity
 
             return null;
         }
+        public async Task<ResponseDTO> Forgotpassword(string userName, UpdatePasswordRequestDTO request)
+        {
+            string path = $"user/change-password?userName={userName}";
+            return await SendRequestAsync(path, ApiType.PUT,request);
+        }
 
         public async Task<ResponseDTO> TokenSubcriber(string userId)
         {

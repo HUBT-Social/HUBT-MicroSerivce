@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Hangfire.Mongo.Dto;
 using HUBT_Social_Base;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Identity_Service.Services;
 using HUBT_Social_Identity_Service.Services.IdentityCustomeService;
@@ -46,21 +48,45 @@ namespace Identity_API.Src.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CheckUser([FromQuery] string? email, [FromQuery] string? userName)
         {
-            AUserDTO? usedDTO = null;
+            AUserDTO? userDTO = null;
 
-            if (!string.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(userName))
             {
-                AUser? used = await _identityService.FindUserByEmailAsync(email);
-                usedDTO = used != null ? _mapper.Map<AUserDTO>(used) : null;
+                AUser? userByEmail = await _identityService.FindUserByEmailAsync(email);
+                AUser? userByUserName = await _identityService.FindUserByUserNameAsync(userName);
+
+                if (userByEmail != null && userByUserName != null)
+                {
+                    if (userByEmail.Id == userByUserName.Id)
+                    {
+                        userDTO = _mapper.Map<AUserDTO>(userByEmail);
+                    }
+                    else
+                    {
+                        return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+                    }
+                }
+                else if (userByEmail != null)
+                {
+                    userDTO = _mapper.Map<AUserDTO>(userByEmail);
+                }
+                else if (userByUserName != null)
+                {
+                    userDTO = _mapper.Map<AUserDTO>(userByUserName);
+                }
+            }
+            else if (!string.IsNullOrEmpty(email))
+            {
+                AUser? userByEmail = await _identityService.FindUserByEmailAsync(email);
+                userDTO = userByEmail != null ? _mapper.Map<AUserDTO>(userByEmail) : null;
+            }
+            else if (!string.IsNullOrEmpty(userName))
+            {
+                AUser? userByUserName = await _identityService.FindUserByUserNameAsync(userName);
+                userDTO = userByUserName != null ? _mapper.Map<AUserDTO>(userByUserName) : null;
             }
 
-            if (usedDTO == null && !string.IsNullOrEmpty(userName))
-            {
-                AUser? used = await _identityService.FindUserByUserNameAsync(userName);
-                usedDTO = used != null ? _mapper.Map<AUserDTO>(used) : null;
-            }
-
-            return Ok(usedDTO);
+            return Ok(userDTO);
         }
         [HttpPut("update-user")]
         public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateRequest)
@@ -105,7 +131,7 @@ namespace Identity_API.Src.Controllers
             }
             return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
         }
-        [HttpDelete("Delete-user")]
+        [HttpDelete("delete-user")]
         public async Task<IActionResult> Delete()
         {
             TokenInfoDTO? tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
@@ -118,6 +144,12 @@ namespace Identity_API.Src.Controllers
             }
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
         }
-
+        [HttpPut("user/change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePassword([FromQuery] string userName,[FromBody] UpdatePasswordRequestDTO changePasswordDTO)
+        {
+            bool result = await _identityService.UpdatePasswordAsync(userName, changePasswordDTO);
+            return result ? Ok(LocalValue.Get(KeyStore.PasswordUpdated)) : BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
+        }
     }
 }

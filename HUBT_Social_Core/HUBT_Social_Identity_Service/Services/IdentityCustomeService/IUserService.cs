@@ -1,4 +1,5 @@
 ﻿using AspNetCore.Identity.MongoDbCore.Models;
+using HUBT_Social_Core.Models.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
         //Task<bool> UpdateAvatarUrlAsync(string userName, UpdateAvatarUrlRequest request);
         //Task<bool> UpdateEmailAsync(string userName, UpdateEmailRequest request);
         //Task<bool> VerifyCurrentPasswordAsync(string userName, CheckPasswordRequest request);
-        //Task<bool> UpdatePasswordAsync(string userName, UpdatePasswordRequest request);
+        Task<bool> UpdatePasswordAsync(string userName, UpdatePasswordRequestDTO request);
         //Task<bool> UpdateNameAsync(string userName, UpdateNameRequest request);
         //Task<bool> UpdatePhoneNumberAsync(string userName, UpdatePhoneNumberRequest request);
         //Task<bool> UpdateGenderAsync(string userName, UpdateGenderRequest request);

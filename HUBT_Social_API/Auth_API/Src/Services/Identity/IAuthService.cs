@@ -14,5 +14,7 @@ namespace Auth_API.Src.Services.Identity
         Task<ResponseDTO> TokenSubcriber(string userId);
         Task<AUserDTO?> IsUsed(RegisterRequest request);
 
+        Task<ResponseDTO> Forgotpassword(string userName, UpdatePasswordRequestDTO request);
+
     }
 }

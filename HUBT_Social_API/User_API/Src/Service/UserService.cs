@@ -4,6 +4,7 @@ using HUBT_Social_Base.Service;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Settings.@enum;
 using Microsoft.AspNetCore.Mvc;
+using HUBT_Social_Core.Models.Requests;
 
 namespace User_API.Src.Service
 {
@@ -35,7 +36,7 @@ namespace User_API.Src.Service
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDTO> UpdatePasswordAsync(string userName, UpdatePasswordRequest request)
+        public Task<ResponseDTO> UpdatePasswordAsync(string userName, UpdatePasswordRequestDTO request)
         {
             throw new NotImplementedException();
         }

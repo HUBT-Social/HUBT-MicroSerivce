@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace User_API.Src.UpdateUserRequest;
+namespace HUBT_Social_Core.Models.Requests;
 
-public class UpdatePasswordRequest
+public class UpdatePasswordRequestDTO
 {
-    [Required,DataType(DataType.Password)]
+    [Required, DataType(DataType.Password)]
     public string NewPassword { get; set; } = string.Empty;
 
     [DataType(DataType.Password), Compare(nameof(NewPassword))]
