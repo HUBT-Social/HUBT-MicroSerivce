@@ -19,23 +19,15 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
         Task<TUser?> FindUserByEmailAsync(string email);
         Task<bool> PromoteUserAccountAsync(string currentUserName, string targetUserName, string roleName);
 
-        //Phương thức cập nhật từng trường riêng lẻ
-        //Task<bool> UpdateAvatarUrlAsync(string userName, UpdateAvatarUrlRequest request);
-        //Task<bool> UpdateEmailAsync(string userName, UpdateEmailRequest request);
-        //Task<bool> VerifyCurrentPasswordAsync(string userName, CheckPasswordRequest request);
+
         Task<bool> UpdatePasswordAsync(string userName, UpdatePasswordRequestDTO request);
-        //Task<bool> UpdateNameAsync(string userName, UpdateNameRequest request);
-        //Task<bool> UpdatePhoneNumberAsync(string userName, UpdatePhoneNumberRequest request);
-        //Task<bool> UpdateGenderAsync(string userName, UpdateGenderRequest request);
-        //Task<bool> UpdateDateOfBirthAsync(string userName, UpdateDateOfBornRequest request);
-        //Task<bool> AddInfoUser(string userName, AddInfoUserRequest request);
+
         Task<bool> UpdateUserAsync(TUser user);
         Task<bool> DeleteUserAsync(TUser user);
         Task<bool> EnableTwoFactor(string userName);
 
         Task<bool> DisableTwoFactor(string userName);
 
-        //// Phương thức cập nhật tổng quát
-        //Task<bool> GeneralUpdateAsync(string userName, GeneralUpdateRequest request);
+
     }
 }

@@ -26,7 +26,7 @@ namespace Identity_API.Src.Controllers
     {
         private readonly ITokenService<AUser,UserToken> _tokenService = identityService.TokenService;
         private readonly IUserService<AUser, ARole> _userService = identityService.UserService;
-        [HttpPut("refreshToken")]
+        [HttpPost("refreshToken")]
         public async Task<IActionResult> IsValidateToken([FromBody] string refreshToken)
         {
             string? accessToken = Request.Headers.ExtractBearerToken();

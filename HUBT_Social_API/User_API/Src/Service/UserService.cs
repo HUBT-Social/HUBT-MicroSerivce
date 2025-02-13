@@ -5,6 +5,8 @@ using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Settings.@enum;
 using Microsoft.AspNetCore.Mvc;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using Amazon.Runtime.Internal;
 
 namespace User_API.Src.Service
 {
@@ -16,74 +18,101 @@ namespace User_API.Src.Service
             return await SendRequestAsync(path, ApiType.GET);
         }
 
-        public Task<ResponseDTO> PromoteUserAccountAsync(string currentUserName, string targetUserName, string roleName)
+        public async Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request)
         {
-            throw new NotImplementedException();
+            string path = $"promote";
+            return await SendRequestAsync(path, ApiType.POST, request, accessToken);
         }
 
-        public Task<ResponseDTO> UpdateAvatarUrlAsync(string userName, UpdateAvatarUrlRequest request)
+        private async Task<ResponseDTO> UpdateUserAsync(string accessToken, Action<UpdateUserDTO> updateAction)
         {
-            throw new NotImplementedException();
+            string path = "update-user";
+            UpdateUserDTO updateRequest = new();
+            updateAction(updateRequest);
+            return await SendRequestAsync(path, ApiType.PUT, updateRequest, accessToken);
         }
 
-        public Task<ResponseDTO> UpdateEmailAsync(string userName, UpdateEmailRequest request)
+        public Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, UpdateAvatarUrlRequest request)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto => dto.AvataUrl = request.AvatarUrl);
         }
 
-        public Task<ResponseDTO> VerifyCurrentPasswordAsync(string userName, CheckPasswordRequest request)
+        public Task<ResponseDTO> UpdateNameAsync(string accessToken, UpdateNameRequest request)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto =>
+            {
+                dto.FirstName = request.FirstName;
+                dto.LastName = request.LastName;
+            });
         }
 
-        public Task<ResponseDTO> UpdatePasswordAsync(string userName, UpdatePasswordRequestDTO request)
+        public Task<ResponseDTO> DeleteUserAsync(string accessToken)
         {
-            throw new NotImplementedException();
+            string path = $"delete-user";
+            return SendRequestAsync(path, ApiType.DELETE,null,accessToken);
         }
 
-        public Task<ResponseDTO> UpdateNameAsync(string userName, UpdateNameRequest request)
+        public Task<ResponseDTO> UpdatePhoneNumberAsync(string accessToken, UpdatePhoneNumberRequest request)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto =>
+            {
+                dto.PhoneNumber = request.PhoneNumber;
+            });
         }
 
-        public Task<ResponseDTO> UpdatePhoneNumberAsync(string userName, UpdatePhoneNumberRequest request)
+        public Task<ResponseDTO> UpdateGenderAsync(string accessToken, UpdateGenderRequest request)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto =>
+            {
+                dto.Gender = request.Gender;
+            });
         }
 
-        public Task<ResponseDTO> UpdateGenderAsync(string userName, UpdateGenderRequest request)
+        public Task<ResponseDTO> UpdateDateOfBirthAsync(string accessToken, UpdateDateOfBornRequest request)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto =>
+            {
+                dto.DateOfBirth = request.DateOfBirth;
+            });
         }
 
-        public Task<ResponseDTO> UpdateDateOfBirthAsync(string userName, UpdateDateOfBornRequest request)
+        public Task<ResponseDTO> AddInfoUser(string accessToken, AddInfoUserRequest request)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto => {
+                dto.Gender = request.Gender;
+                dto.FirstName = request.FirstName;
+                dto.LastName = request.LastName;
+                dto.PhoneNumber = request.PhoneNumber;
+                dto.DateOfBirth = request.DateOfBirth;
+            });
+        }
+        public Task<ResponseDTO> UpdateFCM(string accessToken, string FCMKey)
+        {
+            return UpdateUserAsync(accessToken, dto => {
+                dto.FCMToken= FCMKey;
+            });
+        }
+        public Task<ResponseDTO> UpdateBio(string accessToken, string bio)
+        {
+            return UpdateUserAsync(accessToken, dto => {
+                dto.Status= bio;
+            });
         }
 
-        public Task<ResponseDTO> AddInfoUser(string userName, AddInfoUserRequest request)
+        public Task<ResponseDTO> EnableTwoFactor(string accessToken)
         {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto =>
+            {
+                dto.EnableTwoFactor = true;
+            });
         }
 
-        public Task<ResponseDTO> EnableTwoFactor(string userName)
+        public Task<ResponseDTO> DisableTwoFactor(string accessToken)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseDTO> DisableTwoFactor(string userName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseDTO> GeneralUpdateAsync(string userName, GeneralUpdateRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseDTO> DeleteUserAsync(string id)
-        {
-            throw new NotImplementedException();
+            return UpdateUserAsync(accessToken, dto =>
+            {
+                dto.EnableTwoFactor = false;
+            });
         }
     }
 }

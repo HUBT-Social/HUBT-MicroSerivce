@@ -1,6 +1,6 @@
-namespace User_API.Src.UpdateUserRequest;
+namespace HUBT_Social_Core.Models.DTOs.IdentityDTO;
 
-public class PromoteUserRequest
+public class PromoteUserRequestDTO
 {
     public string UserName { get; set; } = string.Empty;
     public string RoleName { get; set; } = string.Empty;

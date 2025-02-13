@@ -24,17 +24,7 @@ namespace Auth_API.Src.Services.Identity
             string path = "auth/create-account";
             return await SendRequestAsync(path, ApiType.POST, request);
         }
-        //public async Task<ResponseDTO> TwoFactorSignIn(LoginByUserNameRequest request)
-        //{
-        //    string path = "auth/vertifile-account";
-        //    return await SendRequestAsync(path, ApiType.POST, request);
-        //}
-
-        //public async Task<ResponseDTO> TwoFactorSignUp(RegisterRequest request)
-        //{
-        //    string path = "auth/create-account";
-        //    return await SendRequestAsync(path, ApiType.POST, request);
-        //}
+       
         public async Task<AUserDTO?> IsUsed(RegisterRequest request)
         {
             if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.UserName))
@@ -62,6 +52,18 @@ namespace Auth_API.Src.Services.Identity
         {
             string path = "token";
             return await SendRequestAsync(path, ApiType.POST, userId);
+        }
+
+        public Task<ResponseDTO> RefreshToken(string accessToken, string refreshToken)
+        {
+            string path = $"token/refreshToken";
+            return SendRequestAsync(path, ApiType.POST, refreshToken, accessToken);
+        }
+
+        public Task<ResponseDTO> DeleteToken(string accessToken)
+        {
+            string path = $"token";
+            return SendRequestAsync(path, ApiType.DELETE, null, accessToken);
         }
     }
 }

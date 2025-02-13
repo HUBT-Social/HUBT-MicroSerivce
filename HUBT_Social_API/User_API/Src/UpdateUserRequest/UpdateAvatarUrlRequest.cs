@@ -5,6 +5,6 @@ namespace User_API.Src.UpdateUserRequest;
 public class UpdateAvatarUrlRequest
 {
     [FromForm]
-    public string? AvatarUrl { get; set; } = string.Empty;
+    public string AvatarUrl { get; set; } = string.Empty;
 
 }

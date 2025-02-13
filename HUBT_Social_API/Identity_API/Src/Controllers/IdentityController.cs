@@ -113,17 +113,26 @@ namespace Identity_API.Src.Controllers
                 if (!string.IsNullOrEmpty(updateRequest.PhoneNumber))
                     user.PhoneNumber = updateRequest.PhoneNumber;
 
+                if (!string.IsNullOrEmpty(updateRequest.AvataUrl))
+                    user.AvataUrl = updateRequest.AvataUrl;
+                
+                if (!string.IsNullOrEmpty(updateRequest.Status))
+                    user.Status = updateRequest.Status;
+
+                if (!string.IsNullOrEmpty(updateRequest.FCMToken))
+                    user.FCMToken = updateRequest.FCMToken;
+                
                 if (updateRequest.Gender != null)
                     user.Gender = updateRequest.Gender.Value;
 
                 if (updateRequest.DateOfBirth != null)
                     user.DateOfBirth = updateRequest.DateOfBirth.Value;
-                
+
                 if (updateRequest.EnableTwoFactor != null)
                     user.TwoFactorEnabled = updateRequest.EnableTwoFactor.Value;
-
+                
                 if (await _identityService.UpdateUserAsync(user))
-                    return Ok(LocalValue.Get(KeyStore.GeneralUpdateSuccess));
+                    return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
             }
             catch (Exception)
             {
@@ -150,6 +159,20 @@ namespace Identity_API.Src.Controllers
         {
             bool result = await _identityService.UpdatePasswordAsync(userName, changePasswordDTO);
             return result ? Ok(LocalValue.Get(KeyStore.PasswordUpdated)) : BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
+        }
+
+        [HttpPost("promote")]
+        public async Task<IActionResult> Promote([FromBody] PromoteUserRequestDTO request)
+        {
+            TokenInfoDTO? tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            AUser? user =
+                tokenInfo != null ?
+                await _identityService.FindUserByIdAsync(tokenInfo.UserId) : null;
+            if (user?.UserName != null && await _identityService.PromoteUserAccountAsync(user.UserName,request.UserName,request.RoleName))
+            {
+                return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
+            }
+            return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
         }
     }
 }

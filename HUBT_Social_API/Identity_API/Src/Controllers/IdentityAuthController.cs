@@ -32,7 +32,7 @@ namespace Identity_API.Src.Controllers
             var (result, user) = await _identityAuthService.LoginAsync(model);
             AUserDTO userDTO = _mapper.Map<AUserDTO>(user);
             if (!result.IsNotAllowed && !result.Succeeded && !result.IsLockedOut&& !result.RequiresTwoFactor)
-                return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+                return BadRequest(LocalValue.Get(KeyStore.PasswordIncorrect));
             return Ok(new { Result = result, User = userDTO });
         }
 

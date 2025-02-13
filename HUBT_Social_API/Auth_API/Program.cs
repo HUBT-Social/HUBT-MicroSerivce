@@ -10,7 +10,7 @@ namespace Auth_API
         {
             builder.Services.AddAuthorization();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGenService();
             builder.Services.ConfigureLocalization();
             builder.Services.HttpClientRegisterConfiguration(builder.Configuration);
         }
