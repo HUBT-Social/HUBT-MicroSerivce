@@ -9,7 +9,7 @@ namespace HUBT_Social_Base
 {
     public class PingController : ControllerBase
     {
-        [HttpGet("ping")]
+        [HttpGet("ping"), HttpHead("ping")]
         public IActionResult Ping()
         {
             return Ok(new { message = "Server is alive" });
