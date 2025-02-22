@@ -14,7 +14,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         Task<bool> Create(Collection collection);
         Task<bool> Delete(Collection collection);
         Task<bool> Update(Collection collection);
-        Task<IEnumerable<Collection>> GetAll();
+        Task<IEnumerable<Collection>> GetAll(int? limit = null);
         Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate);
         Task<bool> Exists(string id);
         Task<long> Count();

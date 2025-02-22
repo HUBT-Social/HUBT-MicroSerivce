@@ -85,11 +85,16 @@ namespace HUBT_Social_MongoDb_Service.Services
             }
         }
 
-        public async Task<IEnumerable<Collection>> GetAll()
+        public async Task<IEnumerable<Collection>> GetAll(int? limit = null)
         {
             try
             {
-                return await _mongoCollection.Find(_ => true).ToListAsync();
+                var query = _mongoCollection.Find(_ => true);
+                if (limit.HasValue)
+                {
+                    query = query.Limit(limit.Value);
+                }
+                return await query.ToListAsync();
             }
             catch (Exception)
             {

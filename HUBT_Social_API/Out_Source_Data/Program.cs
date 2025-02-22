@@ -1,22 +1,31 @@
-using Microsoft.EntityFrameworkCore;
-using Out_Source_Data.Datas;
+using Out_Source_Data.Configurations;
+using HUBT_Social_Core.ASP_Extensions;
 namespace Out_Source_Data
 {
     public class Program
     {
+        private static void InitConfigures(WebApplicationBuilder builder)
+        {
+            builder.Services.AddAuthorization();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+            builder.Services.AddMongoCollections(builder.Configuration);
+            builder.Services.AddLocalization();
+            builder.Services.AddMongoMapper();
+        }
+        private static void InitServices(WebApplicationBuilder builder)
+        {
+            builder.Services.AddControllers();
+        }
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddDbContext<StudentDB>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
-            builder.Services.AddControllers();
+            InitConfigures(builder);
+            InitServices(builder);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
 
             var app = builder.Build();
 
@@ -30,6 +39,7 @@ namespace Out_Source_Data
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+            app.UseLocalization();
 
             app.MapControllers();
 
