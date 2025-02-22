@@ -16,14 +16,9 @@ namespace TestLibary
         private readonly ServiceCollection _service;
         public MongoDbConfigurationTests()
         {
-            var inMemorySettings = new Dictionary<string, string?>
-                {
-                    {"HubtDataBase:ConnectionString", "mongodb://localhost:27017"},
-                    {"HubtDataBase:DatabaseName", "TestDatabase"}
-                };
-
+            
             _configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
+                .AddJsonFile("appsettings.json")
                 .Build();
             _service = new ServiceCollection();
             var dbSetting = _configuration.GetSection("HubtDataBase").Get<DatabaseSetting>();

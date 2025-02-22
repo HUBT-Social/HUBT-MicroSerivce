@@ -124,5 +124,3 @@ src/.vs/config/applicationhost.config
 .idea/
 appsettings.json
 appsettings.Development.json
-
-HUBT_Social_Core/TestLibary/*
