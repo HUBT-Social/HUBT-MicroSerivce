@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HUBT_Social_API\HUBT_Social_Firebase\HUBT_Social_Firebase.csproj" />
     <ProjectReference Include="..\HUBT_Social_Base\HUBT_Social_Base.csproj" />
     <ProjectReference Include="..\HUBT_Social_Core\HUBT_Social_Core.csproj" />
     <ProjectReference Include="..\HUBT_Social_Email_Service\HUBT_Social_Email_Service.csproj" />

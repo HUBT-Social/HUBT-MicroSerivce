@@ -6,24 +6,36 @@ using HUBT_Social_Core.Settings;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using HUBT_Social_MongoDb_Service.Services;
 using MongoDB.Bson.Serialization.Attributes;
+using Microsoft.Extensions.Configuration;
 
 namespace TestLibary
 {
     public class MongoDbConfigurationTests
     {
-        private readonly DatabaseSetting _dbSetting;
+        private readonly IConfiguration _configuration;
         private readonly ServiceCollection _service;
         public MongoDbConfigurationTests()
         {
-            _dbSetting = new DatabaseSetting
-            {
-                ConnectionString = "mongodb://localhost:27017",
-                DatabaseName = "TestDatabase"
-            };
-            _service = new ServiceCollection();
-            _service.RegisterMongoCollections(_dbSetting, typeof(TestCollection));
-        }
+            var inMemorySettings = new Dictionary<string, string?>
+                {
+                    {"HubtDataBase:ConnectionString", "mongodb://localhost:27017"},
+                    {"HubtDataBase:DatabaseName", "TestDatabase"}
+                };
 
+            _configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+            _service = new ServiceCollection();
+            var dbSetting = _configuration.GetSection("HubtDataBase").Get<DatabaseSetting>();
+            if (dbSetting != null)
+            {
+                _service.RegisterMongoCollections(dbSetting, typeof(TestCollection));
+            }
+            else
+            {
+                throw new InvalidOperationException("Database settings are not configured properly.");
+            }
+        }
         [Fact]
         public void RegisterMongoCollections_ShouldRegisterServices()
         {
