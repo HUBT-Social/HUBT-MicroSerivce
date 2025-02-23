@@ -62,6 +62,13 @@ namespace HUBT_Social_Core
                 StatusCode = System.Net.HttpStatusCode.NotFound
             });
         }
-
+        /// <summary>
+        /// Method to call the base ControllerBase Ok method.
+        /// </summary>
+        [NonAction]
+        protected OkObjectResult BaseOk(object? value)
+        {
+            return base.Ok(value);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FirebaseAdmin.Messaging;
+using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Firebase.ASP_Extensions;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Ocsp;
+using TestLibary.Service;
 using Xunit;
 
 namespace TestLibary
@@ -26,6 +28,10 @@ namespace TestLibary
                 .Build();
             _service = new ServiceCollection();
             _service.FirebaseService(_configuration);
+            _service.AddHttpClientService();
+            string? identityPath = _configuration.GetSection("HUBT_Data").Get<string>() ?? throw new Exception("Unfound Section");
+            _service.AddRegisterClientService<ITestService, TestService>(identityPath);
+            
         }
        
         [Fact]
