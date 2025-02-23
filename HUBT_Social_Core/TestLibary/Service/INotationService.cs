@@ -7,7 +7,7 @@ using HUBT_Social_Core.Models.OutSourceDataDTO;
 
 namespace TestLibary.Service
 {
-    public interface ITestService : IBaseService
+    public interface INotationService : IBaseService
     {
         Task<StudentDTO?> GetStudentByMasv(string masv);
         Task<List<TimeTableDTO>?> GetTimeTableByClassName(string className);

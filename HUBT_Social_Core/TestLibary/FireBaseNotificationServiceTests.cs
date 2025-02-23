@@ -30,7 +30,7 @@ namespace TestLibary
             _service.FirebaseService(_configuration);
             _service.AddHttpClientService();
             string? identityPath = _configuration.GetSection("HUBT_Data").Get<string>() ?? throw new Exception("Unfound Section");
-            _service.AddRegisterClientService<ITestService, TestService>(identityPath);
+            _service.AddRegisterClientService<INotationService, NotationService>(identityPath);
             
         }
        

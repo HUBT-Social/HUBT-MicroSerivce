@@ -11,7 +11,7 @@ using HUBT_Social_Base.ASP_Extentions;
 
 namespace TestLibary.Service
 {
-    public class TestService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), ITestService
+    public class NotationService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), INotationService
     {
         public async Task<AVGScoreDTO?> GetAVGScoreByMasv(string masv)
         {

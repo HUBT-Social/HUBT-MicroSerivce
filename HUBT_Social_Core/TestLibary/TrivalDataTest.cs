@@ -13,7 +13,7 @@ namespace TestLibary
     {
         private readonly IConfiguration _configuration;
         private readonly ServiceCollection _service;
-        private readonly ITestService _testService;
+        private readonly INotationService _testService;
 
         public TrivalDataTest()
         {
@@ -23,8 +23,8 @@ namespace TestLibary
             _service = new ServiceCollection();
             _service.AddHttpClientService();
             string? identityPath = _configuration.GetSection("HUBT_Data").Get<string>() ?? throw new Exception("Unfound Section");
-            _service.AddRegisterClientService<ITestService, TestService>(identityPath);
-            _testService = _service.BuildServiceProvider().GetService<ITestService>() ?? throw new Exception("Unfound Section");
+            _service.AddRegisterClientService<INotationService, NotationService>(identityPath);
+            _testService = _service.BuildServiceProvider().GetService<INotationService>() ?? throw new Exception("Unfound Section");
         }
         [Fact]
         public async void Trival_HUBT_data()

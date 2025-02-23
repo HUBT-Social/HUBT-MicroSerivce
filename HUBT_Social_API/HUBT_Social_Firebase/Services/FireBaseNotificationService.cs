@@ -8,6 +8,10 @@ public class FireBaseNotificationService : IFireBaseNotificationService
 {
     public async Task SendPushNotificationAsync(SendMessageRequest request)
     {
+        if (string.IsNullOrEmpty(request.Token))
+        {
+            throw new ArgumentException("Token is required.");
+        }
         var message = new Message
         {
             Token = request.Token,
