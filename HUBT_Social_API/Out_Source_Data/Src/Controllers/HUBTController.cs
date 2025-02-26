@@ -34,6 +34,17 @@ namespace Out_Source_Data.Src.Controllers
             StudentDTO studentDTO = _mapper.Map<StudentDTO>(studentInfo);
             return Ok(studentDTO);
         }
+        [HttpGet("sinhvien/{masv}/diem")]
+        public async Task<IActionResult> GetStudentScore2([FromRoute] string masv)
+        {
+            if (string.IsNullOrEmpty(masv)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            List<DiemSinhVien> score = await _score.Find(p => p.Masv == masv).ToListAsync();
+            if (score != null) {
+                List<ScoreDTO> scoreDTO = _mapper.Map<List<ScoreDTO>>(score);
+                return Ok(scoreDTO);
+            }
+            return NotFound(LocalValue.Get(KeyStore.UserNotFound));
+        }
         [HttpGet("sinhvien/diem")]
         public async Task<IActionResult> GetStudentScore([FromQuery] string masv)
         {
@@ -53,14 +64,22 @@ namespace Out_Source_Data.Src.Controllers
             return Ok(aVGScoreDTO);
         }
         [HttpGet("thoikhoabieu")]
-        public async Task<IActionResult> GetStudentTimeTable([FromQuery] string className)
+        public async Task<IActionResult> GetStudentTimeTable([FromQuery] string className, [FromQuery] string? thu)
         {
             if (string.IsNullOrEmpty(className)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
             List<ThoiKhoaBieu> timeTable = await _timeTable.Find(p => p.ClassName == className).ToListAsync();
-            if (timeTable == null) return NotFound(LocalValue.Get(KeyStore.UserNotFound));
+            if (timeTable != null)
+            {
+                if (!string.IsNullOrEmpty(thu))
+                {
+                    timeTable = timeTable.Where(p => p.Day == thu).ToList();
+                }
+                List<TimeTableDTO> timeTableDTOs = _mapper.Map<List<TimeTableDTO>>(timeTable);
+                return Ok(timeTableDTOs);
+            }
+            return NotFound(LocalValue.Get(KeyStore.UserNotFound));
             
-            List<TimeTableDTO> timeTableDTOs = _mapper.Map<List<TimeTableDTO>>(timeTable);
-            return Ok(timeTableDTOs);
+            
         }
         //[HttpPost("create")]
         //public async Task<IActionResult> CreateStudentData()

@@ -8,13 +8,13 @@ namespace Notation_API.Configurations
         public static IServiceCollection HttpClientRegisterConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpClientService();
-            string? identityPath = configuration.GetSection("HUBT_Data").Get<string>();
+            string? HubtPath = configuration.GetSection("HUBT_Data").Get<string>();
+            string? identityPath = configuration.GetSection("IdentityApi").Get<string>();
+            if (HubtPath != null)
+                services.AddRegisterClientService<INotationService, NotationService>(HubtPath);
             if (identityPath != null)
-            {
-                services.AddRegisterClientService<INotationService, NotationService>(identityPath);
-                return services;
-            }
-            throw new Exception("Unfound Section");
+                services.AddRegisterClientService<IUserService, UserService>(identityPath);
+            return services;
         }
     }
 }

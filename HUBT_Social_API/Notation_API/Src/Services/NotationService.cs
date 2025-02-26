@@ -29,7 +29,7 @@ namespace Notation_API.Src.Services
 
         public async Task<List<ScoreDTO>?> GetStudentScoreByMasv(string masv)
         {
-            string path = $"sinhvien/diem?masv={masv}";
+            string path = $"sinhvien/{masv}/diem";
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<ScoreDTO>>(); ;
         }

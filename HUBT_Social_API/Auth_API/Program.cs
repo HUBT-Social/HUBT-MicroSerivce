@@ -1,6 +1,7 @@
 
 using Auth_API.Configuration;
 using HUBT_Social_Core.ASP_Extensions;
+using HUBT_Social_Firebase.ASP_Extensions;
 
 namespace Auth_API
 {

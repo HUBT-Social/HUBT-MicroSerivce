@@ -14,7 +14,7 @@ namespace User_API.Src.Service
     {
         public async Task<ResponseDTO> GetUser()
         {
-            string path = $"user";
+            string path = $"userAll";
             return await SendRequestAsync(path, ApiType.GET);
         }
 
