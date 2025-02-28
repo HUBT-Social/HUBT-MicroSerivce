@@ -1,13 +1,14 @@
 using System.Text;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HUBT_Social_Core.ASP_Extensions;
-{
+
     public static class JwtConfiguration
     {
         // Phiên bản 1: Chỉ nhận configuration
@@ -34,9 +35,9 @@ namespace HUBT_Social_Core.ASP_Extensions;
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+                    ValidIssuer = jwtSetting.Issuer,
+                    ValidAudience = jwtSetting.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSetting.SecretKey))
                 };
 
                 // Cấu hình cho SignalR nếu có hubPaths
@@ -64,12 +65,12 @@ namespace HUBT_Social_Core.ASP_Extensions;
             
             services.Configure<JwtSetting>(options =>
             {
-                options.Issuer = jwtSettings.Issuer;
-                options.Audience = jwtSettings.Audience;
-                options.SecretKey = jwtSettings.SecretKey;
-                options.RefreshSecretKey = jwtSettings.RefreshSecretKey;
-                options.TokenExpirationInMinutes = jwtSettings.TokenExpirationInMinutes;
-                options.RefreshTokenExpirationInDays = jwtSettings.RefreshTokenExpirationInDays;
+                options.Issuer = jwtSetting.Issuer;
+                options.Audience = jwtSetting.Audience;
+                options.SecretKey = jwtSetting.SecretKey;
+                options.RefreshSecretKey = jwtSetting.RefreshSecretKey;
+                options.TokenExpirationInMinutes = jwtSetting.TokenExpirationInMinutes;
+                options.RefreshTokenExpirationInDays = jwtSetting.RefreshTokenExpirationInDays;
             });
 
             return services;
@@ -79,5 +80,4 @@ namespace HUBT_Social_Core.ASP_Extensions;
         {
             return hubPaths.Any(hubPath => path.StartsWithSegments(hubPath));
         }
-    }
-}
+   }
