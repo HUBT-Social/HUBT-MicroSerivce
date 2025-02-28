@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace HUBT_Social_Core.ASP_Extensions
 {
     public static class SwaggerConfiguration
     {
-        public static IServiceCollection AddSwaggerGenService(this IServiceCollection services)
+        public static IServiceCollection AddSwaggerGenService(this IServiceCollection services, Action<SwaggerGenOptions>? setupAction = null)
         {
             services.AddSwaggerGen(options =>
             {
@@ -39,6 +40,7 @@ namespace HUBT_Social_Core.ASP_Extensions
                         []
                     }
                 });
+                setupAction?.Invoke(options);
             });
 
             return services;
