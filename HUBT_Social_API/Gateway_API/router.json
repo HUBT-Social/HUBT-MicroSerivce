@@ -213,7 +213,10 @@
           "Port": 7245
         }
       ],
-      "SwaggerKey": "auth-service"
+      "SwaggerKey": "auth-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     },
     {
       "UpstreamPathTemplate": "/apiv2/auth/delete-token",
@@ -226,7 +229,10 @@
           "Port": 7245
         }
       ],
-      "SwaggerKey": "auth-service"
+      "SwaggerKey": "auth-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     },
     {
       "UpstreamPathTemplate": "/apiv2/auth/sign-up/verify-otp",
@@ -292,8 +298,22 @@
         }
       ],
       "SwaggerKey": "auth-service"
+    },
+    {
+      "UpstreamPathTemplate": "/apiv2/notation/{everything}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/notation/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7197
+        }
+      ],
+      "SwaggerKey": "notation-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     }
   ]
 }
-  
-

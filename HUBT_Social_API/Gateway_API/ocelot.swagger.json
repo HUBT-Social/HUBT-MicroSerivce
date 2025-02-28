@@ -17,6 +17,15 @@
           "Url": "https://localhost:7223/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "notation-service",
+      "Config": [
+        {
+          "Name": "Notation Service",
+          "Url": "https://localhost:7197/swagger/v1/swagger.json"
+        }
+      ]
     }
   ]
 }

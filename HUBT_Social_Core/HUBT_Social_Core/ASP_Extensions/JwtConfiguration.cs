@@ -33,6 +33,7 @@ public static class JwtConfiguration
 
             })
             .AddCookie(IdentityConstants.ApplicationScheme);
+
         services.Configure<JwtSetting>(options =>
         {
             options.Issuer = jwtSettings.Issuer;
