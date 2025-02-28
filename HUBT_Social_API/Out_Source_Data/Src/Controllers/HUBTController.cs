@@ -17,13 +17,14 @@ namespace Out_Source_Data.Src.Controllers
         IMongoService<SinhVien> student,
         IMongoService<Diemtb> aGVScore,
         IMongoService<ThoiKhoaBieu> timeTable,
+        IMongoService<DiemSinhVien> score,
         IOptions<JwtSetting> option,
         IMapper mapper) : DataLayerController(mapper, option)
     {
         private readonly IMongoService<SinhVien> _student = student;
         private readonly IMongoService<Diemtb> _aGVScore = aGVScore;
         private readonly IMongoService<ThoiKhoaBieu> _timeTable = timeTable;
-
+        private readonly IMongoService<DiemSinhVien> _score = score;
         [HttpGet("sinhvien")]
         public async Task<IActionResult> GetStudentData([FromQuery] string masv)
         {
@@ -33,7 +34,26 @@ namespace Out_Source_Data.Src.Controllers
             StudentDTO studentDTO = _mapper.Map<StudentDTO>(studentInfo);
             return Ok(studentDTO);
         }
-
+        [HttpGet("sinhvien/{masv}/diem")]
+        public async Task<IActionResult> GetStudentScore2([FromRoute] string masv)
+        {
+            if (string.IsNullOrEmpty(masv)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            List<DiemSinhVien> score = await _score.Find(p => p.Masv == masv).ToListAsync();
+            if (score != null) {
+                List<ScoreDTO> scoreDTO = _mapper.Map<List<ScoreDTO>>(score);
+                return Ok(scoreDTO);
+            }
+            return NotFound(LocalValue.Get(KeyStore.UserNotFound));
+        }
+        [HttpGet("sinhvien/diem")]
+        public async Task<IActionResult> GetStudentScore([FromQuery] string masv)
+        {
+            if (string.IsNullOrEmpty(masv)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            List<DiemSinhVien> score = await _score.Find(p => p.Masv == masv).ToListAsync();
+            if (score == null) return NotFound(LocalValue.Get(KeyStore.UserNotFound));
+            List<ScoreDTO> scoreDTO = _mapper.Map<List<ScoreDTO>>(score);
+            return BaseOk(scoreDTO);
+        }
         [HttpGet("diemtb")]
         public async Task<IActionResult> GetStudentAvgScore([FromQuery] string masv)
         {
@@ -44,14 +64,36 @@ namespace Out_Source_Data.Src.Controllers
             return Ok(aVGScoreDTO);
         }
         [HttpGet("thoikhoabieu")]
-        public async Task<IActionResult> GetStudentTimeTable([FromQuery] string className)
+        public async Task<IActionResult> GetStudentTimeTable([FromQuery] string className, [FromQuery] string? thu)
         {
             if (string.IsNullOrEmpty(className)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
             List<ThoiKhoaBieu> timeTable = await _timeTable.Find(p => p.ClassName == className).ToListAsync();
-            if (timeTable == null) return NotFound(LocalValue.Get(KeyStore.UserNotFound));
+            if (timeTable != null)
+            {
+                if (!string.IsNullOrEmpty(thu))
+                {
+                    timeTable = timeTable.Where(p => p.Day == thu).ToList();
+                }
+                List<TimeTableDTO> timeTableDTOs = _mapper.Map<List<TimeTableDTO>>(timeTable);
+                return Ok(timeTableDTOs);
+            }
+            return NotFound(LocalValue.Get(KeyStore.UserNotFound));
             
-            List<TimeTableDTO> timeTableDTOs = _mapper.Map<List<TimeTableDTO>>(timeTable);
-            return Ok(timeTableDTOs);
+            
         }
+        //[HttpPost("create")]
+        //public async Task<IActionResult> CreateStudentData()
+        //{
+        //    DiemSinhVien diem = new()
+        //    {
+        //        Masv = "B20DCCN001",
+        //        TenMonHoc = "Lap trinh C#",
+        //        Diem = 10
+        //    };
+        //    if (diem == null) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+        //    await _score.Create(diem);
+        //    return Ok(LocalValue.Get(KeyStore.FileUploadedSuccessfully));
+        //}
+
     }
 }

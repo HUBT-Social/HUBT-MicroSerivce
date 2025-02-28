@@ -25,9 +25,9 @@ namespace Identity_API.Src.Controllers
     public class IdentityController(IHubtIdentityService<AUser, ARole> identityService, IMapper mapper, IOptions<JwtSetting> options) : DataLayerController(mapper, options)
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
-        [HttpGet("user")]
+        [HttpGet("userAll")]
         [AllowAnonymous]
-        public IActionResult GetUser()
+        public IActionResult GetUserAll()
         {
 
             List<AUser>? listUser = _identityService.GetAll();
@@ -41,6 +41,23 @@ namespace Identity_API.Src.Controllers
                 return Ok(userDTOs);
                 
             }
+            return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+        }
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUser()
+        {
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            AUser? user = await _identityService.FindUserByIdAsync(tokenInfo.UserId);
+
+            if (user != null)
+            {
+                AUserDTO aUserDTO = _mapper.Map<AUserDTO>(user);
+                return Ok(aUserDTO);
+            }
+
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }

@@ -11,6 +11,7 @@ namespace Out_Source_Data.Configurations
             services.MongoMapperConfiguration<SinhVien, StudentDTO>();
             services.MongoMapperConfiguration<ThoiKhoaBieu, TimeTableDTO>();
             services.MongoMapperConfiguration<Diemtb, AVGScoreDTO>();
+            services.MongoMapperConfiguration<DiemSinhVien, ScoreDTO>();
             return services;
         }
     }
