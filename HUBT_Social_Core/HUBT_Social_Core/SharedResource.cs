@@ -1,4 +1,4 @@
-namespace HUBT_Social_Core.Settings;
+namespace HUBT_Social_Core;
 
 public class SharedResource
 {
