@@ -5,7 +5,7 @@
       "Config": [
         {
           "Name": "Auth Service",
-          "Url": "https://localhost:7245/swagger/v1/swagger.json"
+          "Url": "https://${AuthService__Host}:${AuthService__Port}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -14,7 +14,7 @@
       "Config": [
         {
           "Name": "User Service",
-          "Url": "https://localhost:7223/swagger/v1/swagger.json"
+          "Url": "https://${UserService__Host}:${UserService__Port}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -23,7 +23,7 @@
       "Config": [
         {
           "Name": "Notation Service",
-          "Url": "https://localhost:7197/swagger/v1/swagger.json"
+          "Url": "https://${NotationService__Host}:${NotationService__Port}/swagger/v1/swagger.json"
         }
       ]
     }

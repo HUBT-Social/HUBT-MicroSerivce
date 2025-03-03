@@ -1,6 +1,10 @@
 ﻿using HUBT_Social_Core.ASP_Extensions;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+
 namespace Gateway_API
 {
     public class Program
@@ -9,10 +13,25 @@ namespace Gateway_API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Configuration.AddEnvironmentVariables();
             // Add services to the container.
             builder.Services.AddJwtConfiguration(builder.Configuration);
             builder.Configuration.AddJsonFile("router.json", false, true);
-            builder.Configuration.AddJsonFile("ocelot.swagger.json", false, true);
+
+            // Read and replace placeholders in ocelot.swagger.json
+            var ocelotSwaggerJson = File.ReadAllText("ocelot.swagger.json");
+            ocelotSwaggerJson = ocelotSwaggerJson
+                .Replace("${AuthService__Host}", Environment.GetEnvironmentVariable("AuthService__Host"))
+                .Replace("${AuthService__Port}", Environment.GetEnvironmentVariable("AuthService__Port"))
+                .Replace("${UserService__Host}", Environment.GetEnvironmentVariable("UserService__Host"))
+                .Replace("${UserService__Port}", Environment.GetEnvironmentVariable("UserService__Port"))
+                .Replace("${NotationService__Host}", Environment.GetEnvironmentVariable("NotationService__Host"))
+                .Replace("${NotationService__Port}", Environment.GetEnvironmentVariable("NotationService__Port"));
+
+            // Save the modified configuration back to the file or use it directly
+            var tempFilePath = Path.GetTempFileName();
+            File.WriteAllText(tempFilePath, ocelotSwaggerJson);
+            builder.Configuration.AddJsonFile(tempFilePath, optional: false, reloadOnChange: true);
 
             // Add controllers
             builder.Services.AddControllers();
@@ -35,18 +54,6 @@ namespace Gateway_API
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    // First register regular Swagger for your Gateway API
-            //    app.UseSwagger();
-
-            //    // Then register SwaggerForOcelot for downstream services
-            //    // This creates a separate UI at /swagger/docs
-            //    app.UseSwaggerForOcelotUI(options =>
-            //    {
-            //        options.PathToSwaggerGenerator = "/swagger/docs";
-            //    });
-            //}
             app.UseSwagger();
 
             app.UseSwaggerForOcelotUI(options =>

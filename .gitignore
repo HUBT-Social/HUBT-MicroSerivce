@@ -124,3 +124,7 @@ src/.vs/config/applicationhost.config
 .idea/
 appsettings.json
 appsettings.Development.json
+
+
+docker-compose.*
+HUBT_Social_API/LaunchSettings.json
