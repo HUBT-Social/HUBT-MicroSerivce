@@ -26,8 +26,9 @@ namespace HUBT_Social_Base.Service
 
                 return await ProcessApiResponse(apiResponse);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return HandleException();
             }
         }
