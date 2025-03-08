@@ -5,7 +5,7 @@
       "Config": [
         {
           "Name": "Auth Service",
-          "Url": "https://${AuthService__Host}:${AuthService__Port}/swagger/v1/swagger.json"
+          "Url": "https://{Auth__Host}:443/swagger/v1/swagger.json"
         }
       ]
     },
@@ -14,18 +14,18 @@
       "Config": [
         {
           "Name": "User Service",
-          "Url": "https://${UserService__Host}:${UserService__Port}/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "notation-service",
-      "Config": [
-        {
-          "Name": "Notation Service",
-          "Url": "https://${NotationService__Host}:${NotationService__Port}/swagger/v1/swagger.json"
+          "Url": "https://{User__Host}:443/swagger/v1/swagger.json"
         }
       ]
     }
+    //{
+    //  "Key": "notation-service",
+    //  "Config": [
+    //    {
+    //      "Name": "Notation Service",
+    //      "Url": "https://${NotationService__Host}:${NotationService__Port}/swagger/v1/swagger.json"
+    //    }
+    //  ]
+    //}
   ]
 }

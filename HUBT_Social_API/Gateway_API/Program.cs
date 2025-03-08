@@ -12,26 +12,44 @@ namespace Gateway_API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
             builder.Configuration.AddEnvironmentVariables();
             // Add services to the container.
             builder.Services.AddJwtConfiguration(builder.Configuration);
-            builder.Configuration.AddJsonFile("router.json", false, true);
 
             // Read and replace placeholders in ocelot.swagger.json
+
+            var routerJson = File.ReadAllText("router.json");
             var ocelotSwaggerJson = File.ReadAllText("ocelot.swagger.json");
-            ocelotSwaggerJson = ocelotSwaggerJson
-                .Replace("${AuthService__Host}", Environment.GetEnvironmentVariable("AuthService__Host"))
-                .Replace("${AuthService__Port}", Environment.GetEnvironmentVariable("AuthService__Port"))
-                .Replace("${UserService__Host}", Environment.GetEnvironmentVariable("UserService__Host"))
-                .Replace("${UserService__Port}", Environment.GetEnvironmentVariable("UserService__Port"))
-                .Replace("${NotationService__Host}", Environment.GetEnvironmentVariable("NotationService__Host"))
-                .Replace("${NotationService__Port}", Environment.GetEnvironmentVariable("NotationService__Port"));
+            var services = builder.Configuration.GetSection("Services").GetChildren();
+
+            foreach (var service in services)
+            {
+                string serviceName = service.Key;
+                string hostVar = $"{{{serviceName}__Host}}";
+
+                string? host = service.Value;
+
+                if (!string.IsNullOrEmpty(host))
+                {
+                    ocelotSwaggerJson = ocelotSwaggerJson.Replace(hostVar, host);
+                    routerJson = routerJson.Replace(hostVar, host);
+                }
+            }
 
             // Save the modified configuration back to the file or use it directly
-            var tempFilePath = Path.GetTempFileName();
-            File.WriteAllText(tempFilePath, ocelotSwaggerJson);
-            builder.Configuration.AddJsonFile(tempFilePath, optional: false, reloadOnChange: true);
+            var tempOcelotPath = Path.GetTempFileName();
+            var tempRouterPath = Path.GetTempFileName();
+
+            File.WriteAllText(tempOcelotPath, ocelotSwaggerJson);
+            File.WriteAllText(tempRouterPath, routerJson);
+
+            builder.Configuration.AddJsonFile(tempOcelotPath, optional: false, reloadOnChange: true);
+            builder.Configuration.AddJsonFile(tempRouterPath, optional: false, reloadOnChange: true);
 
             // Add controllers
             builder.Services.AddControllers();
