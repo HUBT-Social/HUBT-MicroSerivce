@@ -17,15 +17,15 @@
           "Url": "https://{User__Host}:443/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "notation-service",
+      "Config": [
+        {
+          "Name": "Notation Service",
+          "Url": "https://{Notification__Host}:443/swagger/v1/swagger.json"
+        }
+      ]
     }
-    //{
-    //  "Key": "notation-service",
-    //  "Config": [
-    //    {
-    //      "Name": "Notation Service",
-    //      "Url": "https://${NotationService__Host}:${NotationService__Port}/swagger/v1/swagger.json"
-    //    }
-    //  ]
-    //}
   ]
 }

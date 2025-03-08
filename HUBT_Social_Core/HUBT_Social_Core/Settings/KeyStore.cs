@@ -154,6 +154,11 @@ namespace HUBT_Social_Core.Settings
         public const string Email2Text11 = "Email2Text11";
         public const string Email2Text12 = "Email2Text12";
         public const string Email2Text13 = "Email2Text13";
+
+
+
+        public const string NotificationSend = "NotificationSend";
+        public const string NotificationSendError = "NotificationSendError";
         public static string GetRandomAvatarDefault(Gender gender)
         {
             var random = new Random();

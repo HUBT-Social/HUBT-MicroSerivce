@@ -442,6 +442,9 @@
   <data name="Email2Text13" xml:space="preserve">
     <value>Connect with HUBTSOCIAL on Facebook, Instagram, and Twitter to stay informed, share moments, and grow with our vibrant community!</value>
   </data>
+  <data name="StoreSuccessfull" xml:space="preserve">
+    <value>Store Data Success</value>
+  </data>
   <data name="ApiError" xml:space="preserve">
     <value>SomeThings Goes wrong</value>
   </data>
@@ -454,7 +457,10 @@
   <data name="ApiForbibben" xml:space="preserve">
     <value>You have been fobidden to access this APi</value>
   </data>
-  <data name="StoreSuccessfull" xml:space="preserve">
-    <value>Store Data Success</value>
+  <data name="NotificationSend" xml:space="preserve">
+    <value>The Notification send successfull</value>
+  </data>
+  <data name="NotificationSendError" xml:space="preserve">
+    <value>Can't send the notification</value>
   </data>
 </root>

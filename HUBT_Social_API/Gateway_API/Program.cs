@@ -21,8 +21,7 @@ namespace Gateway_API
             // Add services to the container.
             builder.Services.AddJwtConfiguration(builder.Configuration);
 
-            // Read and replace placeholders in ocelot.swagger.json
-
+            // Read and replace placeholders in ocelot.swagger.json and router.json
             var routerJson = File.ReadAllText("router.json");
             var ocelotSwaggerJson = File.ReadAllText("ocelot.swagger.json");
             var services = builder.Configuration.GetSection("Services").GetChildren();
@@ -58,7 +57,7 @@ namespace Gateway_API
             builder.Services.AddEndpointsApiExplorer();
 
             // Add standard Swagger for your Gateway API
-            builder.Services.AddSwaggerGenService(op =>
+            builder.Services.AddSwaggerGen(op =>
             {
                 op.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
             });
@@ -90,3 +89,4 @@ namespace Gateway_API
         }
     }
 }
+

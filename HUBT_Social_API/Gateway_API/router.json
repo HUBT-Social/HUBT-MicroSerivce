@@ -295,22 +295,22 @@
         }
       ],
       "SwaggerKey": "auth-service"
+    },
+    {
+      "UpstreamPathTemplate": "/api/notation/{everything}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/notation/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{Notification__Host}",
+          "Port": 443
+        }
+      ],
+      "SwaggerKey": "notation-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     }
-    //{
-    //  "UpstreamPathTemplate": "/api/notation/{everything}",
-    //  "UpstreamHttpMethod": [ "Get" ],
-    //  "DownstreamPathTemplate": "/api/notation/{everything}",
-    //  "DownstreamScheme": "https",
-    //  "DownstreamHostAndPorts": [
-    //    {
-    //      "Host": "localhost",
-    //      "Port": 7197
-    //    }
-    //  ],
-    //  "SwaggerKey": "notation-service",
-    //  "AuthenticationOptions": {
-    //    "AuthenticationProviderKey": "Bearer"
-    //  }
-    //}
   ]
 }

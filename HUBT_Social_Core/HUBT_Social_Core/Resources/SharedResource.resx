@@ -444,4 +444,22 @@
   <data name="StoreSuccessfull" xml:space="preserve">
     <value />
   </data>
+  <data name="ApiError" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ApiNotFound" xml:space="preserve">
+    <value />
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ApiForbibben" xml:space="preserve">
+    <value />
+  </data>
+  <data name="NotificationSend" xml:space="preserve">
+    <value />
+  </data>
+  <data name="NotificationSendError" xml:space="preserve">
+    <value />
+  </data>
 </root>
