@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Home</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", async function () {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/statusHub", {
+                    skipNegotiation: true, 
+                    transport: signalR.HttpTransportType.WebSockets
+                })
+                .configureLogging(signalR.LogLevel.Information)
+                .withAutomaticReconnect([0, 2000, 5000, 10000])
+                .build();
+
+
+            connection.on("ReceiveStatus", function (message) {
+                console.log(message);
+                const elements = document.querySelectorAll(`[data-url]`);
+                elements.forEach(el => {
+                    if (message.includes(el.dataset.url)) {
+                        el.textContent = message;
+                    }
+                });
+            });
+            connection.onclose(() => {
+                console.log("Connection lost. Attempting to reconnect...");
+                setTimeout(start, 5000);
+            });
+            try {
+                await connection.start();
+                console.log("Connected to SignalR");
+
+                // Gửi từng server lên Hub để kiểm tra (DÙNG STREAM THAY VÌ INVOKE)
+                document.querySelectorAll("[data-url]").forEach(async (el) => {
+                    const stream = connection.stream("SpinUpServers", el.dataset.url);
+
+                    stream.subscribe({
+                        next: (message) => el.textContent = message,
+                        error: (err) => console.error("Stream error:", err),
+                        complete: () => console.log("Streaming completed for", el.dataset.url)
+                    });
+                });
+
+            } catch (err) {
+                console.error("Connection failed:", err);
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>GatewaySever Management</h1>
+    <p>This is the home page of the API.</p>
+    <div id="status">
+        <!--SERVICES-->
+    </div>
+</body>
+</html>

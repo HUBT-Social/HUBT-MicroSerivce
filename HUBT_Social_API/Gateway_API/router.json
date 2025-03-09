@@ -1,4 +1,5 @@
 {
+
   "Routes": [
     {
       "UpstreamPathTemplate": "/api/user",
@@ -298,7 +299,7 @@
     },
     {
       "UpstreamPathTemplate": "/api/notation/{everything}",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamHttpMethod": [ "Get", "Post" ],
       "DownstreamPathTemplate": "/api/notation/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -311,6 +312,20 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
+    },
+
+    {
+      "UpstreamPathTemplate": "/",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8080
+        }
+      ]
     }
+
   ]
 }

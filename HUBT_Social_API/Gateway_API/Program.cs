@@ -1,15 +1,18 @@
 ﻿using HUBT_Social_Core.ASP_Extensions;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using MMLib.SwaggerForOcelot;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
+using Gateway_API.Hubs;
+using Microsoft.Extensions.Options;
 
 namespace Gateway_API
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
@@ -63,10 +66,15 @@ namespace Gateway_API
             });
 
             // Add Swagger for Ocelot
-            builder.Services.AddSwaggerForOcelot(builder.Configuration);
+            builder.Services.AddSwaggerForOcelot(builder.Configuration, option =>
+            {
+                option.GenerateDocsForGatewayItSelf = true;
+            });
 
             // Add Ocelot services
             builder.Services.AddOcelot(builder.Configuration);
+
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -80,13 +88,20 @@ namespace Gateway_API
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
+            app.UseRouting();
+
+            // Use top-level route registrations instead of UseEndpoints
             app.MapControllers();
+            app.MapHub<SpinUpHub>("/statusHub");
+            app.MapGet("/test", () => Results.Ok("Hello"));
 
             // Use Ocelot only once
-            await app.UseOcelot();
-
+            app.UseWebSockets();
+            app.UseWhen(context => !context.Request.Path.StartsWithSegments("/statusHub"), appBuilder =>
+            {
+                appBuilder.UseOcelot().Wait();
+            });
             app.Run();
         }
     }
 }
-
