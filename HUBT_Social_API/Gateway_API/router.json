@@ -313,7 +313,6 @@
         "AuthenticationProviderKey": "Bearer"
       }
     },
-
     {
       "UpstreamPathTemplate": "/",
       "UpstreamHttpMethod": [ "Get" ],
@@ -322,7 +321,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8080
+          "Port": 80
         }
       ]
     }
