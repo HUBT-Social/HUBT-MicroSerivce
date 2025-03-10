@@ -4,7 +4,7 @@
 
 namespace Gateway_API.controllers
 {
-    [Route("")]
+    [Route("root")]
     [ApiController]
     public class LocalController(IConfiguration configuration) : ControllerBase
     {
