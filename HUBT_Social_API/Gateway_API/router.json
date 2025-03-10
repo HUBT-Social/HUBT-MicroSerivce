@@ -312,19 +312,19 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
-    },
-    {
-      "UpstreamPathTemplate": "/",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DownstreamPathTemplate": "/",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 80
-        }
-      ]
     }
+    //{
+    //  "UpstreamPathTemplate": "/",
+    //  "UpstreamHttpMethod": [ "Get" ],
+    //  "DownstreamPathTemplate": "/",
+    //  "DownstreamScheme": "http",
+    //  "DownstreamHostAndPorts": [
+    //    {
+    //      "Host": "localhost",
+    //      "Port": 8080
+    //    }
+    //  ]
+    //}
 
   ]
 }

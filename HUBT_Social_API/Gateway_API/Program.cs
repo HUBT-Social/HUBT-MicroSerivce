@@ -93,14 +93,15 @@ namespace Gateway_API
             // Use top-level route registrations instead of UseEndpoints
             app.MapControllers();
             app.MapHub<SpinUpHub>("/statusHub");
-            app.MapGet("/test", () => Results.Ok("Hello"));
 
             // Use Ocelot only once
             app.UseWebSockets();
-            app.UseWhen(context => !context.Request.Path.StartsWithSegments("/statusHub"), appBuilder =>
-            {
-                appBuilder.UseOcelot().Wait();
-            });
+            app.UseWhen(context =>
+                !(context.Request.Path == "/" || context.Request.Path.StartsWithSegments("/statusHub")),
+                appBuilder =>
+                {
+                    appBuilder.UseOcelot().Wait();
+                });
             app.Run();
         }
     }
