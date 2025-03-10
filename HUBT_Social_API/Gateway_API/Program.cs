@@ -97,7 +97,7 @@ namespace Gateway_API
             // Use Ocelot only once
             app.UseWebSockets();
             app.UseWhen(context =>
-                !(context.Request.Path == "/root" || context.Request.Path.StartsWithSegments("/statusHub")),
+                !(context.Request.Path == "/" || context.Request.Path.StartsWithSegments("/statusHub")),
                 appBuilder =>
                 {
                     appBuilder.UseOcelot().Wait();

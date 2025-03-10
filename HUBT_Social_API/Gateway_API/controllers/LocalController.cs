@@ -1,21 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Gateway_API.controllers
 {
-    [Route("root")]
+    [Route("")]
     [ApiController]
     public class LocalController(IConfiguration configuration) : ControllerBase
     {
         private readonly IConfiguration _configuration = configuration;
 
-        // GET: api/<LocalController>
         [HttpGet]
         public ContentResult Init()
         {
-            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "home.html");
-            var htmlContent = System.IO.File.ReadAllText(htmlPath);
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "Gateway_API.Templates.home.html"; // Thay bằng namespace của bạn
+
+            string htmlContent;
+
+            using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                {
+                    return new ContentResult
+                    {
+                        Content = "Error: home.html not found in resources.",
+                        ContentType = "text/plain",
+                        StatusCode = 500
+                    };
+                }
+
+                using StreamReader reader = new StreamReader(stream);
+                htmlContent = reader.ReadToEnd();
+            }
 
             var services = _configuration.GetSection("Services").GetChildren();
             var statusHtml = "";
@@ -25,17 +43,11 @@ namespace Gateway_API.controllers
                 string serviceName = service.Key;
                 string? serviceUrl = service.Value;
 
-                if (string.IsNullOrEmpty(serviceUrl))
-                {
-                    statusHtml += $"<p>{serviceName} URL is not configured.</p>";
-                }
-                else
-                {
-                    statusHtml += $"<p>{serviceName}: <span data-url='{serviceUrl}' class='status'>Checking...</span></p>";
-                }
+                statusHtml += string.IsNullOrEmpty(serviceUrl)
+                    ? $"<p>{serviceName} URL is not configured.</p>"
+                    : $"<p>{serviceName}: <span data-url='{serviceUrl}' class='status'>Checking...</span></p>";
             }
 
-            // Thay thế placeholder trong file HTML
             htmlContent = htmlContent.Replace("<!--SERVICES-->", statusHtml);
 
             return new ContentResult
@@ -45,6 +57,5 @@ namespace Gateway_API.controllers
                 StatusCode = 200
             };
         }
-
     }
 }
