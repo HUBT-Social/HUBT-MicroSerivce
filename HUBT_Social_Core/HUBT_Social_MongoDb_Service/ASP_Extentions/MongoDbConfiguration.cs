@@ -14,8 +14,12 @@ public static class MongoDbConfiguration
         params Type[] collections)
         
     {
-        var client = new MongoClient(dbSetting.ConnectionString);
+        // Initialize MongoDB client and database
+        MongoClient client = new(dbSetting.ConnectionString);
         var database = client.GetDatabase(dbSetting.DatabaseName);
+
+        var collectio = database.ListCollectionNames().ToList();
+        Console.WriteLine($"Collections in database: {string.Join(", ", collectio)}");
 
         foreach (Type collectionType in collections)
         {

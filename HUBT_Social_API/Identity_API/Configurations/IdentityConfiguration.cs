@@ -17,6 +17,7 @@ public static class IdentityConfiguration
             services.AddCustomIdentity<AUser, ARole>(databaseSetting).AddTokenManager<AUser,ARole,UserToken>();
             return services;
         }
-        throw new Exception("Connection fail");
+        Console.WriteLine("Unable to connect to AuthService");
+        return services;
     }
 }
