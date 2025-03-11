@@ -18,6 +18,12 @@
   <ItemGroup>
     <Folder Include="Src\NewFolder\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.dockerignore" Link=".dockerignore">
+      <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
+    </None>
+  </ItemGroup>
 	
 	<ItemGroup>
 		<Content Update="appsettings.Development.json">
