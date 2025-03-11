@@ -53,6 +53,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HUBT_Social_Chat_Service", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HUBT_Social_Chat_Resources", "HUBT_Social_Chat_Resources\HUBT_Social_Chat_Resources.csproj", "{0F78F210-6ABC-48D9-A2ED-C38ADAAE444F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{B78DBCB1-DE4F-46EE-814E-A5B34B963F33}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E406847C-4303-4FD8-89D2-89991856583C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +139,14 @@ Global
 		{0F78F210-6ABC-48D9-A2ED-C38ADAAE444F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F78F210-6ABC-48D9-A2ED-C38ADAAE444F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F78F210-6ABC-48D9-A2ED-C38ADAAE444F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B78DBCB1-DE4F-46EE-814E-A5B34B963F33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B78DBCB1-DE4F-46EE-814E-A5B34B963F33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B78DBCB1-DE4F-46EE-814E-A5B34B963F33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B78DBCB1-DE4F-46EE-814E-A5B34B963F33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E406847C-4303-4FD8-89D2-89991856583C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E406847C-4303-4FD8-89D2-89991856583C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E406847C-4303-4FD8-89D2-89991856583C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E406847C-4303-4FD8-89D2-89991856583C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +174,7 @@ Global
 		{A83A2964-ACE4-41B9-8BCD-8E0EE7009F97} = {A8F027CA-0B5A-4418-9093-EC787AD3EDA3}
 		{EEA41CB5-D1AA-4B00-9563-618DF0E795B9} = {CA0A645C-1C07-4F47-A6CC-FC01D45AD1A7}
 		{0F78F210-6ABC-48D9-A2ED-C38ADAAE444F} = {CA0A645C-1C07-4F47-A6CC-FC01D45AD1A7}
+		{B78DBCB1-DE4F-46EE-814E-A5B34B963F33} = {A8F027CA-0B5A-4418-9093-EC787AD3EDA3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D1A8AE12-92AC-4734-9D17-A1724DD8C383}

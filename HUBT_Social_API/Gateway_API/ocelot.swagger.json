@@ -5,7 +5,8 @@
       "Config": [
         {
           "Name": "Auth Service",
-          "Url": "https://localhost:7245/swagger/v1/swagger.json"
+          "version": "v1",
+          "Url": "https://{Auth__Host}:443/swagger/v1/swagger.json"
         }
       ]
     },
@@ -14,7 +15,8 @@
       "Config": [
         {
           "Name": "User Service",
-          "Url": "https://localhost:7223/swagger/v1/swagger.json"
+          "version": "v1",
+          "Url": "https://{User__Host}:443/swagger/v1/swagger.json"
         }
       ]
     },
@@ -23,9 +25,20 @@
       "Config": [
         {
           "Name": "Notation Service",
-          "Url": "https://localhost:7197/swagger/v1/swagger.json"
+          "version": "v1",
+          "Url": "https://{Notification__Host}:443/swagger/v1/swagger.json"
         }
       ]
     }
+    //{
+    //  "Key": "local-service",
+    //  "Config": [
+    //    {
+    //      "Name": "Local Service",
+    //      "version": "v1",
+    //      "Url": "http://localhost:80/swagger/v1/swagger.json"
+    //    }
+    //  ]
+    //}
   ]
 }

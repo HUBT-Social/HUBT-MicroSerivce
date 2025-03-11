@@ -7,7 +7,7 @@ using HUBT_Social_Core.Models.OutSourceDataDTO;
 
 namespace Notation_API.Src.Services
 {
-    public interface INotationService : IBaseService
+    public interface IOutSourceService : IBaseService
     {
         Task<StudentDTO?> GetStudentByMasv(string masv);
         Task<List<TimeTableDTO>?> GetTimeTableByClassName(string className);

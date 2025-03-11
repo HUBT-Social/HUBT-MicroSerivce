@@ -8,18 +8,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Notation_API.Src.Services;
 using MongoDB.Driver;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Notation_API.Src.Controllers
 {
     [Route("api/notation")]
     [ApiController]
-    public class WarningController(INotationService notationService,
+    [Authorize]
+    public class WarningController(IOutSourceService notationService,
         IFireBaseNotificationService fireBaseNotificationService,
         IUserService userService
         ) : ControllerBase
     {
         private readonly IUserService _userService = userService;
-        private readonly INotationService _notationService = notationService;
+        private readonly IOutSourceService _notationService = notationService;
         private readonly IFireBaseNotificationService _fireBaseNotificationService = fireBaseNotificationService;
         [HttpGet("check-score")]
         public async Task<IActionResult> GetAVGScoreByMasv(string masv)
@@ -47,7 +49,7 @@ namespace Notation_API.Src.Controllers
                         Title = "Cảnh báo điểm số!!!",
                         Body = $"Sinh viên {result.MaSV} có điểm trung bình 10 là {result.DiemTB10}, điểm trung bình 4 là {result.DiemTB4}."
                     };
-                    await _fireBaseNotificationService.SendPushNotificationWarrningAsync(message);
+                    await _fireBaseNotificationService.SendNotificationAsync(message);
                 }
                 else
                 {
@@ -57,36 +59,19 @@ namespace Notation_API.Src.Controllers
                         Title = "điểm số của bạn",
                         Body = $"Sinh viên {result.MaSV} có điểm trung bình 10 là {result.DiemTB10}, điểm trung bình 4 là {result.DiemTB4}."
                     };
-                    await _fireBaseNotificationService.SendPushNotificationInfromationAsync(message);
+                    await _fireBaseNotificationService.SendNotificationAsync(message);
                 }
 
                 return  Ok(LocalValue.Get(KeyStore.MessageSentSuccessfully));
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
             }
         }
 
         
-        //[HttpGet("get-student")]
-        //public async Task<IActionResult> GetStudentByMasv(string masv)
-        //{
-        //    StudentDTO? result = await _notationService.GetStudentByMasv(masv);
-        //    return result != null ? Ok(result) : NotFound();
-        //}
-        //[HttpGet("get-student-score")]
-        //public async Task<IActionResult> GetStudentScoreByMasv(string masv)
-        //{
-        //    List<ScoreDTO>? result = await _notationService.GetStudentScoreByMasv(masv);
-        //    return result != null ? Ok(result) : NotFound();
-        //}
-        //[HttpGet("get-time-table")]
-        //public async Task<IActionResult> GetTimeTableByClassName(string className)
-        //{
-        //    List<TimeTableDTO>? result = await _notationService.GetTimeTableByClassName(className);
-        //    return result != null ? Ok(result) : NotFound();
-        //}
     }
 }

@@ -125,5 +125,6 @@ src/.vs/config/applicationhost.config
 appsettings.json
 appsettings.Development.json
 
+
 docker-compose.*
 HUBT_Social_API/LaunchSettings.json

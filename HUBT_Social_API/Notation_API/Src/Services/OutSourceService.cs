@@ -11,7 +11,7 @@ using HUBT_Social_Base.ASP_Extentions;
 
 namespace Notation_API.Src.Services
 {
-    public class NotationService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), INotationService
+    public class OutSourceService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), IOutSourceService
     {
         public async Task<AVGScoreDTO?> GetAVGScoreByMasv(string masv)
         {
