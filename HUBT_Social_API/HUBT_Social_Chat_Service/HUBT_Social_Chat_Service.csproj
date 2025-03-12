@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.74" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HUBT_Social_Core\HUBT_Social_MongoDb_Service\HUBT_Social_MongoDb_Service.csproj" />
+    <ProjectReference Include="..\HUBT_Social_Chat_Resources\HUBT_Social_Chat_Resources.csproj" />
+  </ItemGroup>
+
+</Project>
