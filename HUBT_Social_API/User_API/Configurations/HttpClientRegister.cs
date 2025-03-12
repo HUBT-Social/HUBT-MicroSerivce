@@ -9,12 +9,18 @@ namespace User_API.Configurations
         {
             services.AddHttpClientService();
             string? identityPath = configuration.GetSection("IdentityApi").Get<string>();
+            string? NotationPath = configuration.GetSection("NotationApi").Get<string>();
             if (identityPath != null)
             {
                 services.AddRegisterClientService<IUserService, UserService>(identityPath);
-                return services;
             }
-            throw new Exception("Unfound Section");
+            if (NotationPath != null)
+            {
+                services.AddRegisterClientService<INotationService, NotationService>(NotationPath);
+            }
+
+
+            return services;
         }
     }
 }
