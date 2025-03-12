@@ -4,6 +4,17 @@ namespace HUBT_Social_Core.Settings
 {
     public static class KeyStore
     {
+
+        // Các key cho thông điệp liên quan Thong baos
+
+        public const string NotationSomeOneLoginYouAccountTitle = "NotationSomeOneLoginYouAccountTittle";
+        public const string NotationSomeOneLoginYouAccountBody = "NotationSomeOneLoginYouAccountBody";
+
+
+
+
+
+
         // Các key cho thông điệp liên quan đến đăng ký và xác minh 
         public const string InvalidInformation = "InvalidInformation";
         public const string RegistrationFailed = "RegistrationFailed";
@@ -158,6 +169,7 @@ namespace HUBT_Social_Core.Settings
 
 
         public const string NotificationSend = "NotificationSend";
+        public const string InvalidFCMToken = "InvalidFCMToken";
         public const string NotificationSendError = "NotificationSendError";
         public static string GetRandomAvatarDefault(Gender gender)
         {

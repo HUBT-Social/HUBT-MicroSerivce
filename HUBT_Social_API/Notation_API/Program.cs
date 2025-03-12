@@ -12,6 +12,7 @@ namespace Notation_API
             builder.Services.AddSwaggerGenService();
             builder.Services.ConfigureLocalization();
             builder.Services.HttpClientRegisterConfiguration(builder.Configuration);
+            builder.Services.AddJwtConfiguration(builder.Configuration);
             builder.Services.FirebaseService(builder.Configuration);
         }
         private static void InitServices(WebApplicationBuilder builder)

@@ -68,7 +68,7 @@ namespace Notation_API.Src.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+                return BadRequest(LocalValue.Get(KeyStore.InvalidFCMToken));
             }
         }
 

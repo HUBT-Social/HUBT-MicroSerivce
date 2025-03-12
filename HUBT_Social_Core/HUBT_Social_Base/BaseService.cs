@@ -23,6 +23,18 @@ namespace HUBT_Social_Base
 
             return await _httpService.SendAsync(request);
         }
+        protected async Task<HttpResponseMessage> SendActionResultRequestAsync(string endpoint, ApiType apiType, object? data = null, string? accessToken = null)
+        {
+            var request = new RequestDTO
+            {
+                Url = $"{BasePath.TrimEnd('/')}/{endpoint.TrimStart('/')}",
+                ApiType = apiType,
+                Data = data,
+                AccessToken = accessToken
+            };
+
+            return await _httpService.SendAsyncCore(request);
+        }
     }
 
     public interface IBaseService

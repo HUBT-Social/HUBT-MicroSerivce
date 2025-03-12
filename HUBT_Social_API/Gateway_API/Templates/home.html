@@ -3,50 +3,199 @@
 <head>
     <meta charset="utf-8" />
     <title>Home</title>
+    <style>
+        /* Import font đẹp */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --primary-color: #38bdf8;
+            --secondary-color: #1e293b;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Header */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Paragraph */
+        p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        /* Container Status */
+        #status {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Box Status */
+        [data-url] {
+            background: var(--secondary-color);
+            padding: 15px 20px;
+            min-width: 250px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            transition: all 0.3s ease-in-out;
+        }
+
+            /* Hiệu ứng khi có dữ liệu */
+            [data-url]:not(:empty) {
+                background: var(--primary-color);
+                color: #0f172a;
+            }
+
+            /* Hover */
+            [data-url]:hover {
+                transform: scale(1.05);
+                border-color: var(--primary-color);
+            }
+
+        /* Animation khi load */
+        @keyframes loading {
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        [data-url]:empty::after {
+            content: "Loading...";
+            display: block;
+            font-size: 1rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            animation: loading 1.5s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            [data-url] {
+                font-size: 1rem;
+                padding: 12px 16px;
+            }
+        }
+        .server {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--secondary-color);
+            padding: 15px;
+            min-width: 250px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            transition: all 0.3s ease-in-out;
+            position: relative;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(90deg);
+        }
+    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", async function () {
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl("/statusHub", {
-                    skipNegotiation: true, 
+                    skipNegotiation: true,
                     transport: signalR.HttpTransportType.WebSockets
                 })
                 .configureLogging(signalR.LogLevel.Information)
                 .withAutomaticReconnect([0, 2000, 5000, 10000])
                 .build();
 
-
             connection.on("ReceiveStatus", function (message) {
                 console.log(message);
-                const elements = document.querySelectorAll(`[data-url]`);
-                elements.forEach(el => {
+                document.querySelectorAll(".server").forEach(el => {
                     if (message.includes(el.dataset.url)) {
-                        el.textContent = message;
+                        el.querySelector(".status-text").textContent = message;
                     }
                 });
             });
-            connection.onclose(() => {
-                console.log("Connection lost. Attempting to reconnect...");
-                setTimeout(start, 5000);
-            });
+
             try {
                 await connection.start();
                 console.log("Connected to SignalR");
 
-                // Gửi từng server lên Hub để kiểm tra (DÙNG STREAM THAY VÌ INVOKE)
-                document.querySelectorAll("[data-url]").forEach(async (el) => {
-                    const stream = connection.stream("SpinUpServers", el.dataset.url);
-
-                    stream.subscribe({
-                        next: (message) => el.textContent = message,
-                        error: (err) => console.error("Stream error:", err),
-                        complete: () => console.log("Streaming completed for", el.dataset.url)
-                    });
+                // Lặp qua từng server để bắt đầu streaming dữ liệu
+                document.querySelectorAll(".server").forEach(async (el) => {
+                    requestStatus(el);
                 });
 
             } catch (err) {
                 console.error("Connection failed:", err);
             }
+
+            // Hàm gửi request kiểm tra trạng thái server
+            function requestStatus(el) {
+                const stream = connection.stream("SpinUpServers", el.dataset.url);
+
+                stream.subscribe({
+                    next: (message) => el.querySelector(".status-text").textContent = message,
+                    error: (err) => console.error("Stream error:", err),
+                    complete: () => console.log("Streaming completed for", el.dataset.url)
+                });
+            }
+
+            // Bắt sự kiện khi bấm nút "Refresh"
+            document.querySelectorAll(".refresh-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const serverEl = this.closest(".server");
+                    serverEl.querySelector(".status-text").textContent = "Refreshing...";
+                    requestStatus(serverEl);
+                });
+            });
+
         });
     </script>
 </head>

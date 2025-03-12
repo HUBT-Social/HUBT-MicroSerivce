@@ -2,13 +2,12 @@
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Core.Settings.@enum;
 using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Mvc;
+using HUBT_Social_Base.ASP_Extentions;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-
 
 namespace HUBT_Social_Base.Service
 {
@@ -32,6 +31,27 @@ namespace HUBT_Social_Base.Service
                 return HandleException();
             }
         }
+        public async Task<HttpResponseMessage> SendAsyncCore(RequestDTO request)
+        {
+            try
+            {
+                HttpClient client = _httpClientFactory.CreateClient();
+                HttpRequestMessage message = CreateHttpRequestMessage(request);
+                HttpResponseMessage apiResponse = await client.SendAsync(message);
+
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Content = new StringContent("An error occurred while processing your request. Please try again.")
+                };
+            }
+        }
+
 
         private static HttpRequestMessage CreateHttpRequestMessage(RequestDTO request)
         {
@@ -68,7 +88,6 @@ namespace HUBT_Social_Base.Service
             _ => HttpMethod.Get,
         };
 
-
         private static async Task<ResponseDTO> ProcessApiResponse(HttpResponseMessage apiResponse)
         {
             return apiResponse.StatusCode switch
@@ -83,11 +102,9 @@ namespace HUBT_Social_Base.Service
                 _ => CreateErrorResponse(KeyStore.ApiError)
             };
         }
-
         private static async Task<ResponseDTO> HandleSuccessResponse(HttpResponseMessage response)
         {
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ResponseDTO>(content)
+            return await response.ConvertTo<ResponseDTO>()
                    ?? CreateErrorResponse(KeyStore.ApiError);
         }
 

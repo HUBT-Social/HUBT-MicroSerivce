@@ -5,8 +5,9 @@ using MMLib.SwaggerForOcelot;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
-using Gateway_API.Hubs;
 using Microsoft.Extensions.Options;
+using Gateway_API;
+using Gateway_API.Hubs;
 
 namespace Gateway_API
 {

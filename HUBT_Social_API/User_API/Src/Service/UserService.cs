@@ -12,10 +12,10 @@ namespace User_API.Src.Service
 {
     public class UserService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), IUserService
     {
-        public async Task<ResponseDTO> GetUser()
+        public async Task<ResponseDTO> GetUser(string accessToken)
         {
-            string path = $"userAll";
-            return await SendRequestAsync(path, ApiType.GET);
+            string path = $"user";
+            return await SendRequestAsync(path, ApiType.GET,null,accessToken);
         }
 
         public async Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request)

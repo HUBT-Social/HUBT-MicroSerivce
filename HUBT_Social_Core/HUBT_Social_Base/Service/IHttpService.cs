@@ -5,6 +5,8 @@ namespace HUBT_Social_Base.Service
 {
     public interface IHttpService
     {
+        Task<HttpResponseMessage> SendAsyncCore(RequestDTO request);
         Task<ResponseDTO> SendAsync(RequestDTO request);
+
     }
 }

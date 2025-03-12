@@ -9,7 +9,7 @@ namespace User_API.Src.Service
 {
     public interface IUserService : IBaseService
     {
-        Task<ResponseDTO> GetUser();
+        Task<ResponseDTO> GetUser(string accessToken);
         Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request);
         Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, UpdateAvatarUrlRequest request);
         Task<ResponseDTO> UpdateNameAsync(string accessToken, UpdateNameRequest request);

@@ -31,7 +31,7 @@ namespace Gateway_API.controllers
                     };
                 }
 
-                using StreamReader reader = new StreamReader(stream);
+                using StreamReader reader = new(stream);
                 htmlContent = reader.ReadToEnd();
             }
 
@@ -44,8 +44,12 @@ namespace Gateway_API.controllers
                 string? serviceUrl = service.Value;
 
                 statusHtml += string.IsNullOrEmpty(serviceUrl)
-                    ? $"<p>{serviceName} URL is not configured.</p>"
-                    : $"<p>{serviceName}: <span data-url='{serviceUrl}' class='status'>Checking...</span></p>";
+                ? $"<p>{serviceName} URL is not configured.</p>"
+                : $@"
+                    <div class='server' data-url='{serviceUrl}'>
+                        <strong>{serviceName}</strong>: <span class='status-text'>Checking...</span>
+                        <button class='refresh-btn'>🔄</button>
+                    </div><br />";
             }
 
             htmlContent = htmlContent.Replace("<!--SERVICES-->", statusHtml);

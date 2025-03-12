@@ -462,4 +462,13 @@
   <data name="NotificationSendError" xml:space="preserve">
     <value />
   </data>
+  <data name="InvalidFCMToken" xml:space="preserve">
+    <value />
+  </data>
+  <data name="NotationSomeOneLoginYouAccountTittle" xml:space="preserve">
+    <value />
+  </data>
+  <data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
+    <value />
+  </data>
 </root>

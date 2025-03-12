@@ -463,4 +463,13 @@
   <data name="NotificationSendError" xml:space="preserve">
     <value>Can't send the notification</value>
   </data>
+  <data name="InvalidFCMToken" xml:space="preserve">
+    <value>Invalid FCM Token due to The token has no longer been use</value>
+  </data>
+  <data name="NotationSomeOneLoginYouAccountTittle" xml:space="preserve">
+    <value>You account have been login some where else</value>
+  </data>
+  <data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
+    <value>There some one login you account at: </value>
+  </data>
 </root>
