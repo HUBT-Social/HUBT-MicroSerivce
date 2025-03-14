@@ -2,9 +2,13 @@
 using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.InitRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest;
+using HUBT_Social_Chat_Resources.Dtos.Response;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace Chat_API.Src.Controllers
 {
@@ -81,26 +85,65 @@ namespace Chat_API.Src.Controllers
             return success ? Ok(message) : BadRequest(message);
         }
 
-        [HttpGet("get-message-history")]
-        public async Task<IActionResult> GetMessageHistory(GetHistoryRequest request)
+        [HttpGet("get-history")]
+        public async Task<IActionResult> GetMessageHistory([FromQuery] GetHistoryRequest request)
         {
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
             var messages = await _roomService.GetMessageHistoryAsync(request, token);
-            return Ok(messages);
+            return messages != null ? Ok(messages.message) : BadRequest();
         }
 
-        [HttpGet("get-room-users")]
-        public async Task<IActionResult> GetRoomUser(GetMemberInGroupRequest request)
+        [HttpGet("get-room-user")]
+        public async Task<IActionResult> GetUser([FromQuery] GetMemberInGroupRequest request)
         {
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-
             var users = await _roomService.GetRoomUserAsync(request, token);
-            return Ok(users);
+            return Ok(users.response);
+        }
+
+        [HttpGet("get-member")]
+        public async Task<IActionResult> GetRoomUser([FromQuery] string groupId)
+        {
+            string? token = ReadTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            GetMemberInGroupRequest request = new GetMemberInGroupRequest()
+            {
+                groupId = groupId
+            };
+            GetMemberGroup users = await _roomService.GetRoomUserAsync(request, token);
+
+            if (users == null || users.response == null)
+            {
+                return BadRequest();
+            }
+
+            if (string.IsNullOrEmpty(users.caller))
+            {
+                return Unauthorized();
+            }
+
+            var currentUser = users.response.FirstOrDefault(u => u.id == users.caller);
+
+            if (currentUser == null)
+            {
+                return Unauthorized("Người dùng hiện tại không có trong phòng chat.");
+            }
+
+            return Ok(new
+            {
+                GroupId = groupId,
+                CurrentUser = currentUser,
+                OtherUsers = users.response
+                    .Where(u => u.id != users.caller)
+                    .ToList()
+            });
+
         }
 
     }

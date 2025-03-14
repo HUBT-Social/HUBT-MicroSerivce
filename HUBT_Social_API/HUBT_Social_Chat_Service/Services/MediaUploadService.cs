@@ -7,6 +7,10 @@ using HUBT_Social_Chat_Service.Interfaces;
 using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Service.Extention;
 using HUBT_Social_Chat_Resources.Dtos.Collections;
+using HUBT_Social_MongoDb_Service.Services;
+using HUBT_Social_MongoDb_Service.ASP_Extentions;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Channels;
 
 namespace HUBT_Social_Chat_Service.Services
 {
@@ -17,50 +21,38 @@ namespace HUBT_Social_Chat_Service.Services
         {
             _cloudService = cloudService;
         }
-        public async Task<(bool Success, MessageModel? Message)> UploadMediaAsync(MediaRequest mediaRequest, IMongoCollection<ChatGroupModel> _chatRooms)
+        public async Task<(bool Success, MessageModel? Message)> UploadMediaAsync(MediaRequest mediaRequest, IMongoService<ChatGroupModel> _chatRooms)
         {
-
-            // Lấy ChatRoom từ MongoDB
-            var filterGetChatRoom = Builders<ChatGroupModel>.Filter.Eq(cr => cr.Id, mediaRequest.GroupId);
-            ChatGroupModel chatRoom = await _chatRooms.Find(filterGetChatRoom).FirstOrDefaultAsync();
-
+            var chatRoom = await _chatRooms.Find(cr => cr.Id == mediaRequest.GroupId).FirstOrDefaultAsync();
             if (chatRoom == null)
             {
-                return (false, null); // Không có chatroom, trả về false và null
+                return (false, null);
             }
 
-
-            List<FilePaths> FilePaths = new List<FilePaths>();
-
-
-            // Xử lý danh sách file tải lên
-            if (mediaRequest.Medias != null)
+            var media = mediaRequest.Medias;
+            if (media?.file == null)
             {
-
-                List<FileUploadResult> fileUrls = await _cloudService.UploadFilesAsync(mediaRequest.Medias);
-                
-                if (fileUrls != null)
-                {
-                    foreach (var item in fileUrls)
-                    {
-                        FilePaths newFilePath = new FilePaths
-                        {
-                            Url = item.Url,
-                            Type = item.ResourceType
-                        };
-                        FilePaths.Add(newFilePath);
-                    }
-
-
-                }
+                return (false, null);
             }
 
-            MessageModel message = await MessageModel.CreateMediaMessageAsync(mediaRequest.UserId, FilePaths, mediaRequest.ReplyToMessage);
+            // Upload file lên cloud
+            var fileResult = await _cloudService.UploadFileAsync(media.file);
+            if (fileResult == null)
+            {
+                return (false, null);
+            }
 
-        
-            UpdateResult updateResult = await _chatRooms.SaveChatItemAsync(chatRoom.Id, message);
+            var filePath = new FilePaths
+            {
+                Url = fileResult.Url,
+                Type = fileResult.ResourceType
+            };
 
-            return (updateResult.ModifiedCount > 0, message);
+            var message = await MessageModel.CreateMediaMessageAsync(mediaRequest.UserId, filePath , mediaRequest.Medias.Id, mediaRequest.ReplyToMessage);
+            var updateResult = await _chatRooms.SaveChatItemAsync(chatRoom.Id, message);
+
+            return (updateResult, message);
         }
+
     }
 }

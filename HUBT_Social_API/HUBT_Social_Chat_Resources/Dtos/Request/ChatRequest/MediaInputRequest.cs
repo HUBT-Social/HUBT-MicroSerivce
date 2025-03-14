@@ -6,7 +6,7 @@ namespace HUBT_Social_Chat_Resources.Dtos.Request.ChatRequest
     public class MediaInputRequest
     {
         public string GroupId { get; set; } = string.Empty;
-        public List<IFormFile> Medias { get; set; }
+        public List<FileRequest> Medias { get; set; }
         public ReplyMessage? ReplyToMessage { get; set; }
     }
 }

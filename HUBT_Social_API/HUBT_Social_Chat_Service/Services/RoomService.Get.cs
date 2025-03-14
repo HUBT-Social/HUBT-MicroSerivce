@@ -26,10 +26,14 @@ namespace HUBT_Social_Chat_Service.Services
             // Nếu không tìm thấy phòng chat, trả về danh sách rỗng
             if (chatRoom == null)
                 return messages;
-
+            int totalMessages = chatRoom.Content.Count;
             int count = request.Limit ?? 20;
             int startIndex = chatRoom.Content.Count - count - request.CurrentQuantity;
-
+            if (startIndex < 0)
+            {
+                startIndex = 0;
+                count = totalMessages - request.CurrentQuantity;
+            }
 
 
             // Tìm ChatHistory dựa trên RoomId

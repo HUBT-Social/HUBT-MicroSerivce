@@ -1,11 +1,11 @@
-﻿
-
-using HUBT_Social_Base;
+﻿using HUBT_Social_Base;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest;
 using HUBT_Social_Chat_Resources.Dtos.Response;
 using HUBT_Social_Chat_Resources.Models;
+using HUBT_Social_Core.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chat_API.Src.Interfaces
 {
@@ -18,7 +18,7 @@ namespace Chat_API.Src.Interfaces
         Task<(bool, string?)> JoinRoomAsync(AddMemberRequest request, string token);
         Task<(bool, string?)> KickMemberAsync(RemoveMemberRequest request, string token);
         Task<(bool, string?)> LeaveRoomAsync(LeaveRoomRequest request, string token);
-        Task<List<MessageModel>> GetMessageHistoryAsync(GetHistoryRequest getItemsHistoryRequest, string token);
-        Task<List<ChatUserResponse>> GetRoomUserAsync(GetMemberInGroupRequest request, string token);
+        Task<MessageResponse<List<MessageDTO>>?> GetMessageHistoryAsync(GetHistoryRequest getItemsHistoryRequest, string token);
+        Task<GetMemberGroup> GetRoomUserAsync([FromQuery] GetMemberInGroupRequest request, string token);
     }
 }

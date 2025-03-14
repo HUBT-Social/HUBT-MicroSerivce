@@ -48,7 +48,16 @@ namespace Chat_Data_API
             InitConfigures(builder);
             InitServices(builder);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp", policy =>
+                {
+                    policy.WithOrigins("https://chatuitest.onrender.com", "http://localhost:3000")  // Chỉ cho phép origin này
+                        .AllowAnyMethod()   // Cho phép bất kỳ phương thức HTTP nào
+                        .AllowAnyHeader()   // Cho phép bất kỳ header nào
+                        .AllowCredentials(); // Cho phép gửi credentials như cookies, authorization headers
+                });
+            });
 
             var app = builder.Build();
 
@@ -62,13 +71,14 @@ namespace Chat_Data_API
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowReactApp");
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseLocalization();
-
+            
             app.MapControllers();
-            app.MapHub<ChatHub>("/chatHub");
-
+            app.MapHub<ChatHub>("/chathub");
+            
             app.Run();
         }
     }

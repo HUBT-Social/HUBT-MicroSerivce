@@ -1,4 +1,5 @@
 ﻿using HUBT_Social_Chat_Resources.Models;
+using HUBT_Social_MongoDb_Service.Services;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -10,24 +11,19 @@ namespace HUBT_Social_Chat_Service.Helper
 {
     public static class ChatRoomHelper
     {
-        public static async Task<List<string>> GetUserGroupConnectedAsync(this IMongoCollection<ChatGroupModel> chatRooms, string userId)
+        public static async Task<List<string>> GetUserGroupConnectedAsync(this IMongoService<ChatGroupModel> chatGroups, string userId)
         {
-            if (chatRooms == null)
-                throw new ArgumentNullException(nameof(chatRooms), "Chat rooms collection cannot be null.");
 
             try
             {
-                var filter = Builders<ChatGroupModel>.Filter.ElemMatch(
-                    cr => cr.Participant,
-                    p => p.UserId == userId
-                );
+                if (chatGroups == null)
+                    throw new ArgumentNullException(nameof(chatGroups), "Chat groups service cannot be null.");
 
-                var roomIds = await chatRooms
-                    .Find(filter)
-                    .Project(cr => cr.Id)
-                    .ToListAsync();
+                var groups = await chatGroups.Find(group => group.Participant.Any(p => p.UserId == userId));
 
-                return roomIds;
+                var roomIds = groups.Select(g => g.Id).ToList();
+
+                return roomIds??new List<string>();
             }
             catch (Exception ex)
             {
@@ -36,28 +32,18 @@ namespace HUBT_Social_Chat_Service.Helper
             }
         }
 
-        /// <summary>
-        /// Gets the role of a user in a specific chat room.
-        /// </summary>
-        public static async Task<string?> GetRoleAsync(this IMongoCollection<ChatGroupModel> chatRooms, string roomId, string userId)
+        public static async Task<string?> GetRoleAsync(this IMongoService<ChatGroupModel> chatGroups, string roomId, string userId)
         {
-            if (chatRooms == null)
-                throw new ArgumentNullException(nameof(chatRooms), "Chat rooms collection cannot be null.");
-
             try
             {
-                var filter = Builders<ChatGroupModel>.Filter.And(
-                    Builders<ChatGroupModel>.Filter.Eq(r => r.Id, roomId),
-                    Builders<ChatGroupModel>.Filter.ElemMatch(r => r.Participant, p => p.UserId == userId)
-                );
+                if (chatGroups == null)
+                    throw new ArgumentNullException(nameof(chatGroups), "Chat groups service cannot be null.");
 
-                var projection = Builders<ChatGroupModel>.Projection.Expression(r =>
-                    r.Participant.FirstOrDefault(p => p.UserId == userId));
+                // Tìm nhóm chat có roomId và có userId trong danh sách Participant
+                var group = await chatGroups.Find(g => g.Id == roomId && g.Participant.Any(p => p.UserId == userId));
 
-                var participant = await chatRooms
-                    .Find(filter)
-                    .Project(projection)
-                    .FirstOrDefaultAsync();
+                // Lấy participant của userId trong nhóm chat đó
+                var participant = group.FirstOrDefault()?.Participant.FirstOrDefault(p => p.UserId == userId);
 
                 return participant?.Role.ToString();
             }
@@ -91,19 +77,24 @@ namespace HUBT_Social_Chat_Service.Helper
         /// <summary>
         /// Gets the information of a specific message in a chat room.
         /// </summary>
-        public static async Task<MessageModel?> GetInfoMessageAsync(this IMongoCollection<ChatGroupModel> chatRooms, string roomId, string messageId)
+        public static async Task<MessageModel?> GetInfoMessageAsync(this IMongoService<ChatGroupModel> chatGroups, string roomId, string messageId)
         {
-            if (chatRooms == null)
-                throw new ArgumentNullException(nameof(chatRooms), "Chat rooms collection cannot be null.");
-
             try
             {
-                var filter = Builders<ChatGroupModel>.Filter.Eq(cr => cr.Id, roomId);
-                var chatRoom = await chatRooms.Find(filter).FirstOrDefaultAsync();
+                if (chatGroups == null)
+                    throw new ArgumentNullException(nameof(chatGroups), "Chat groups service cannot be null.");
 
+                // Tìm nhóm chat có roomId
+                var group = await chatGroups.Find(g => g.Id == roomId);
+
+                // Lấy nhóm chat đầu tiên (vì Id là duy nhất, thường chỉ có 1 kết quả)
+                var chatRoom = group.FirstOrDefault();
+
+                // Nếu không tìm thấy nhóm hoặc danh sách Content rỗng, trả về null
                 if (chatRoom?.Content == null)
                     return null;
 
+                // Tìm tin nhắn có messageId trong danh sách Content
                 var message = chatRoom.Content.FirstOrDefault(ci => ci.id == messageId);
                 return message;
             }

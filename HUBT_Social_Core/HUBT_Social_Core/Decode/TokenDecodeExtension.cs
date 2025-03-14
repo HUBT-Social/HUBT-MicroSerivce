@@ -51,17 +51,30 @@ namespace HUBT_Social_Core.Decode
             var authHeader = headers.Authorization.FirstOrDefault();
             return authHeader?.Replace("Bearer ", "");
         }
-        public static TokenInfoDTO? ExtractTokenInfo(
-           this HttpRequest Request,
-           JwtSetting jwtSetting)
+        public static TokenInfoDTO? ExtractTokenInfo(this HttpRequest request, JwtSetting jwtSetting)
         {
-            ClaimsPrincipal? claimsPrincipal = Request.Headers
-                .ExtractBearerToken()
-                ?.DecodeToken(jwtSetting);
+            // Thử lấy token từ header trước
+            string? token = request.Headers.ExtractBearerToken();
 
-            if (claimsPrincipal == null)
+            // Nếu không có trong header, lấy từ query string
+            if (string.IsNullOrEmpty(token))
+            {
+                token = request.Query["access_token"].FirstOrDefault();
+                Console.WriteLine($"Token extracted from query string: {token}");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Console.WriteLine("No token found in header or query string.");
                 return null;
+            }
 
+            var claimsPrincipal = token.DecodeToken(jwtSetting);
+            if (claimsPrincipal == null)
+            {
+                Console.WriteLine("Token decoding failed.");
+                return null;
+            }
 
             var username = claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value;
             var userId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -71,8 +84,13 @@ namespace HUBT_Social_Core.Decode
                 ?.Select(c => c.Value)
                 .Distinct()
                 .ToArray() ?? [];
+
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(tokenId))
+            {
+                Console.WriteLine("Token missing required claims.");
                 return null;
+            }
+
             return new TokenInfoDTO
             {
                 Username = username,

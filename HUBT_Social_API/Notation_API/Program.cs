@@ -46,7 +46,7 @@ namespace Notation_API
             app.UseLocalization();
 
             app.MapControllers();
-
+        
             app.Run();
         }
     }

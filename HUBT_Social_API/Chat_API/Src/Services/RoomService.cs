@@ -10,6 +10,10 @@ using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Resources.Dtos.Response;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using HUBT_Social_Core.Models.DTOs;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Chat_API.Src.Services
 {
@@ -60,26 +64,38 @@ namespace Chat_API.Src.Services
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
-        public async Task<List<MessageModel>> GetMessageHistoryAsync([FromQuery] GetHistoryRequest request, string token)
+        //Đang gặp bug convert thì bị null.
+        public async Task<MessageResponse<List<MessageDTO>>?> GetMessageHistoryAsync(GetHistoryRequest request, string token)
         {
-            var response = await SendRequestAsync($"api/room/message-history", ApiType.GET, request, token);
+            var queryParams = new Dictionary<string, string>
+                {
+                    { "ChatRoomId", Uri.EscapeDataString(request.ChatRoomId ?? string.Empty) },
+                    { "CurrentQuantity", request.CurrentQuantity.ToString()??"0" },
+                    { "Limit", request.Limit.ToString()??"20" },
+                    { "Type", request.Type.ToString()??"-1" }
+                };
+            var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            var url = $"api/room/message-history?{queryString}";
+
+            Console.WriteLine($"Sending request to: {url}");
+
+            // Gửi yêu cầu API
+            ResponseDTO? response = await SendRequestAsync(url, ApiType.GET, null, token);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return response.ConvertTo<List<MessageModel>>() ?? new List<MessageModel>();
+                return response.ConvertTo<MessageResponse<List<MessageDTO>>>() ?? new MessageResponse<List<MessageDTO>>();
             }
-            return new List<MessageModel>();
+            return new MessageResponse<List<MessageDTO>>();
         }
-
-        public async Task<List<ChatUserResponse>> GetRoomUserAsync([FromQuery] GetMemberInGroupRequest request, string token)
+        public async Task<GetMemberGroup> GetRoomUserAsync(GetMemberInGroupRequest request, string token)
         {
-            var response = await SendRequestAsync($"api/room/get-members", ApiType.GET, request, token);
+            var response = await SendRequestAsync($"api/room/get-members?groupId={request.groupId}", ApiType.GET, null, token);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return response.ConvertTo<List<ChatUserResponse>>() ?? new List<ChatUserResponse>();
+                return response.ConvertTo<GetMemberGroup>() ?? new GetMemberGroup();
             }
-            return new List<ChatUserResponse>();
+            return new GetMemberGroup();
         }
 
-        
     }
 }

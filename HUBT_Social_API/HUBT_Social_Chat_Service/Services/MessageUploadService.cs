@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
 using System.Text.RegularExpressions;
 using HUBT_Social_Chat_Service.Extention;
+using HUBT_Social_MongoDb_Service.Services;
+using HUBT_Social_MongoDb_Service.ASP_Extentions;
 
 namespace HUBT_Social_Chat_Service.Services
 {
@@ -16,11 +18,11 @@ namespace HUBT_Social_Chat_Service.Services
     {
 
         public async Task<(bool Success, MessageModel? Message)> UploadMessageAsync(
-                MessageRequest chatRequest, IMongoCollection<ChatGroupModel> _chatRooms)
+                MessageRequest chatRequest, IMongoService<ChatGroupModel> _chatRooms)
         {
             // Lấy ChatRoom từ MongoDB
             var filterGetChatRoom = Builders<ChatGroupModel>.Filter.Eq(cr => cr.Id, chatRequest.GroupId);
-            ChatGroupModel chatRoom = await _chatRooms.Find(filterGetChatRoom).FirstOrDefaultAsync();
+            ChatGroupModel? chatRoom = await _chatRooms.Find(cr => cr.Id == chatRequest.GroupId).FirstOrDefaultAsync();
 
             if (chatRoom == null)
             {
@@ -44,10 +46,10 @@ namespace HUBT_Social_Chat_Service.Services
 
             // Tạo tin nhắn
             MessageModel message = await MessageModel.CreateTextMessageAsync(
-                chatRequest.UserId, MessageContent.Content, chatRequest.ReplyToMessage);
+                chatRequest.UserId, MessageContent.Content, chatRequest.RequestId, chatRequest.ReplyToMessage);
 
-            UpdateResult updateResult = await _chatRooms.SaveChatItemAsync(chatRoom.Id, message);
-            return (updateResult.ModifiedCount > 0, message);
+            bool updateResult = await _chatRooms.SaveChatItemAsync(chatRoom.Id, message);
+            return (updateResult, message);
         }
 
 
