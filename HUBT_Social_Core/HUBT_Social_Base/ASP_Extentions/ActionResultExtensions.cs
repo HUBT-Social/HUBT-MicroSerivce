@@ -26,7 +26,23 @@ namespace HUBT_Social_Base.ASP_Extentions
             }
             return null;
         }
-       
-        
+        public static async Task<T?> ConvertTo<T>(this HttpResponseMessage response) where T : class
+        {
+            if (response != null)
+            {
+                try
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<T>(content);
+                }
+                catch (JsonException)
+                {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+
     }
 }
