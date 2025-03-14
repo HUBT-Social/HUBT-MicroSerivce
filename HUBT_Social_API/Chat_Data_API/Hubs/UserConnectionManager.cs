@@ -31,5 +31,10 @@
                 return connectionId;
             }
         }
+
+        public List<string> GetAllOnlineUsers()
+        {
+            return _userConnections.Keys.ToList();
+        }
     }
 }

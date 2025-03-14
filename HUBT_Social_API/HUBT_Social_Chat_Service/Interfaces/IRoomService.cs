@@ -3,6 +3,7 @@ using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest;
 using HUBT_Social_Chat_Resources.Dtos.Response;
 using HUBT_Social_Chat_Resources.Models;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace HUBT_Social_Chat_Service.Interfaces
         public interface IRoomUpdateService
         {
             Task<(bool, string)> UpdateGroupNameAsync(string groupId, string newName);
+            Task<(bool, string)> UpdateAvatarGroupAsync(string groupId, IFormFile file);
             Task<(bool, string)> UpdateNickNameAsync(string groupId, string changedId, string newNickName);
             Task<(bool, string)> UpdateParticipantRoleAsync(string groupId, string changedId, ParticipantRole newParticipantRole);
             Task<(bool, string)> JoinRoomAsync(string groupId, Participant? added);

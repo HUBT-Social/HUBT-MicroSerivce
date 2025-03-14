@@ -12,7 +12,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         where Collection : class
     {
         Task<Collection?> GetById(string id);
-        Task<bool> Create(Collection collection);
+        Task<bool> Create(Collection collection);   
         Task<bool> Delete(Collection collection);
         Task<bool> Update(Collection collection);
         Task<bool> UpdateByFilter(Expression<Func<Collection, bool>> filterExpression,UpdateDefinition<Collection> update);

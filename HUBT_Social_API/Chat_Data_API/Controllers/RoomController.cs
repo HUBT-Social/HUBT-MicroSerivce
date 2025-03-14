@@ -6,9 +6,11 @@ using HUBT_Social_Base;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest;
+using HUBT_Social_Chat_Resources.Dtos.Response;
 using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Service.Helper;
 using HUBT_Social_Chat_Service.Interfaces;
+using HUBT_Social_Chat_Service.Services;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -25,13 +27,14 @@ namespace Chat_Data_API.Controllers
     [Authorize]
     public class RoomController
         (
-            IRoomUpdateService roomUpdateService, 
+            IRoomUpdateService roomUpdateService,
             IRoomGetService roomGetService,
             IUserService userService,
             IHubContext<ChatHub> hubContext,
-            IMapper mapper, 
+            IMapper mapper,
             IOptions<JwtSetting> options,
-            IUserConnectionManager connectionManager
+            IUserConnectionManager connectionManager,
+            HUBT_Social_Base.Service.ICloudService clouldService
         ) : DataLayerController(mapper, options)
     {
         private readonly IRoomUpdateService _roomUpdateService = roomUpdateService;
@@ -39,7 +42,7 @@ namespace Chat_Data_API.Controllers
         private readonly IRoomGetService _roomGetService = roomGetService;
         private readonly IUserService _userService = userService;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
-
+        public readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
 
         [HttpPut("update-group-name")]
         public async Task<IActionResult> UpdateGroupNameAsync(UpdateGroupNameRequest request)
@@ -49,7 +52,7 @@ namespace Chat_Data_API.Controllers
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             var result = await _roomUpdateService.UpdateGroupNameAsync(request.GroupId, request.NewName);
 
-            if(result.Item1)
+            if (result.Item1)
             {
                 await _hubContext.Clients.Group(request.GroupId)
                 .SendAsync("UpdateGroupName",
@@ -61,21 +64,36 @@ namespace Chat_Data_API.Controllers
                     });
                 return Ok(result.Item2);
             }
-            
-            return  BadRequest(result.Item2);
-            
+
+            return BadRequest(result.Item2);
+
         }
 
-        //[HttpPut("update-avatar")]
-        //public async Task<IActionResult> UpdateAvatarAsync([FromQuery] string groupId, [FromQuery] string newUrl)
-        //{
-        //    var userInfo = Request.GetUserInfoFromRequest();
-        //    if (userInfo == null)
-        //        return Unauthorized(new { message = LocalValue.Get(KeyStore.UnAuthorize) });
+        [HttpPut("update-avatar")]
+        public async Task<IActionResult> UpdateAvatarAsync([FromQuery] string groupId, [FromQuery] IFormFile file)
+        {
+            var userInfo = Request.GetUserInfoFromRequest();
+            if (userInfo == null)
+                return Unauthorized(new { message = LocalValue.Get(KeyStore.UnAuthorize) });
+            if (string.IsNullOrEmpty(groupId) || file == null || file.Length == 0)
+                return BadRequest(new { message = "GroupId hoặc file không hợp lệ!" });
 
-            
+            var result = await _roomUpdateService.UpdateAvatarGroupAsync(groupId, file);
+            if (result.Item1)
+            {
+                await _hubContext.Clients.Group(groupId)
+                .SendAsync("UpdateGroupAvarta",
+                    new
+                    {
+                        groupId = groupId,
+                        changerId = userInfo.UserId,
+                        url = result.Item2
+                    });
+                return Ok(result.Item2);
+            }
 
-        //}
+            return BadRequest(result.Item2);
+        }
 
         [HttpPut("update-nickname")]
         public async Task<IActionResult> UpdateNickNameAsync(UpdateNickNameRequest request)
@@ -126,7 +144,7 @@ namespace Chat_Data_API.Controllers
             return BadRequest(result.Item2);
         }
 
-        
+
 
         [HttpPost("join-room")]
         public async Task<IActionResult> JoinRoomAsync(AddMemberRequest request)
@@ -143,7 +161,7 @@ namespace Chat_Data_API.Controllers
                 NickName = userDTO.FullName,
                 ProfilePhoto = userDTO.AvataUrl
             } : null;
-            
+
             var result = await _roomUpdateService.JoinRoomAsync(request.GroupId, Added);
             if (result.Item1)
             {
@@ -224,13 +242,40 @@ namespace Chat_Data_API.Controllers
         }
 
         [HttpGet("message-history")]
-        public async Task<IActionResult> GetMessageHistoryAsync([FromQuery] GetHistoryRequest request) =>
-             Ok(await _roomGetService.GetMessageHistoryAsync(request));
+        public async Task<IActionResult> GetMessageHistoryAsync([FromQuery] GetHistoryRequest request)
+        {
+            var userInfo = Request.GetUserInfoFromRequest();
+            if (userInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            List<MessageModel> messageModels = await _roomGetService.GetMessageHistoryAsync(request);
 
+            MessageResponse<List<MessageDTO>> response = new MessageResponse<List<MessageDTO>>
+            {
+                groupId = request.ChatRoomId,
+                message = _mapper.Map<List<MessageDTO>>(messageModels)
+            };
+
+            return Ok(response);
+        }
 
         [HttpGet("get-members")]
-        public async Task<IActionResult> GetRoomUserAsync([FromQuery] GetMemberInGroupRequest request) =>
-            Ok(await _roomGetService.GetRoomUserAsync(request.groupId));
+        public async Task<IActionResult> GetRoomUserAsync([FromQuery] string groupId)
+        {
+            var userInfo = Request.GetUserInfoFromRequest();
+            if (userInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+
+            List<ChatUserResponse>? response = await _roomGetService.GetRoomUserAsync(groupId);
+            return Ok
+            (
+                new GetMemberGroup
+                {
+                    caller = userInfo.UserId,
+                    response = response
+                }
+            );
+        }
+            
         
     }
 }

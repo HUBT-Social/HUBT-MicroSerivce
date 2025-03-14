@@ -4,6 +4,7 @@ using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Service.Interfaces;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using HUBT_Social_MongoDb_Service.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System;
@@ -15,9 +16,10 @@ using System.Threading.Tasks;
 
 namespace HUBT_Social_Chat_Service.Services
 {
-    public class RoomUpdateService(IMongoService<ChatGroupModel> chatGroups) : IRoomUpdateService
+    public class RoomUpdateService(IMongoService<ChatGroupModel> chatGroups, HUBT_Social_Base.Service.ICloudService clouldService) : IRoomUpdateService
     {
         private readonly IMongoService<ChatGroupModel> _chatGroups = chatGroups;
+        public readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
 
         public async Task<(bool, string)> UpdateGroupNameAsync(string groupId, string newName)
         {
@@ -48,12 +50,12 @@ namespace HUBT_Social_Chat_Service.Services
         }
 
 
-        public async Task<(bool, string)> UpdateAvatarAsync(string groupId, string newUrl)
+        public async Task<(bool, string)> UpdateAvatarGroupAsync(string groupId, IFormFile file)
         {
             try
             {
                 // Kiểm tra đầu vào
-                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(newUrl))
+                if (string.IsNullOrEmpty(groupId))
                 {
                     return (false, "The parameter is null.");
                 }
@@ -64,12 +66,17 @@ namespace HUBT_Social_Chat_Service.Services
                 {
                     return (false, "The group dose not exist.");
                 }
+                var uploadResult = await _clouldService.UploadFileAsync(file);
+                if (uploadResult?.Url == null) 
+                {
+                    return (false, "Update failed.");
+                }
 
                 // Định nghĩa filter (điều kiện cập nhật)
                 Expression<Func<ChatGroupModel, bool>> filter = c => c.Id == groupId;
 
                 // Định nghĩa update
-                var update = Builders<ChatGroupModel>.Update.Set(c => c.AvatarUrl, newUrl);
+                var update = Builders<ChatGroupModel>.Update.Set(c => c.AvatarUrl, uploadResult.Url);
 
                 // Gọi phương thức UpdateAsync
                 bool success = await _chatGroups.UpdateByFilter(filter, update);

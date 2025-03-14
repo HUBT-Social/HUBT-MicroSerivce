@@ -15,12 +15,27 @@ namespace HUBT_Social_MongoDb_Service.ASP_Extentions
             where TCollectionDTO : class, new()
         {
             Profiles.Add(new MongoMapper<TCollection, TCollectionDTO>());
+            return ConfigureMapper(services);
+        }
+      
 
-            var mappingConfig = new AutoMapper.MapperConfiguration(mc =>
+       
+        public static IServiceCollection AddCustomMappingProfile<TProfile>(
+            this IServiceCollection services
+        )
+            where TProfile : Profile, new()
+        {
+            Profiles.Add(new TProfile());
+            return ConfigureMapper(services);
+        }
+
+        private static IServiceCollection ConfigureMapper(IServiceCollection services)
+        {
+            var mappingConfig = new AutoMapper.MapperConfiguration(cfg =>
             {
                 foreach (var profile in Profiles)
                 {
-                    mc.AddProfile(profile);
+                    cfg.AddProfile(profile);
                 }
             });
 
@@ -30,3 +45,4 @@ namespace HUBT_Social_MongoDb_Service.ASP_Extentions
         }
     }
 }
+

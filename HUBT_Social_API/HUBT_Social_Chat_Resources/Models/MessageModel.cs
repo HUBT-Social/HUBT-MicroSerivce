@@ -2,13 +2,14 @@
 using HUBT_Social_Chat_Resources.Dtos.Collections;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using MongoDB.Bson;
+using Newtonsoft.Json;
 
 
 namespace HUBT_Social_Chat_Resources.Models
 {
     public class MessageModel
     {
-        public string id { get; set; } = Guid.NewGuid().ToString();
+        public string id { get; set; }
         public string key { get; set; } = Guid.NewGuid().ToString();
         public string message { get; set; }
         public DateTime createdAt { get; set; } = DateTime.UtcNow;
@@ -19,14 +20,14 @@ namespace HUBT_Social_Chat_Resources.Models
         public MessageStatus status { get; set; } = MessageStatus.Pending;
         //public MessageActionStatus actionStatus { get; set; } = MessageActionStatus.Normal;
         public TimeSpan? voiceMessageDuration { get; set; }
-
         // Constructor private để ép buộc dùng factory method
-        private MessageModel(string sentBy, MessageType messageType, string message = null, ReplyMessage? replyMessage = null)
+        private MessageModel(string sentBy, MessageType messageType, string itemId, string message = null, ReplyMessage? replyMessage = null)
         {
             this.sentBy = sentBy;
             this.message = message;
             this.messageType = messageType;
             this.replyMessage = replyMessage;
+            this.id = itemId;
         }
 
         // Factory method cho tin nhắn văn bản
@@ -34,10 +35,11 @@ namespace HUBT_Social_Chat_Resources.Models
         (
             string sentBy,
             string content,
+            string itemId,
             ReplyMessage? replyMessage = null
         )
         {
-            var message = new MessageModel(sentBy, MessageType.Text, content, replyMessage);
+            var message = new MessageModel(sentBy, MessageType.Text, itemId, content, replyMessage);
             return message;
         }
 
@@ -45,12 +47,13 @@ namespace HUBT_Social_Chat_Resources.Models
         public static async Task<MessageModel> CreateMediaMessageAsync
         (
             string sentBy,
-            List<FilePaths> filePaths,
+            FilePaths filePaths,
+            string itemId,
             ReplyMessage? replyMessage = null
         )
         {
-            string mess = filePaths.ToJson();
-            var message = new MessageModel(sentBy, MessageType.Media, mess, replyMessage);
+            string mess = JsonConvert.SerializeObject(filePaths);
+            var message = new MessageModel(sentBy, MessageType.Media, itemId, mess, replyMessage);
             return message;
         }
 

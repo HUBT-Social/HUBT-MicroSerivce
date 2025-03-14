@@ -17,7 +17,7 @@ namespace Chat_API.Src.Controllers
         private string? ReadTokenFromHeader() => Request.Headers.ExtractBearerToken();
         
 
-        [HttpPost("creatr-group")]
+        [HttpPost("create-group")]
         public async Task<IActionResult> CreateGroup(CreateGroupRequest createGroupRequest)
         {
             string? token = ReadTokenFromHeader();
@@ -42,7 +42,7 @@ namespace Chat_API.Src.Controllers
             List<GroupSearchResponse> response = await _chatService.GetAllRoomsAsync(page, limit, token);
             return Ok(response);
         }
-        [HttpGet("load-groups")]
+        [HttpGet("load-rooms")]
         public async Task<IActionResult> LoadGroupsOfUser([FromQuery] int page =1, [FromQuery] int limit=10)
         {
             string? token = ReadTokenFromHeader();

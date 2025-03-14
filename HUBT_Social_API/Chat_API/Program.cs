@@ -1,4 +1,4 @@
-using Chat_API.Configuration;
+﻿using Chat_API.Configuration;
 using HUBT_Social_Core.ASP_Extensions;
 
 public class Program
@@ -23,7 +23,16 @@ public class Program
         InitConfigures(builder);
         InitServices(builder);
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowReactApp", policy =>
+            {
+                policy.WithOrigins("https://chatuitest.onrender.com", "http://localhost:3000")  // Chỉ cho phép origin này
+                    .AllowAnyMethod()   // Cho phép bất kỳ phương thức HTTP nào
+                    .AllowAnyHeader()   // Cho phép bất kỳ header nào
+                    .AllowCredentials(); // Cho phép gửi credentials như cookies, authorization headers
+            });
+        });
 
         var app = builder.Build();
 
@@ -42,8 +51,8 @@ public class Program
         app.UseLocalization();
 
         app.MapControllers();
-     
 
+        app.UseCors("AllowReactApp");
         app.Run();
     }
 }
