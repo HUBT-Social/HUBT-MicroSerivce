@@ -46,7 +46,7 @@ namespace Chat_API.Src.Services
         }
 
 
-        public async Task<(bool, string?)> JoinRoomAsync(AddMemberRequest request, string token)
+        public async Task<(bool, string?)> JoinRoomAsync(AddMemberRequestData request, string token)
         {
             var response = await SendRequestAsync("api/room/join-room", ApiType.POST, request,token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());

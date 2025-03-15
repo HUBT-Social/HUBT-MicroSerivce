@@ -33,7 +33,6 @@ namespace Chat_Data_API.Controllers
     public class ChatController
         (
             IChatService chatService,
-            IUserService userService, 
             IHubContext<ChatHub> hubContext, 
             IUserConnectionManager connectionManager, 
             IMapper mapper,
@@ -42,13 +41,13 @@ namespace Chat_Data_API.Controllers
         : DataLayerController(mapper, options)
     {
         private readonly IChatService _chatService  = chatService;
-        private readonly IUserService _userService = userService;
+
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
 
 
         [HttpPost("create-group")]
-        public async Task<IActionResult> CreateGroup(CreateGroupRequest createGroupRequest)
+        public async Task<IActionResult> CreateGroup(CreateGroupRequestData createGroupRequest)
         {
             // Kiểm tra đầu vào
             var validationError = ValidateCreateGroupRequest(createGroupRequest);
@@ -60,17 +59,14 @@ namespace Chat_Data_API.Controllers
             if (userInfo is null)
                 return BadRequest("Token is not valid");
 
-            // Tạo danh sách Participant
-            var participants = CreateParticipants(createGroupRequest.UserIds, userInfo.UserId.ToString());
-
             // Tạo ChatRoomModel
-            var newChatRoom = CreateChatRoom(createGroupRequest.GroupName, participants.Result);
+            var newChatRoom = CreateChatRoom(createGroupRequest.GroupName, createGroupRequest.Participants);
 
             // Lưu ChatRoom vào database
             var result = await _chatService.CreateGroupAsync(newChatRoom);
             if (result.Item1)
             {
-                foreach (var user in participants.Result)
+                foreach (var user in createGroupRequest.Participants)
                 {
                     var connectionId = _connectionManager.GetConnectionId(user.UserId);
                     if (connectionId != null)
@@ -100,33 +96,15 @@ namespace Chat_Data_API.Controllers
             return BadRequest(result.Item2);
         }
         // Phương thức kiểm tra đầu vào
-            private string? ValidateCreateGroupRequest(CreateGroupRequest request)
+            private string? ValidateCreateGroupRequest(CreateGroupRequestData request)
             {
                 if (string.IsNullOrEmpty(request.GroupName))
                     return LocalValue.Get(KeyStore.GroupNameRequired);
-                if (request.UserIds.Count < 2)
+                if (request.Participants.Count < 2)
                     return "Khong du nguoi";
                 return null;
             }
-            // Phương thức tạo danh sách Participant
-            private async Task<List<Participant>> CreateParticipants(List<string> userIds, string ownerUserId)
-            {
-                List<AUserDTO> userDTOs = await _userService.GetUser();
 
-                var filteredUsers = userDTOs
-                    .Where(user => userIds.Contains(user.Id.ToString()) || user.Id.ToString() == ownerUserId)
-                    .ToList();
-
-                return filteredUsers
-                    .Select(user => new Participant
-                    {
-                        UserId = user.Id.ToString(),
-                        Role = user.Id.ToString() == ownerUserId ? ParticipantRole.Owner : ParticipantRole.Member,
-                        NickName = user.UserName, // Hoặc một giá trị mặc định
-                        ProfilePhoto = user.AvataUrl
-                    })
-                    .ToList();
-        }
             // Phương thức tạo ChatRoomModel
             private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants)
             {

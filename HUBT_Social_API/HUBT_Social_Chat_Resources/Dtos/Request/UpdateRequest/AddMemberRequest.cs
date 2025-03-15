@@ -7,4 +7,9 @@ namespace HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest
         public string GroupId { get; set; } = String.Empty;
         public string? AddedId { get; set; } 
     }
+    public class AddMemberRequestData
+    {
+        public string GroupId { get; set; } = String.Empty;
+        public Participant? Participant { get; set; }
+    }
 }

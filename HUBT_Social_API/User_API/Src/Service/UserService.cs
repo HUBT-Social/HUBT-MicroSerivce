@@ -17,6 +17,11 @@ namespace User_API.Src.Service
             string path = $"user";
             return await SendRequestAsync(path, ApiType.GET,null,accessToken);
         }
+        public async Task<ResponseDTO> GetAllUser(string accessToken)
+        {
+            string path = $"userAll";
+            return await SendRequestAsync(path, ApiType.GET, null, accessToken);
+        }
 
         public async Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request)
         {

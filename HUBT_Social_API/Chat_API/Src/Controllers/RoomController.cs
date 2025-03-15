@@ -1,9 +1,12 @@
 ﻿using Chat_API.Src.Interfaces;
+using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.InitRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest;
 using HUBT_Social_Chat_Resources.Dtos.Response;
+using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Core.Decode;
+using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,9 +17,10 @@ namespace Chat_API.Src.Controllers
 {
     [Route("api/chat/room")]
     [ApiController]
-    public class RoomController(IRoomService roomService) : ControllerBase
+    public class RoomController(IRoomService roomService, IUserService userService) : ControllerBase
     {
         private readonly IRoomService _roomService = roomService;
+        public readonly IUserService _userService = userService;
         private string? ReadTokenFromHeader() => Request.Headers.ExtractBearerToken();
 
         [HttpPut("update-group-name")]
@@ -58,8 +62,21 @@ namespace Chat_API.Src.Controllers
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-
-            var (success, message) = await _roomService.JoinRoomAsync(request, token);
+            AUserDTO? user = await _userService.GetUserById(request.AddedId, token);
+            if (user == null) { return BadRequest(); }
+            Participant participant = new Participant
+            {
+                UserId = user.Id.ToString(),
+                Role = ParticipantRole.Member,
+                NickName = user.UserName, // Hoặc một giá trị mặc định
+                ProfilePhoto = user.AvataUrl
+            };
+            AddMemberRequestData addMemberRequestData = new AddMemberRequestData
+            {
+                GroupId = request.GroupId,
+                Participant = participant
+            };
+            var (success, message) = await _roomService.JoinRoomAsync(addMemberRequestData, token);
             return success ? Ok(message) : BadRequest(message);
         }
 

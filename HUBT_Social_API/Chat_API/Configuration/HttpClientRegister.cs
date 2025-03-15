@@ -10,10 +10,12 @@ namespace Chat_API.Configuration
         {
             services.AddHttpClientService();
             string? chatPath = configuration.GetSection("ChatApi").Get<string>();
-            if (chatPath != null)
+            string? userPath = configuration.GetSection("UserAPI").Get<string>();
+            if (chatPath != null || userPath !=null)
             {
                 services.AddRegisterClientService<IChatService,ChatService>(chatPath);
                 services.AddRegisterClientService<IRoomService, RoomService>(chatPath);
+                services.AddRegisterClientService<IUserService, UserService>(userPath);
             }
 
             return services;

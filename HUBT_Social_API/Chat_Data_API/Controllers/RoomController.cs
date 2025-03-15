@@ -29,7 +29,6 @@ namespace Chat_Data_API.Controllers
         (
             IRoomUpdateService roomUpdateService,
             IRoomGetService roomGetService,
-            IUserService userService,
             IHubContext<ChatHub> hubContext,
             IMapper mapper,
             IOptions<JwtSetting> options,
@@ -40,7 +39,6 @@ namespace Chat_Data_API.Controllers
         private readonly IRoomUpdateService _roomUpdateService = roomUpdateService;
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IRoomGetService _roomGetService = roomGetService;
-        private readonly IUserService _userService = userService;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
         public readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
 
@@ -147,25 +145,16 @@ namespace Chat_Data_API.Controllers
 
 
         [HttpPost("join-room")]
-        public async Task<IActionResult> JoinRoomAsync(AddMemberRequest request)
+        public async Task<IActionResult> JoinRoomAsync(AddMemberRequestData request)
         {
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            AUserDTO? userDTO = await _userService.GetUserById(request.AddedId);
 
-            Participant? Added = (!string.IsNullOrEmpty(request.AddedId) && userDTO != null) ? new Participant
-            {
-                UserId = request.AddedId,
-                Role = ParticipantRole.Member,
-                NickName = userDTO.FullName,
-                ProfilePhoto = userDTO.AvataUrl
-            } : null;
-
-            var result = await _roomUpdateService.JoinRoomAsync(request.GroupId, Added);
+            var result = await _roomUpdateService.JoinRoomAsync(request.GroupId, request.Participant);
             if (result.Item1)
             {
-                var connectionId = _connectionManager.GetConnectionId(request.AddedId);
+                var connectionId = _connectionManager.GetConnectionId(request.Participant.UserId);
                 if (connectionId != null)
                 {
                     await _hubContext.Groups.AddToGroupAsync(connectionId, request.GroupId);
@@ -177,7 +166,7 @@ namespace Chat_Data_API.Controllers
                     {
                         groupId = request.GroupId,
                         AdderId = userInfo.UserId,
-                        AddedId = request.AddedId
+                        AddedId = request.Participant
                     });
                 return Ok(result.Item2);
             }

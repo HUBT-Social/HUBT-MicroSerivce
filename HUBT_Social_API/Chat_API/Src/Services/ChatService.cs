@@ -8,6 +8,7 @@ using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Resources.Dtos.Response;
 using HUBT_Social_Chat_Resources.Dtos.Request.InitRequest;
 using Newtonsoft.Json.Linq;
+using HUBT_Social_Core.Models.DTOs;
 
 
 
@@ -16,24 +17,14 @@ namespace Chat_API.Src.Services
     public class ChatService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), IChatService
     {
 
-        public async Task<string?> CreateGroupAsync(CreateGroupRequest createGroupRequest,string token)
+        public async Task<ResponseDTO> CreateGroupAsync(CreateGroupRequestData createGroupRequest,string token)
         {
-            var response = await SendRequestAsync("api/chat/create-group", ApiType.POST, createGroupRequest, token);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return response.Data?.ToString();
-            }
-            return "Lỗi khi tạo";
+            return  await SendRequestAsync("api/chat/create-group", ApiType.POST, createGroupRequest, token);
         }
 
-        public async Task<string?> DeleteGroupAsync(string groupId, string token)
+        public async Task<ResponseDTO> DeleteGroupAsync(string groupId, string token)
         {
-            var response = await SendRequestAsync($"api/chat/delete-group?groupId={groupId}", ApiType.DELETE, null, token);
-            if(response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return response.Data?.ToString();
-            }
-            return response.Data?.ToString();
+            return await SendRequestAsync($"api/chat/delete-group?groupId={groupId}", ApiType.DELETE, null, token);
         }
 
         public async Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit, string token)

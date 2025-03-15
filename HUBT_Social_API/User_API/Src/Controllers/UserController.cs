@@ -39,6 +39,29 @@ namespace User_API.Src.Controllers
             return BadRequest(result.Message);
 
         }
+        [HttpGet("userAll")]
+        public async Task<IActionResult> GetAllUser()
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+            ResponseDTO result = await _identityService.GetAllUser(accessToken);
+
+            List<AUserDTO>? userDTO = result.ConvertTo<List<AUserDTO>>();
+
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+                return Ok(userDTO);
+
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+
+        }
         private async Task<IActionResult> HandleServiceResponse(Func<Task<ResponseDTO>> serviceMethod)
         {
             ResponseDTO result = await serviceMethod();

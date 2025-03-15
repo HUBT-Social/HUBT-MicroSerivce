@@ -15,7 +15,7 @@ namespace Chat_API.Src.Interfaces
         //Task<bool> UpdateAvatarAsync(string groupId, string userId, string newUrl, string token);
         Task<(bool, string?)> UpdateNickNameAsync(UpdateNickNameRequest request, string token);
         Task<(bool, string?)> UpdateParticipantRoleAsync(UpdateParticipantRoleRequest request, string token);
-        Task<(bool, string?)> JoinRoomAsync(AddMemberRequest request, string token);
+        Task<(bool, string?)> JoinRoomAsync(AddMemberRequestData request, string token);
         Task<(bool, string?)> KickMemberAsync(RemoveMemberRequest request, string token);
         Task<(bool, string?)> LeaveRoomAsync(LeaveRoomRequest request, string token);
         Task<MessageResponse<List<MessageDTO>>?> GetMessageHistoryAsync(GetHistoryRequest getItemsHistoryRequest, string token);

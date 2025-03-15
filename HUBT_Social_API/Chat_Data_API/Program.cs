@@ -25,7 +25,6 @@ namespace Chat_Data_API
             builder.Services.AddMongoCollections(builder.Configuration);
             builder.Services.ConfigureLocalization();
             builder.Services.ConfigureCloudinary(builder.Configuration);
-            builder.Services.HttpClientRegisterConfiguration(builder.Configuration);
             builder.Services.AddMongoMapper();
 
 
