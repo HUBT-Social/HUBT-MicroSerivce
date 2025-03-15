@@ -9,7 +9,7 @@ namespace User_API.Src.Service
 {
     public interface INotationService : IBaseService
     {
-        Task SendNotation(AUserDTO userDTO);
+        Task SendNotation(string accessToken, AUserDTO userDTO);
 
     }
 }

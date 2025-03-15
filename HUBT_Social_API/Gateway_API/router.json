@@ -312,6 +312,38 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
+    },
+    {
+      "UpstreamPathTemplate": "/api/chat/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Update" ],
+      "DownstreamPathTemplate": "/api/chat/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{Chat__Host}",
+          "Port": 443
+        }
+      ],
+      "SwaggerKey": "chat-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/chatHub",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Update", "Connect" ],
+      "DownstreamPathTemplate": "/chatHub",
+      "DownstreamScheme": "wss",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{ChatData__Host}",
+          "Port": 443
+        }
+      ],
+      "SwaggerKey": "chat-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     }
     //{
     //  "UpstreamPathTemplate": "/",

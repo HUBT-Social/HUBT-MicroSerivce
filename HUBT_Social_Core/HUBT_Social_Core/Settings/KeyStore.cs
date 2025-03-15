@@ -10,11 +10,6 @@ namespace HUBT_Social_Core.Settings
         public const string NotationSomeOneLoginYouAccountTitle = "NotationSomeOneLoginYouAccountTittle";
         public const string NotationSomeOneLoginYouAccountBody = "NotationSomeOneLoginYouAccountBody";
 
-
-
-
-
-
         // Các key cho thông điệp liên quan đến đăng ký và xác minh 
         public const string InvalidInformation = "InvalidInformation";
         public const string RegistrationFailed = "RegistrationFailed";

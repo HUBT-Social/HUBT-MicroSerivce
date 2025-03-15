@@ -1,8 +1,11 @@
-﻿using HUBT_Social_Base.ASP_Extentions;
+﻿using HUBT_Social_API.Src.Features.Auth.Dtos.Request;
+using HUBT_Social_API.Src.Features.Auth.Dtos.Request.UpdateUserRequest;
+using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Core;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +18,10 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService) : ControllerBase
+    public class UserController(IUserService userService,INotationService notationService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
+        private readonly INotationService _notationService = notationService; 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -107,11 +111,36 @@ namespace User_API.Src.Controllers
             _identityService.DisableTwoFactor(Request.Headers.ExtractBearerToken()!));
         }
         [HttpPut("update/fcm-token")]
-        public Task<IActionResult> UpdateFcm([FromBody] string fcmtoken)
+        public async Task<IActionResult> UpdateFcm([FromBody] StoreFCMRequest fcmtoken)
         {
-            Request.Headers.ExtractBearerToken();
-            return HandleServiceResponse(() => 
-            _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!,fcmtoken));
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UserNotFound));
+
+            if (userDTO.FCMToken != fcmtoken.FcmToken)
+            {
+                try
+                {
+                    await _notationService.SendNotation(accessToken,userDTO);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            var response = await _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, fcmtoken.FcmToken);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Ok(response.Message),
+                HttpStatusCode.Unauthorized => Unauthorized(response.Message),
+                _ => BadRequest(response.Message),
+            };
         }
         [HttpPut("delete/fcm-token")]
         public Task<IActionResult> UpdateFcm()
@@ -120,10 +149,10 @@ namespace User_API.Src.Controllers
             _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, ""));
         }
         [HttpPut("update/status")]
-        public Task<IActionResult> UpdateStatus([FromBody] string bio)
+        public Task<IActionResult> UpdateStatus([FromBody] UpdateStatusRequest bio)
         {
             return HandleServiceResponse(() => 
-            _identityService.UpdateBio(Request.Headers.ExtractBearerToken()!,bio));
+            _identityService.UpdateBio(Request.Headers.ExtractBearerToken()!,bio.Bio));
         }
         [HttpPut("add-info-user")]
         public Task<IActionResult> EnableTwoFactor([FromBody] AddInfoUserRequest request)
