@@ -29,6 +29,16 @@
           "Url": "https://{Notification__Host}:443/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "chat-service",
+      "Config": [
+        {
+          "Name": "Chat Service",
+          "version": "v1",
+          "Url": "https://{Chat__Host}:443/swagger/v1/swagger.json"
+        }
+      ]
     }
     //{
     //  "Key": "local-service",
