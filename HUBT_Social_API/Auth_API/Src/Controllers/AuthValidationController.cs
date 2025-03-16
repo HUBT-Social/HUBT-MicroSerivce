@@ -28,7 +28,7 @@ namespace Auth_API.Src.Controllers
         private readonly IPostcodeService _postcodeService = postcodeService;
 
         [HttpPost("sign-up/verify-otp")]
-        public async Task<IActionResult> ConfirmCodeSignUp([FromBody] string code)
+        public async Task<IActionResult> ConfirmCodeSignUp([FromBody] VerifyPostcodeRequest request)
         {
             string userAgent = Request.Headers.UserAgent.ToString();
             string? ipAddress = ServerHelper.GetIPAddress(HttpContext);
@@ -62,7 +62,7 @@ namespace Auth_API.Src.Controllers
                     }
                 );
 
-            if (!Equals(code,currentPostcode.Code))
+            if (!Equals(request.postcode, currentPostcode.Code))
             {
                 return Unauthorized(new SignInResponse
                 {
