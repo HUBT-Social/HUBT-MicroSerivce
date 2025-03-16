@@ -14,7 +14,7 @@ namespace User_API.Src.Service
 {
     public class NotationService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), INotationService
     {
-        public async Task SendNotation(AUserDTO userDTO)
+        public async Task SendNotation(string accessToken,AUserDTO userDTO)
         {
             string path = $"api/notation/send-to-one";
             SendMessageRequest request = new()
@@ -26,7 +26,7 @@ namespace User_API.Src.Service
             };
             try
             {
-                HttpResponseMessage response = await SendActionResultRequestAsync(path, ApiType.POST, request);
+                HttpResponseMessage response = await SendActionResultRequestAsync(path, ApiType.POST, request, accessToken);
                 Console.WriteLine(response);
             }
             catch (Exception ex)

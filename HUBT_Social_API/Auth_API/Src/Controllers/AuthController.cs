@@ -99,7 +99,7 @@ namespace Auth_API.Src.Controllers
                 {
                     ResponseDTO resultSendEmail = await _postcodeService.SendVerificationEmail(
                         user.Email,
-                        user.FullName,
+                        user.UserName,
                         userAgent,
                         ipAddress
                     );
