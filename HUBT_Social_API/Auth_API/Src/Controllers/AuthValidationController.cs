@@ -116,7 +116,7 @@ namespace Auth_API.Src.Controllers
             );
         }
         [HttpPost("sign-in/verify-otp")]
-        public async Task<IActionResult> ConfirmCodeSignIn([FromBody] string code)
+        public async Task<IActionResult> ConfirmCodeSignIn([FromBody] VerifyPostcodeRequest request)
         {
             string userAgent = Request.Headers.UserAgent.ToString();
             string? ipAddress = ServerHelper.GetIPAddress(HttpContext);
@@ -137,7 +137,7 @@ namespace Auth_API.Src.Controllers
                     RequiresTwoFactor = false,
                     Message = LocalValue.Get(KeyStore.InvalidInformation)
                 });
-            if (Equals(code, currentPostcode.Code))
+            if (Equals(request.postcode, currentPostcode.Code))
             {
                 AUserDTO? aUser = await _authService.IsUsed(new RegisterRequest
                 {
