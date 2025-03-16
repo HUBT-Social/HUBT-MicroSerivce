@@ -12,13 +12,13 @@ public class AUser : MongoIdentityUser<Guid>
 {
     public string AvataUrl { get; set; } = string.Empty;
 
-    public string FirstName { get; set; } = string.Empty;
+    public string? FirstName { get; set; } = string.Empty;
 
-    public string LastName { get; set; } = string.Empty;
+    public string? LastName { get; set; } = string.Empty;
 
     public Gender Gender { get; set; } = Gender.Other;
     public string FCMToken { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public string? Status { get; set; } = string.Empty;
 
     public DateTime DateOfBirth { get; set; }
 
