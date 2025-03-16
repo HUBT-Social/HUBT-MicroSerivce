@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace HUBT_Social_API.Src.Features.Auth.Dtos.Request
+namespace User_API.Src.UpdateUserRequest
 {
     public class StoreFCMRequest
     {

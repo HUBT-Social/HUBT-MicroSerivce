@@ -1,5 +1,4 @@
-﻿using HUBT_Social_API.Src.Features.Auth.Dtos.Request;
-using HUBT_Social_API.Src.Features.Auth.Dtos.Request.UpdateUserRequest;
+﻿using HUBT_Social_API.Src.Features.Auth.Dtos.Request.UpdateUserRequest;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Core;
 using HUBT_Social_Core.Decode;
@@ -33,7 +32,20 @@ namespace User_API.Src.Controllers
             ResponseDTO result = await _identityService.GetUser(accessToken);
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
-                return Ok(userDTO);
+            {
+                return Ok(new
+                {
+                    AvatarUrl = userDTO.AvataUrl,
+                    userDTO.UserName,
+                    userDTO.FirstName,
+                    userDTO.LastName,
+                    userDTO.Gender,
+                    userDTO.Email,
+                    BirthDay = userDTO.DateOfBirth,
+                    userDTO.PhoneNumber
+                });
+            }
+                
 
             
             if (result.StatusCode == HttpStatusCode.Unauthorized)
