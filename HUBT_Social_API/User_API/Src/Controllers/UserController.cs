@@ -111,7 +111,7 @@ namespace User_API.Src.Controllers
             _identityService.DisableTwoFactor(Request.Headers.ExtractBearerToken()!));
         }
         [HttpPut("update/fcm-token")]
-        public async Task<IActionResult> UpdateFcm([FromBody] StoreFCMRequest fcmtoken)
+        public async Task<IActionResult> UpdateFcm([FromBody] string fcmtoken)
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
@@ -122,7 +122,7 @@ namespace User_API.Src.Controllers
             if (userDTO == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UserNotFound));
 
-            if (userDTO.FCMToken != fcmtoken.FcmToken)
+            if (userDTO.FCMToken != fcmtoken)
             {
                 try
                 {
@@ -134,7 +134,7 @@ namespace User_API.Src.Controllers
                 }
             }
 
-            var response = await _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, fcmtoken.FcmToken);
+            var response = await _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, fcmtoken);
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Ok(response.Message),
