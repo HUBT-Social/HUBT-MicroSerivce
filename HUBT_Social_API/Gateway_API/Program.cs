@@ -67,11 +67,17 @@ namespace Gateway_API
             });
 
             // Add Swagger for Ocelot
-            builder.Services.AddSwaggerForOcelot(builder.Configuration, option =>
-            {
-                option.GenerateDocsForGatewayItSelf = true;
-            });
+            builder.Services.AddHttpClient("SwaggerForOcelotClient")
+                .ConfigureHttpClient(client =>
+                {
+                    client.Timeout = TimeSpan.FromMinutes(2);
+                });
 
+            // Sau đó đăng ký SwaggerForOcelot như bình thường
+            builder.Services.AddSwaggerForOcelot(builder.Configuration, options =>
+            {
+                options.GenerateDocsForGatewayItSelf = true;
+            });
             // Add Ocelot services
             builder.Services.AddOcelot(builder.Configuration);
 
@@ -82,10 +88,12 @@ namespace Gateway_API
             // Configure the HTTP request pipeline.
             app.UseSwagger();
 
+            
             app.UseSwaggerForOcelotUI(options =>
             {
                 options.PathToSwaggerGenerator = "/swagger/docs";
             });
+
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
