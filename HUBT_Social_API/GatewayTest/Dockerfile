@@ -16,7 +16,7 @@ ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
 # Chỉ copy các file .csproj để cache restore
-COPY Gateway_API/GatewayTest.csproj HUBT_Social_API/GatewayTest/
+COPY HUBT_Social_API/GatewayTest/GatewayTest.csproj HUBT_Social_API/GatewayTest/
 
 # Restore tất cả dependencies
 RUN dotnet restore HUBT_Social_API/GatewayTest/GatewayTest.csproj
