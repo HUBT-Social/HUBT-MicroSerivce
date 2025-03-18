@@ -44,9 +44,8 @@ namespace Gateway_API.Hubs
                     await writer.WriteAsync($"Server is not responding ❌");
                 }
 
-                await writer.WriteAsync($"Không thể kích hoạt service sau nhiều lần thử. ❌");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await writer.WriteAsync($"Failed to spin up server ❌");
             }
