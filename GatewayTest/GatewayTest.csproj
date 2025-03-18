@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\HUBT_Social_API</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\HUBT_Social_API\.dockerignore" Link=".dockerignore">
+      <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HUBT_Social_Core\HUBT_Social_Base\HUBT_Social_Base.csproj" />
+    <ProjectReference Include="..\HUBT_Social_Core\HUBT_Social_Core\HUBT_Social_Core.csproj" />
+  </ItemGroup>
+
+</Project>

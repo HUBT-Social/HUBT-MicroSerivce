@@ -12,7 +12,10 @@
           "Port": 443
         }
       ],
-      "SwaggerKey": "user-service"
+      "SwaggerKey": "user-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     },
     {
       "UpstreamPathTemplate": "/api/user/delete-user",
