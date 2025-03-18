@@ -17,39 +17,86 @@ namespace HUBT_Social_Base.Service
 
         public async Task<ResponseDTO> SendAsync(RequestDTO request)
         {
-            try
+            HttpClient client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromMinutes(2); // Đặt timeout dài hơn
+            int retryCount = 0;
+            int delay = 2000; // Bắt đầu với 2 giây
+            while (retryCount < 5)
             {
-                HttpClient client = _httpClientFactory.CreateClient();
-                HttpRequestMessage message = CreateHttpRequestMessage(request);
-                HttpResponseMessage apiResponse = await client.SendAsync(message);
+                try
+                {
+                    HttpRequestMessage message = CreateHttpRequestMessage(request);
+                    HttpResponseMessage apiResponse = await client.SendAsync(message);
 
-                return await ProcessApiResponse(apiResponse);
+                    if (apiResponse.IsSuccessStatusCode)
+                    {
+                        return await ProcessApiResponse(apiResponse);
+                    }
+
+                    if (apiResponse.StatusCode == HttpStatusCode.BadGateway)
+                    {
+                        Console.WriteLine($"Server chưa khởi động, thử lại sau {delay / 1000} giây...");
+                        await Task.Delay(delay);
+                        delay *= 2; // Tăng delay lên gấp đôi mỗi lần
+                    }
+                    else
+                    {
+                        return await ProcessApiResponse(apiResponse); // Nếu không phải lỗi 502, trả về ngay
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return HandleException();
+                }
+                retryCount++;
+
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return HandleException();
-            }
+            return HandleException();
+
         }
         public async Task<HttpResponseMessage> SendAsyncCore(RequestDTO request)
         {
-            try
-            {
-                HttpClient client = _httpClientFactory.CreateClient();
-                HttpRequestMessage message = CreateHttpRequestMessage(request);
-                HttpResponseMessage apiResponse = await client.SendAsync(message);
+            HttpClient client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromMinutes(2); // Đặt timeout dài hơn
+            int retryCount = 0;
+            int delay = 2000; // Bắt đầu với 2 giây
 
-                return apiResponse;
-            }
-            catch (Exception ex)
+            while (retryCount < 5)
             {
-                Console.WriteLine(ex.Message);
-                return new HttpResponseMessage()
+                try
                 {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Content = new StringContent("An error occurred while processing your request. Please try again.")
-                };
+                    HttpRequestMessage message = CreateHttpRequestMessage(request);
+                    HttpResponseMessage response = await client.SendAsync(message);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return response; // Nếu thành công, trả về ngay
+                    }
+
+                    if (response.StatusCode == HttpStatusCode.BadGateway)
+                    {
+                        Console.WriteLine($"Server chưa khởi động, thử lại sau {delay / 1000} giây...");
+                        await Task.Delay(delay);
+                        delay *= 2; // Tăng delay lên gấp đôi mỗi lần
+                    }
+                    else
+                    {
+                        return response; // Nếu không phải lỗi 502, trả về ngay
+                    }
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Lỗi request: {ex.Message}");
+                }
+
+                retryCount++;
             }
+
+            return new HttpResponseMessage(HttpStatusCode.BadGateway)
+            {
+                Content = new StringContent("Không thể kết nối đến server sau nhiều lần thử.")
+            };
         }
 
 

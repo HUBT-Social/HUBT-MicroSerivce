@@ -12,7 +12,12 @@ namespace HUBT_Social_Base.ASP_Extentions
         where IService : class, IBaseService
         where Service : class, IService
         {
-            services.AddHttpClient<IService, Service>();
+            services.AddHttpClient<IService, Service>()
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5)) 
+                .ConfigureHttpClient(client =>
+                {
+                    client.Timeout = TimeSpan.FromMinutes(2);
+                }); ;
             services.AddScoped<IHttpService, HttpService>();
             services.AddScoped<IService>(sp =>
             {
