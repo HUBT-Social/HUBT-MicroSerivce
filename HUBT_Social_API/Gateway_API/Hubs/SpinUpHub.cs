@@ -3,8 +3,10 @@ using System.Threading.Channels;
 
 namespace Gateway_API.Hubs
 {
-    public class SpinUpHub : Hub
+    public class SpinUpHub(IConfiguration configuration) : Hub
     {
+        private readonly string? CloudflareWorkerUrl = configuration.GetSection("CloudflareWorkerUrl").Get<string>();
+
         public ChannelReader<string> SpinUpServers(string url)
         {
             var channel = Channel.CreateUnbounded<string>();
@@ -14,83 +16,39 @@ namespace Gateway_API.Hubs
             return channel.Reader;
         }
 
-        //private static async Task RunRequestAsync(ChannelWriter<string> writer, string url)
-        //{
-        //    string serviceUrl = $"https://{url}/ping";
-        //    var httpClient = new HttpClient();
-
-        //    try
-        //    {
-        //        await writer.WriteAsync($"Connecting to Sever... ⏳");
-
-        //        var response = await httpClient.GetAsync(serviceUrl);
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            await writer.WriteAsync($"is up and running. ✅");
-        //        }
-        //        else
-        //        {
-        //            await writer.WriteAsync($"is not responding. ❌");
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        await writer.WriteAsync($"failed to Spin up ❌");
-        //    }
-        //    finally
-        //    {
-        //        writer.Complete();
-        //    }
-        //}
-        private static async Task RunRequestAsync(ChannelWriter<string> writer, string url)
+        private async Task RunRequestAsync(ChannelWriter<string> writer, string url)
         {
-            string serviceUrl = $"https://{url}/ping";
-            var httpClient = new HttpClient
+            if (string.IsNullOrEmpty(CloudflareWorkerUrl))
             {
-                // Tăng timeout lên đáng kể để đợi service spin up
-                Timeout = TimeSpan.FromMinutes(2)
-            };
+                await writer.WriteAsync("CloudflareWorkerUrl is not configured ❌");
+                writer.Complete();
+                return;
+            }
+
+            string serviceUrl = $"{CloudflareWorkerUrl}?host={url}";
+            var httpClient = new HttpClient();
 
             try
             {
-                await writer.WriteAsync($"Đang kết nối đến server... ⏳");
+                await writer.WriteAsync($"Connecting to Server... ⏳");
 
-                // Thử lại nhiều lần với thời gian chờ giữa các lần thử
-                int maxRetries = 5;
-                for (int i = 0; i < maxRetries; i++)
+                var response = await httpClient.GetAsync(serviceUrl);
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
                 {
-                    try
-                    {
-                        if (i > 0)
-                        {
-                            await writer.WriteAsync($"Đang thử lần thứ {i + 1}...");
-                        }
-
-                        var response = await httpClient.GetAsync(serviceUrl);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            await writer.WriteAsync($"Đã hoạt động và sẵn sàng. ✅");
-                            return;
-                        }
-                        else
-                        {
-                            await writer.WriteAsync($"Đang khởi động (Status: {response.StatusCode})...");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await writer.WriteAsync($"Lỗi: {ex.Message}. Đang đợi và thử lại...");
-                    }
-
-                    // Tăng thời gian đợi theo cấp số nhân (exponential backoff)
-                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, i)));
+                    await writer.WriteAsync($"Server is up and running ✅");
+                }
+                else
+                {
+                    await writer.WriteAsync($"Server is not responding ❌");
                 }
 
                 await writer.WriteAsync($"Không thể kích hoạt service sau nhiều lần thử. ❌");
             }
             catch (Exception ex)
             {
-                await writer.WriteAsync($"Lỗi không xác định: {ex.Message} ❌");
+                await writer.WriteAsync($"Failed to spin up server ❌");
             }
             finally
             {
