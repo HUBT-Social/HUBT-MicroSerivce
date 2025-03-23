@@ -17,10 +17,11 @@ namespace Chat_API.Src.Controllers
 {
     [Route("api/chat/room")]
     [ApiController]
-    public class RoomController(IRoomService roomService, IUserService userService) : ControllerBase
+    public class RoomController(IRoomService roomService, IChatService chatService, IUserService userService) : ControllerBase
     {
         private readonly IRoomService _roomService = roomService;
         public readonly IUserService _userService = userService;
+        private readonly IChatService _chatService = chatService;
         private string? ReadTokenFromHeader() => Request.Headers.ExtractBearerToken();
 
         [HttpPut("update-group-name")]
@@ -123,7 +124,7 @@ namespace Chat_API.Src.Controllers
             return Ok(users.response);
         }
 
-        [HttpGet("get-member")]
+        [HttpGet("info")]
         public async Task<IActionResult> GetRoomUser([FromQuery] string groupId)
         {
             string? token = ReadTokenFromHeader();
@@ -145,7 +146,7 @@ namespace Chat_API.Src.Controllers
                 return Unauthorized();
             }
 
-            var currentUser = users.response.FirstOrDefault(u => u.id == users.caller);
+            ChatUserResponse?  currentUser = users.response.FirstOrDefault(u => u.id == users.caller);
 
             if (currentUser == null)
             {
@@ -154,7 +155,8 @@ namespace Chat_API.Src.Controllers
 
             return Ok(new
             {
-                GroupId = groupId,
+                Title = users.title,
+                AvatarUrl = users.avatarUrl,
                 CurrentUser = currentUser,
                 OtherUsers = users.response
                     .Where(u => u.id != users.caller)

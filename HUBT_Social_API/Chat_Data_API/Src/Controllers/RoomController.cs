@@ -1,6 +1,5 @@
 ﻿using Amazon.Runtime.Internal;
 using AutoMapper;
-using Chat_Data_API.Hubs;
 using Chat_Data_API.Src.Hubs;
 using HUBT_Social_Base;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
@@ -20,7 +19,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System.Text.RegularExpressions;
 
-namespace Chat_Data_API.Controllers
+namespace Chat_Data_API.Src.Controllers
 {
     [Route("api/room")]
     [ApiController]
@@ -40,7 +39,7 @@ namespace Chat_Data_API.Controllers
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IRoomGetService _roomGetService = roomGetService;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
-        public readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
+        private readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
 
         [HttpPut("update-group-name")]
         public async Task<IActionResult> UpdateGroupNameAsync(UpdateGroupNameRequest request)
@@ -83,7 +82,7 @@ namespace Chat_Data_API.Controllers
                 .SendAsync("UpdateGroupAvarta",
                     new
                     {
-                        groupId = groupId,
+                        groupId,
                         changerId = userInfo.UserId,
                         url = result.Item2
                     });
@@ -131,7 +130,7 @@ namespace Chat_Data_API.Controllers
                 .SendAsync("UpdateParticipantRole",
                     new
                     {
-                        groupId = request.groupId,
+                        request.groupId,
                         changerId = userInfo.UserId,
                         changedId = request.userId,
                         newRole = request.participantRole
@@ -147,6 +146,10 @@ namespace Chat_Data_API.Controllers
         [HttpPost("join-room")]
         public async Task<IActionResult> JoinRoomAsync(AddMemberRequestData request)
         {
+            if(request.Participant == null)
+            {
+                return BadRequest("Participant is null");
+            }
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
@@ -194,7 +197,7 @@ namespace Chat_Data_API.Controllers
                     {
                         groupId = request.GroupId,
                         KickerId = userInfo.UserId,
-                        KickedId = request.KickedId
+                        request.KickedId
                     });
                 return Ok(result.Item2);
             }
@@ -254,17 +257,23 @@ namespace Chat_Data_API.Controllers
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
-            List<ChatUserResponse>? response = await _roomGetService.GetRoomUserAsync(groupId);
+            (List<ChatUserResponse>, ChatGroupModel) response = await _roomGetService.GetRoomUserAsync(groupId);
+            if(!response.Item1.Any())
+            {                
+                return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            }
             return Ok
             (
                 new GetMemberGroup
                 {
+                    title  = response.Item2.Name,
+                    avatarUrl = response.Item2.AvatarUrl,
                     caller = userInfo.UserId,
-                    response = response
+                    response = response.Item1
                 }
             );
         }
-            
-        
+
+
     }
 }

@@ -150,7 +150,7 @@ namespace HUBT_Social_Chat_Service.Services
 
             private async Task<GroupLoadingResponse?> GetGroupByIdAsync(ChatGroupModel chatRoom)
             {
-                var (LastInteraction, LastTime) = await GetRecentChatItemAsync(chatRoom);
+                var (LastInteraction, LastTime) = GetRecentChatItemAsync(chatRoom);
 
 
                 // Trả về đối tượng RoomLoadingRespone với thông tin cần thiết
@@ -164,21 +164,22 @@ namespace HUBT_Social_Chat_Service.Services
                 };
             }
 
-            private async Task<(string LastInteraction, string LastTime)> GetRecentChatItemAsync(ChatGroupModel chatRoom)
+            private (string LastInteraction, string LastTime) GetRecentChatItemAsync(ChatGroupModel chatRoom)
             {
                 // Nếu không có danh sách ChatItems hoặc rỗng, trả về chuỗi rỗng
                 if (chatRoom.Content == null || !chatRoom.Content.Any())
                     return (string.Empty, string.Empty);
 
-                // Lấy tin nhắn mới nhất dựa vào Timestamp
-                var recentMessage = chatRoom.Content
-                    .OrderByDescending(m => m.createdAt)
-                    .FirstOrDefault();
-
+            // Lấy tin nhắn mới nhất dựa vào Timestamp
+               MessageModel? recentMessage = chatRoom.Content.LastOrDefault();
+                if(recentMessage == null && recentMessage?.createdAt == null)
+                {
+                     return (string.Empty, string.Empty);
+                }
                 string LastTime = FormatLastInteractionTime(recentMessage.createdAt);
 
                 // Lấy nickname bất đồng bộ
-                string? nickName =await  chatRoom.Content.LastOrDefault().sentBy.ToName(chatRoom);
+                string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserIdToName(chatRoom);
 
                 // Kiểm tra nếu tin nhắn là loại "Message"
                 if (recentMessage.messageType == MessageType.Text)

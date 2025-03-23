@@ -1,6 +1,6 @@
 ﻿
 using AutoMapper;
-using Chat_Data_API.Hubs;
+using Chat_Data_API.Src.Service;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.ChatRequest;
 using HUBT_Social_Chat_Resources.Dtos.Response;
@@ -9,6 +9,7 @@ using HUBT_Social_Chat_Service.Extention;
 using HUBT_Social_Chat_Service.Helper;
 using HUBT_Social_Chat_Service.Interfaces;
 using HUBT_Social_Core.Decode;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_MongoDb_Service.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,7 @@ namespace Chat_Data_API.Src.Hubs
         private readonly IUploadService _uploadService;
         private readonly IMapper _mapper;
         private readonly JwtSetting _jwtSettings;
+       // private readonly INotition _notition;
 
         public ChatHub(
             IUserConnectionManager userConnectionManager,
@@ -36,6 +38,7 @@ namespace Chat_Data_API.Src.Hubs
             IUploadService uploadService,
             IMapper mapper,
             IOptions<JwtSetting> jwtSettings
+          //  INotition notition
         )
         {
             _userConnectionManager = userConnectionManager;
@@ -43,7 +46,7 @@ namespace Chat_Data_API.Src.Hubs
             _uploadService = uploadService;
             _mapper = mapper;
             _jwtSettings = jwtSettings.Value;
-            Console.WriteLine($"Jwt: {_jwtSettings.ToJson()}");
+           // _notition = notition;
         }
 
         public override async Task OnConnectedAsync()
@@ -107,9 +110,16 @@ namespace Chat_Data_API.Src.Hubs
         public async Task SendItemChat(SendChatRequest inputRequest)
         {
             var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
-            if (userInfo == null)
+            string? token = Context.GetHttpContext()?.Request.Headers.ExtractBearerToken();
+            if (userInfo == null && userInfo?.UserId == null && token == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
+                return;
+            }
+            ChatGroupModel? chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
+            if (chatGroupModel == null)
+            {
+                await Clients.Caller.SendAsync("SendErr", "Group id sai");
                 return;
             }
             var chatRequest = new ChatRequest
@@ -149,8 +159,8 @@ namespace Chat_Data_API.Src.Hubs
                     });
                 }
             }
-                
-            if(string.IsNullOrEmpty(inputRequest.Content))
+
+            if (string.IsNullOrEmpty(inputRequest.Content))
             {
                 await Clients.Caller.SendAsync("ReceiveProcess", new
                 {
@@ -174,9 +184,9 @@ namespace Chat_Data_API.Src.Hubs
                     await Clients.Caller.SendAsync("ReceiveProcess", new
                     {
                         requestId = inputRequest.RequestId,
-                        itemId = itemId, // Giữ nguyên itemId của frontend
+                        itemId, // Giữ nguyên itemId của frontend
                         type = message.messageType,
-                        status = status
+                        status
                     });
 
                     var messageResponse = new MessageResponse<MessageDTO>
@@ -187,6 +197,26 @@ namespace Chat_Data_API.Src.Hubs
                     await Clients.Group(inputRequest.GroupId).SendAsync("ReceiveChat", messageResponse);
                 }
             }
+            //try
+            //{
+            //    string body = inputRequest.Content != null 
+            //        ? inputRequest.Content
+            //        : "You have unread message!";
+            //    SendGroupMessageRequest request = new SendGroupMessageRequest
+            //    {
+            //        GroupId = inputRequest.GroupId,
+            //        RequestId = inputRequest.RequestId,
+            //        Type = "chat",
+            //        ImageUrl = chatGroupModel.AvatarUrl,
+            //        Title = chatGroupModel.Name,
+            //        Body = $"{userInfo.UserId.UserIdToName(chatGroupModel)} : {body}"
+            //    };
+            //    if(token != null)
+            //    {
+            //        await _notition.SendNotationToMany(request, token);
+            //    }  
+            //}
+            //catch { }
         }
 
 
@@ -209,7 +239,7 @@ namespace Chat_Data_API.Src.Hubs
             }
         }
     }
-    
+
 }
 
 

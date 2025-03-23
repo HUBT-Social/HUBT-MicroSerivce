@@ -31,6 +31,24 @@ namespace HUBT_Social_Chat_Service.Helper
                 return new List<string>();
             }
         }
+        public static async Task<ChatGroupModel?> GroupIdToInfo(this IMongoService<ChatGroupModel> chatGroups, string groupId)
+        {
+            try
+            {
+                if (chatGroups == null)
+                    throw new ArgumentNullException(nameof(chatGroups), "Chat groups service cannot be null.");
+
+                var group = await chatGroups.Find(group => group.Id== groupId);
+                if(!group.Any())
+                {
+                    throw new Exception();
+                }
+                return group.FirstOrDefault();
+            }
+            catch { }
+            return null;
+        }
+
 
         public static async Task<string?> GetRoleAsync(this IMongoService<ChatGroupModel> chatGroups, string roomId, string userId)
         {
@@ -57,7 +75,7 @@ namespace HUBT_Social_Chat_Service.Helper
         /// <summary>
         /// Gets the nickname of a user in a specific chat room.
         /// </summary>
-        public static async Task<string?> ToName(this string userId, ChatGroupModel chatGroups)
+        public static string UserIdToName(this string userId, ChatGroupModel chatGroups)
         {
 
             try
@@ -103,6 +121,13 @@ namespace HUBT_Social_Chat_Service.Helper
                 Console.WriteLine($"Error retrieving message {messageId} info in room {roomId}: {ex.Message}");
                 return null;
             }
+        }
+        public static string TakeLimitFromString(this string str, int count)
+        {
+            if (string.IsNullOrEmpty(str) || count <= 0)
+                return string.Empty;
+
+            return str.Length <= count ? str : str.Substring(0, count);
         }
     }
 }

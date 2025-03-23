@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata.Ecma335;
 
-namespace Chat_Data_API.Controllers
+namespace Chat_Data_API.Src.Controllers
 {
     [Route("api/test")]
     [ApiController]
@@ -17,7 +17,7 @@ namespace Chat_Data_API.Controllers
         [HttpPost("upfile")]
         public async Task<IActionResult> UpFile(List<IFormFile> files)
         {
-            if(files is null)
+            if (files is null)
             {
                 return BadRequest("File null.");
             }

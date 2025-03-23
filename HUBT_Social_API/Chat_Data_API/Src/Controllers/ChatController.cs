@@ -20,12 +20,11 @@ using HUBT_Social_Chat_Service.Interfaces;
 using System.Collections.Generic;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using System.Linq;
-using Chat_Data_API.Src.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Amazon.Runtime.Internal;
-using Chat_Data_API.Hubs;
+using Chat_Data_API.Src.Hubs;
 
-namespace Chat_Data_API.Controllers
+namespace Chat_Data_API.Src.Controllers
 {
     [Route("api/chat")]
     [ApiController]
@@ -33,14 +32,14 @@ namespace Chat_Data_API.Controllers
     public class ChatController
         (
             IChatService chatService,
-            IHubContext<ChatHub> hubContext, 
-            IUserConnectionManager connectionManager, 
+            IHubContext<ChatHub> hubContext,
+            IUserConnectionManager connectionManager,
             IMapper mapper,
             IOptions<JwtSetting> options
-        ) 
+        )
         : DataLayerController(mapper, options)
     {
-        private readonly IChatService _chatService  = chatService;
+        private readonly IChatService _chatService = chatService;
 
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
@@ -76,7 +75,7 @@ namespace Chat_Data_API.Controllers
                 }
                 ChatGroupModel? group = await _chatService.GetGroupById(result.Item2);
 
-                if (group != null) 
+                if (group != null)
                 {
                     await _hubContext.Clients.Group(result.Item2)
                     .SendAsync("CreateNewGroup",
@@ -96,26 +95,26 @@ namespace Chat_Data_API.Controllers
             return BadRequest(result.Item2);
         }
         // Phương thức kiểm tra đầu vào
-            private string? ValidateCreateGroupRequest(CreateGroupRequestData request)
-            {
-                if (string.IsNullOrEmpty(request.GroupName))
-                    return LocalValue.Get(KeyStore.GroupNameRequired);
-                if (request.Participants.Count < 2)
-                    return "Khong du nguoi";
-                return null;
-            }
+        private string? ValidateCreateGroupRequest(CreateGroupRequestData request)
+        {
+            if (string.IsNullOrEmpty(request.GroupName))
+                return LocalValue.Get(KeyStore.GroupNameRequired);
+            if (request.Participants.Count < 2)
+                return "Khong du nguoi";
+            return null;
+        }
 
-            // Phương thức tạo ChatRoomModel
-            private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants)
+        // Phương thức tạo ChatRoomModel
+        private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants)
+        {
+            return new ChatGroupModel
             {
-                return new ChatGroupModel
-                {
-                    Name = groupName,
-                    AvatarUrl = LocalValue.Get(KeyStore.DefaultUserImage),
-                    Participant = participants,
-                    CreatedAt = DateTime.UtcNow
-                };
-            }
+                Name = groupName,
+                AvatarUrl = LocalValue.Get(KeyStore.DefaultUserImage),
+                Participant = participants,
+                CreatedAt = DateTime.UtcNow
+            };
+        }
 
         [HttpDelete("delete-group")]
         public async Task<IActionResult> DeleteGroupAsync([FromQuery] string groupId)
@@ -124,7 +123,7 @@ namespace Chat_Data_API.Controllers
             if (result.Item1)
             {
                 ChatGroupModel? group = await _chatService.GetGroupById(groupId);
-                if (group != null) 
+                if (group != null)
                 {
                     foreach (var user in group.Participant)
                     {
@@ -134,7 +133,7 @@ namespace Chat_Data_API.Controllers
                             await _hubContext.Groups.AddToGroupAsync(connectionId, groupId);
                         }
                     }
-                }         
+                }
                 return Ok(result.Item2);
             }
 
@@ -146,7 +145,7 @@ namespace Chat_Data_API.Controllers
         {
             if (string.IsNullOrWhiteSpace(keyword))
                 return Ok(new List<GroupSearchResponse>());
-            List<GroupSearchResponse> chatGroups = await _chatService.SearchGroupsAsync(keyword,page,limit);
+            List<GroupSearchResponse> chatGroups = await _chatService.SearchGroupsAsync(keyword, page, limit);
 
             return Ok(chatGroups);
         }
@@ -165,7 +164,7 @@ namespace Chat_Data_API.Controllers
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo is null)
                 return BadRequest(new { message = "Token is not valid" });
-    
+
             List<GroupLoadingResponse> chatGroups = await _chatService.GetRoomsOfUserIdAsync(userInfo.UserId, page, limit);
             return Ok(chatGroups);
         }

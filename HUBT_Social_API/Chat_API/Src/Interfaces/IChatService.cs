@@ -13,6 +13,7 @@ namespace Chat_API.Src.Interfaces
         Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit,string token);
         Task<List<GroupSearchResponse>> GetAllRoomsAsync(int page, int limit,string token);
         Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(int page, int limit,string token);
+        
 
     }
 }

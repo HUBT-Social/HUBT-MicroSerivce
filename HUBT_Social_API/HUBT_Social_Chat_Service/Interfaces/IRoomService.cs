@@ -28,7 +28,7 @@ namespace HUBT_Social_Chat_Service.Interfaces
         public interface IRoomGetService
         {
             Task<List<MessageModel>> GetMessageHistoryAsync(GetHistoryRequest request);
-            Task<List<ChatUserResponse>> GetRoomUserAsync(string groupId);
+            Task<(List<ChatUserResponse>, ChatGroupModel)> GetRoomUserAsync(string groupId);
         }
         
 }

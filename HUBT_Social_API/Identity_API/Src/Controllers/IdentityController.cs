@@ -63,48 +63,41 @@ namespace Identity_API.Src.Controllers
         }
         [HttpGet("user/get")]
         [AllowAnonymous]
-        public async Task<IActionResult> CheckUser([FromQuery] string? email, [FromQuery] string? userName)
+        public async Task<IActionResult> CheckUser([FromQuery] string? email, [FromQuery] string? userName, [FromQuery] string? userId)
         {
-            AUserDTO? userDTO = null;
+            var userDict = new Dictionary<string, AUser>();
 
-            if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(userName))
+            if (!string.IsNullOrEmpty(email))
             {
-                AUser? userByEmail = await _identityService.FindUserByEmailAsync(email);
-                AUser? userByUserName = await _identityService.FindUserByUserNameAsync(userName);
+                var userByEmail = await _identityService.FindUserByEmailAsync(email);
+                if (userByEmail != null) userDict["email"] = userByEmail;
+            }
 
-                if (userByEmail != null && userByUserName != null)
-                {
-                    if (userByEmail.Id == userByUserName.Id)
-                    {
-                        userDTO = _mapper.Map<AUserDTO>(userByEmail);
-                    }
-                    else
-                    {
-                        return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
-                    }
-                }
-                else if (userByEmail != null)
-                {
-                    userDTO = _mapper.Map<AUserDTO>(userByEmail);
-                }
-                else if (userByUserName != null)
-                {
-                    userDTO = _mapper.Map<AUserDTO>(userByUserName);
-                }
-            }
-            else if (!string.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(userName))
             {
-                AUser? userByEmail = await _identityService.FindUserByEmailAsync(email);
-                userDTO = userByEmail != null ? _mapper.Map<AUserDTO>(userByEmail) : null;
+                var userByUserName = await _identityService.FindUserByUserNameAsync(userName);
+                if (userByUserName != null) userDict["userName"] = userByUserName;
             }
-            else if (!string.IsNullOrEmpty(userName))
+
+            if (!string.IsNullOrEmpty(userId))
             {
-                AUser? userByUserName = await _identityService.FindUserByUserNameAsync(userName);
-                userDTO = userByUserName != null ? _mapper.Map<AUserDTO>(userByUserName) : null;
+                var userById = await _identityService.FindUserByIdAsync(userId);
+                if (userById != null) userDict["userId"] = userById;
             }
+
+            // Kiểm tra xem có nhiều user khác nhau không
+            if (userDict.Values.Select(u => u.Id).Distinct().Count() > 1)
+            {
+                return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            }
+
+            // Lấy user nếu có, ưu tiên theo thứ tự email -> username -> userId
+            var finalUser = userDict.Values.FirstOrDefault();
+            var userDTO = finalUser != null ? _mapper.Map<AUserDTO>(finalUser) : null;
 
             return Ok(userDTO);
         }
+
         [HttpPut("update-user")]
         public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateRequest)
         {

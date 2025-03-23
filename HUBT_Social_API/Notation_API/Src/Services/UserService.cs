@@ -20,5 +20,12 @@ namespace Notation_API.Src.Services
             return aUserDTO?.FCMToken;
         }
 
+        public async Task<string?> GetUserFCMFromId(string userId)
+        {
+            string path = $"user/get?userId={userId}";
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET,null, null);
+            AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
+            return aUserDTO?.FCMToken;
+        }
     }
 }

@@ -57,6 +57,6 @@ namespace Chat_API.Src.Services
             return new List<GroupLoadingResponse>();
         }
 
-        
+ 
     }
 }

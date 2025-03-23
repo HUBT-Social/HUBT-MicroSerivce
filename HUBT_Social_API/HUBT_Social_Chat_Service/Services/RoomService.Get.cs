@@ -58,14 +58,14 @@ namespace HUBT_Social_Chat_Service.Services
             return chatHistory;
         }
 
-        public async Task<List<ChatUserResponse>> GetRoomUserAsync(string groupId)
+        public async Task<(List<ChatUserResponse>,ChatGroupModel)> GetRoomUserAsync(string groupId)
         {
             var chatRoom = await _chatGroups.Find(c => c.Id == groupId).FirstOrDefaultAsync();
 
 
             if (chatRoom == null || chatRoom.Participant == null)
             {
-                return new List<ChatUserResponse>();
+                return (new List<ChatUserResponse>(),new ChatGroupModel());
             }
 
             // Lấy thêm thông tin user nếu cần
@@ -80,7 +80,7 @@ namespace HUBT_Social_Chat_Service.Services
                 res.Add(chatUserResponse);
             }
 
-            return res;
+            return (res,chatRoom);
         }
     }
 }

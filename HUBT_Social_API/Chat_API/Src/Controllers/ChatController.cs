@@ -71,11 +71,11 @@ namespace Chat_API.Src.Controllers
                 return Ok(new { message = response.Message });
 
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            if (response?.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return Unauthorized(response.Message);
             }
-            return BadRequest(response.Message);
+            return BadRequest(response?.Message);
         }
 
 
@@ -129,11 +129,11 @@ namespace Chat_API.Src.Controllers
                 return Ok(new { message = response.Message });
 
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            if (response?.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return Unauthorized(response.Message);
             }
-            return BadRequest(response.Message);
+            return BadRequest(response?.Message);
         }
     }
 }

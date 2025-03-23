@@ -1,4 +1,4 @@
-﻿namespace Chat_Data_API.Hubs
+﻿namespace Chat_Data_API.Src.Hubs
 {
     public class UserConnectionManager : IUserConnectionManager
     {

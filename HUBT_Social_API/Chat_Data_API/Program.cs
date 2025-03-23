@@ -1,6 +1,5 @@
 ﻿
 using Chat_Data_API.Configurations;
-using Chat_Data_API.Hubs;
 using Chat_Data_API.Src.Hubs;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Chat_Service.ASP_Extensions;
