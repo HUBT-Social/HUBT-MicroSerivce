@@ -2,7 +2,7 @@
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.Requests.LoginRequest;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -43,13 +43,17 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
 
                 if (await CheckUserAccountExit(model))
                     return (IdentityResult.Failed(new IdentityError { Description = "Tài khoản đã được đăng ký." }), null);
-
+                var user = new TUser();
                 // Tạo người dùng mới
-                var user = new TUser
+                if (!model.Email.IsNullOrEmpty())
                 {
-                    UserName = model.UserName,
-                    Email = model.Email
-                };
+                    user = new TUser { Email = model.Email, UserName = model.UserName };
+                }
+                else
+                {
+                    user = new TUser { UserName = model.UserName};
+                }
+
 
 
                 // Tạo tài khoản và kiểm tra kết quả
@@ -82,8 +86,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             {
                 new(ClaimTypes.Name, user.UserName),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Email, user.Email)
+                new(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
                 // Gán vai trò và Claims cho người dùng
@@ -114,8 +117,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
         }
         private async Task<bool> CheckUserAccountExit(RegisterRequest model)
         {
-            return await _userManager.FindByNameAsync(model.UserName) != null ||
-                   await _userManager.FindByEmailAsync(model.Email) != null;
+            return await _userManager.FindByNameAsync(model.UserName) != null;
         }
         private async Task<TUser?> FindUserByIdentifierAsync(ILoginRequest identifier)
         {

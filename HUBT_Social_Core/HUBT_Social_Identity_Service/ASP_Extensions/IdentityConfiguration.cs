@@ -31,14 +31,16 @@ namespace HUBT_Social_Identity_Service.ASP_Extensions
                 },
                 IdentityOptionsAction = option =>
                 {
-                    option.Password.RequireDigit = true;
-                    option.Password.RequiredLength = 8;
+                    option.Password.RequireDigit = false;
+                    option.Password.RequiredLength = 5;
                     option.Password.RequireNonAlphanumeric = false;
-                    option.Password.RequireLowercase = true;
-                    option.Password.RequireUppercase = true;
+                    option.Password.RequireLowercase = false;
+                    option.Password.RequireUppercase = false;
+
+                    option.User.RequireUniqueEmail = false;
+
                     option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
                     option.Lockout.MaxFailedAccessAttempts = 5;
-                    option.User.RequireUniqueEmail = true;
                 }
             };
 

@@ -39,8 +39,9 @@ namespace Identity_API.Src.Controllers
         [HttpPost("create-account")]
         public async Task<IActionResult> SignUpAsync([FromBody] RegisterRequest model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            //if (!ModelState.IsValid)
+            //    return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+
             var (result, user) = await _identityAuthService.RegisterAsync(model);
             AUserDTO userDTO = _mapper.Map<AUserDTO>(user);
             return Ok(new { Result = result, User = userDTO });

@@ -12,12 +12,12 @@ namespace Notation_API.Src.Services
 {
     public class UserService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), IUserService
     {
-        public async Task<string?> GetUserFCM(string accessToken)
+        public async Task<AUserDTO?> GetUserFCM(string accessToken)
         {
             string path = $"user";
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET,null, accessToken);
             AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
-            return aUserDTO?.FCMToken;
+            return aUserDTO;
         }
 
     }
