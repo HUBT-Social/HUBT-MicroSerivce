@@ -24,20 +24,23 @@ namespace Notation_API.Src.Controllers
         private readonly IOutSourceService _notationService = notationService;
         private readonly IFireBaseNotificationService _fireBaseNotificationService = fireBaseNotificationService;
         [HttpGet("check-score")]
-        public async Task<IActionResult> GetAVGScoreByMasv(string masv)
+        public async Task<IActionResult> GetAVGScoreByMasv()
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            AVGScoreDTO? result = await _notationService.GetAVGScoreByMasv(masv);
-            if (result == null)
-                return NotFound();   
                 
             try
             {
-                string? userFcm = await _userService.GetUserFCM(accessToken);
-                if (userFcm == null)
-                    return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+                AUserDTO? userDTO = await _userService.GetUserFCM(accessToken);
+                if (userDTO == null)
+                    return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+                AVGScoreDTO? result = await _notationService.GetAVGScoreByMasv(userDTO.UserName);
+                if (result == null)
+                    return NotFound();
+
+
                 int course = int.Parse(result.MaSV[..2]);
                 int year = DateTime.Now.Month < 8 ? DateTime.Now.Year - 1994 + course - 1 : DateTime.Now.Year - 1994 + course;
 
@@ -45,7 +48,7 @@ namespace Notation_API.Src.Controllers
                 {
                     SendMessageRequest message = new()
                     {
-                        Token = userFcm,
+                        Token = userDTO.FCMToken,
                         Title = "Cảnh báo điểm số!!!",
                         Body = $"Sinh viên {result.MaSV} có điểm trung bình 10 là {result.DiemTB10}, điểm trung bình 4 là {result.DiemTB4}."
                     };
@@ -55,7 +58,7 @@ namespace Notation_API.Src.Controllers
                 {
                     SendMessageRequest message = new()
                     {
-                        Token = userFcm,
+                        Token = userDTO.FCMToken,
                         Title = "điểm số của bạn",
                         Body = $"Sinh viên {result.MaSV} có điểm trung bình 10 là {result.DiemTB10}, điểm trung bình 4 là {result.DiemTB4}."
                     };

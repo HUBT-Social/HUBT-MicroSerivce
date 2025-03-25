@@ -20,23 +20,31 @@ namespace HUBT_Social_Core.Models.Requests.LoginRequest
 
         private static string EncodeEmail(string email)
         {
-            string[] emailParts = email.Split('@');
-
-            if (emailParts.Length == 2)
+            try
             {
-                string username = emailParts[0];
-                string domain = emailParts[1];
+                if (string.IsNullOrEmpty(email))
+                    return string.Empty;
+                string[] emailParts = email.Split('@');
 
-                string maskedUsername = string.Concat(username.AsSpan(0, 3), new string('*', Math.Max(0, username.Length)));
+                if (emailParts.Length == 2)
+                {
+                    string username = emailParts[0];
+                    string domain = emailParts[1];
 
-                var domainParts = domain.Split('.');
-                string maskedDomain = new('*', domainParts[0].Length);
+                    string maskedUsername = string.Concat(username.AsSpan(0, 3), new string('*', Math.Max(0, username.Length)));
 
-                return $"{maskedUsername}@{maskedDomain}.{domainParts[1]}";
+                    var domainParts = domain.Split('.');
+                    string maskedDomain = new('*', domainParts[0].Length);
+
+                    return $"{maskedUsername}@{maskedDomain}.{domainParts[1]}";
+                }
             }
-
-
+            catch (Exception)
+            {
+                return string.Empty;
+            }
             return string.Empty;
+
 
         }
     }

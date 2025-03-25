@@ -8,7 +8,7 @@ namespace Notation_API.Src.Services
 {
     public interface IUserService : IBaseService
     {
-        Task<string?> GetUserFCM(string accessToken);
+        Task<AUserDTO?> GetUserFCM(string accessToken);
         Task<string?> GetUserFCMFromId(string userId);
     }
 }

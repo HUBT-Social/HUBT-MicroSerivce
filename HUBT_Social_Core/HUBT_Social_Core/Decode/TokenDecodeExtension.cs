@@ -85,7 +85,7 @@ namespace HUBT_Social_Core.Decode
                 .Distinct()
                 .ToArray() ?? [];
 
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(tokenId))
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(tokenId))
             {
                 Console.WriteLine("Token missing required claims.");
                 return null;
@@ -95,7 +95,7 @@ namespace HUBT_Social_Core.Decode
             {
                 Username = username,
                 UserId = userId,
-                Email = email,
+                Email = email ?? string.Empty,
                 TokenId = tokenId,
                 Roles = roles
             };
