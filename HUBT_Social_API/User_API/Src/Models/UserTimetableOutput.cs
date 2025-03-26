@@ -1,11 +1,15 @@
-﻿using HUBT_Social_Core.Models.OutSourceDataDTO;
+﻿using HUBT_Social_Core.Models.DTOs.UserDTO;
+using HUBT_Social_Core.Models.OutSourceDataDTO;
+using HUBT_Social_Core.Settings.@enum;
 using System;
 using System.Globalization;
+using User_API.Src.Service;
 
 namespace User_API.Src.Models
 {
-    public class UserTimetableOutput
+    public class UserTimetableOutput(ITempService tempService)
     {
+        private readonly ITempService _tempService = tempService;
         private DateTime _starttime;
         private DateTime _endtime;
 
@@ -31,9 +35,8 @@ namespace User_API.Src.Models
 
         public List<ReformTimetable> ReformTimetables { get; set; } = [];
 
-        public List<ReformTimetable> GenerateReformTimetables(List<TimeTableDTO> timetables)
+        public async Task<List<ReformTimetable>> GenerateReformTimetables(List<TimeTableDTO> timetables)
         {
-            
             DateTime currentDate = Starttime;
             while (currentDate <= Endtime)
             {
@@ -41,7 +44,10 @@ namespace User_API.Src.Models
                 {
                     if (IsMatchingDay(timetable.Day, currentDate))
                     {
-                        ReformTimetables.Add(new ReformTimetable(timetable, currentDate));
+                        ReformTimetable reformTimetable = new(timetable, currentDate);
+                        TimetableOutputDTO timetableOutputDTO = reformTimetable;
+                        if (await _tempService.StoreIn(timetableOutputDTO))
+                            ReformTimetables.Add(reformTimetable);
                     }
                 }
                 currentDate = currentDate.AddDays(1);
@@ -65,17 +71,20 @@ namespace User_API.Src.Models
         }
     }
 
-    public class ReformTimetable(TimeTableDTO timetable, DateTime startDay)
+    public class ReformTimetable : TimetableOutputDTO
     {
 
-        public string Id => timetable.Id;
-        public string ClassName => timetable.ClassName;
-        public DateTime StartTime { get => SetStartTime(timetable.Session, startDay);}
-        public DateTime? EndTime { get => Type == TimeTableType.Study ? StartTime.AddHours(5): null; }
-        public string Room => timetable.Room;
-        public string Subject => timetable.Subject;
-        public string? ZoomID => timetable.ZoomID;
-        public TimeTableType Type { get; set; } = TimeTableType.Study;
+        public ReformTimetable(TimeTableDTO timetable, DateTime startDay)
+        {
+            this.Id = timetable.Id;
+            this.ClassName = timetable.ClassName;
+            this.StartTime = SetStartTime(timetable.Session, startDay);
+            this.EndTime = Type == TimeTableType.Study ? StartTime.AddHours(5) : null;
+            this.Room = timetable.Room;
+            this.Subject = timetable.Subject;
+            this.ZoomID = timetable.ZoomID;
+            this.Type = TimeTableType.Study;
+        }
 
         private static DateTime SetStartTime(string session, DateTime baseDate)
         {
@@ -91,12 +100,6 @@ namespace User_API.Src.Models
 
     }
 
-    public enum TimeTableType
-    {
-        Study,
-        Exam,
-        Seminal,
-        RetakeExam
-    }
+
 }
 

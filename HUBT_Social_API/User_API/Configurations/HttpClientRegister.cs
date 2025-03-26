@@ -11,20 +11,19 @@ namespace User_API.Configurations
             string? identityPath = configuration.GetSection("IdentityApi").Get<string>();
             string? NotationPath = configuration.GetSection("NotationApi").Get<string>();
             string? HubtPath = configuration.GetSection("HUBT_Data").Get<string>();
+            string? tempUserPath = configuration.GetSection("TempUserApi").Get<string>();
 
             if (identityPath != null)
-            {
                 services.AddRegisterClientService<IUserService, UserService>(identityPath);
-            }
+            
             if (NotationPath != null)
-            {
                 services.AddRegisterClientService<INotationService, NotationService>(NotationPath);
-            }
+            
             if (HubtPath != null)
-            {
                 services.AddRegisterClientService<IOutSourceService, OutSourceService>(HubtPath);
-            }
-
+            
+            if (tempUserPath != null)
+                services.AddRegisterClientService<ITempService, TempService>(tempUserPath);
             return services;
         }
     }

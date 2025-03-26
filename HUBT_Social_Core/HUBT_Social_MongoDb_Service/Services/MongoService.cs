@@ -147,7 +147,7 @@ namespace HUBT_Social_MongoDb_Service.Services
             }
             catch (Exception)
             {
-                return new List<Collection>(); // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
+                return []; // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
             }
         }
 
@@ -184,7 +184,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         )
         {
             if (startIndex < 0 || count <= 0)
-                return new List<TField>();
+                return [];
 
             try
             {
@@ -208,16 +208,16 @@ namespace HUBT_Social_MongoDb_Service.Services
 
                 // Nếu không tìm thấy document, trả về danh sách rỗng
                 if (result == null || result.Count == 0)
-                    return new List<TField>();
+                    return [];
 
                 // Trích xuất danh sách từ result
-                var items = fieldSelector.Compile()(result.FirstOrDefault());
-                return items?.ToList() ?? new List<TField>();
+                var items = fieldSelector.Compile()(result.FirstOrDefault()!);
+                return items?.ToList() ?? [];
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Lỗi khi lấy dữ liệu: {ex.Message}");
-                return new List<TField>();
+                return [];
             }
         }
 

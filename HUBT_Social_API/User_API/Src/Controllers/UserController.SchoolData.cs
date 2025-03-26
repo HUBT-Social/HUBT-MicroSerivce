@@ -14,11 +14,11 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user/schooldata")]
     [ApiController]
-    public class UserShoolDataController(IUserService userService,IOutSourceService outSourceService) : ControllerBase
+    public class UserShoolDataController(IUserService userService, IOutSourceService outSourceService, ITempService tempService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
         private readonly IOutSourceService _outSourceService = outSourceService;
-
+        private readonly ITempService _tempService = tempService;
 
         [HttpGet("timetable")]
         public async Task<IActionResult> GetUserTimeTable()
@@ -38,14 +38,16 @@ namespace User_API.Src.Controllers
                 return NotFound();
 
             List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
+
+
             if (timeTableDTOs != null)
             {
-                UserTimetableOutput userTimetableOutput = new()
+                UserTimetableOutput userTimetableOutput = new(_tempService)
                 {
-                    Starttime = DateTime.UtcNow,
-                    Endtime = DateTime.UtcNow.AddMonths(2),
+                    Starttime = DateTime.UtcNow.Date,
+                    Endtime = DateTime.UtcNow.Date.AddMonths(2),
                 };
-                userTimetableOutput.GenerateReformTimetables(timeTableDTOs);
+                await userTimetableOutput.GenerateReformTimetables(timeTableDTOs);
                 return Ok(userTimetableOutput);
             }
 
@@ -71,17 +73,17 @@ namespace User_API.Src.Controllers
                 return NotFound();
 
             TimeTableDTO? timeTableDTO = await _outSourceService.GetTimeTableById(timetableId);
-            
+
             if (timeTableDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
-            
+
             List<StudentDTO> studentDTOs = await _outSourceService.GetStudentByClassName(studentDTO.TenLop);
             if (studentDTOs.Count != 0)
             {
                 List<AUserDTO> aUserDTOs = [];
                 foreach (var student in studentDTOs)
                 {
-                    ResponseDTO response = await _userService.FindUserByUserName(accessToken,student.MaSV);
+                    ResponseDTO response = await _userService.FindUserByUserName(accessToken, student.MaSV);
                     AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
                     if (aUserDTO != null)
                     {
@@ -93,7 +95,7 @@ namespace User_API.Src.Controllers
             }
 
 
-                
+
             return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));
         }
     }
