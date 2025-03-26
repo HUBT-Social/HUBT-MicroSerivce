@@ -1,5 +1,6 @@
 ﻿using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using System;
 using System.Collections.Generic;
@@ -7,12 +8,24 @@ using User_API.Src.Service;
 
 namespace User_API.Src.Models
 {
-    public class TimetableInfo(TimeTableDTO timetable,
-        List<AUserDTO> studentDTOs,
-        DateTime stattingTime) : ReformTimetable(timetable, stattingTime)
+    public class TimetableInfo : TimetableOutputDTO
     {
+        private readonly List<AUserDTO> studentDTOs;
+        public TimetableInfo(TimetableOutputDTO timetable,
+            List<AUserDTO> studentDTOs)
+        {
+            this.Id = timetable.Id;
+            this.ClassName = timetable.ClassName;
+            this.StartTime = timetable.StartTime;
+            this.EndTime = timetable.EndTime;
+            this.Subject = timetable.Subject;
+            this.Room = timetable.Room;
+            this.ZoomID = timetable.ZoomID;
+            this.Type = timetable.Type;
+            this.studentDTOs = studentDTOs;
+        }
         private static readonly Random _random = new();
-        public int CountMenber { get; set; } = studentDTOs.Count;
+        public int CountMenber { get => studentDTOs.Count; }
         public int CreditNum => _random.Next(0, 2) == 0 ? 2 : 4;
 
         public List<TimetableMember> TimetableMembers => GenderMembers();

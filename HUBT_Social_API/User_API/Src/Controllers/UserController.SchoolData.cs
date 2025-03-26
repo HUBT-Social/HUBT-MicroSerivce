@@ -9,6 +9,7 @@ using User_API.Src.Service;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using User_API.Src.Models;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 
 namespace User_API.Src.Controllers
 {
@@ -72,7 +73,7 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            TimeTableDTO? timeTableDTO = await _outSourceService.GetTimeTableById(timetableId);
+            TimetableOutputDTO? timeTableDTO = await _tempService.Get(timetableId);
 
             if (timeTableDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
@@ -90,7 +91,7 @@ namespace User_API.Src.Controllers
                         aUserDTOs.Add(aUserDTO);
                     }
                 }
-                TimetableInfo timetableInfo = new(timeTableDTO, aUserDTOs, DateTime.UtcNow);
+                TimetableInfo timetableInfo = new(timeTableDTO, aUserDTOs);
                 return Ok(timetableInfo);
             }
 

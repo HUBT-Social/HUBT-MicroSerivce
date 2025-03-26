@@ -7,7 +7,7 @@ namespace User_API.Src.Service
 {
     public interface ITempService : IBaseService
     {
-        Task<bool> StoreIn(TimetableOutputDTO request);
+        Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request);
         Task<TimetableOutputDTO> Get(string id);
     }
 }

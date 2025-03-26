@@ -17,10 +17,10 @@ namespace User_API.Src.Service
             return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
         }
 
-        public async Task<bool> StoreIn(TimetableOutputDTO request)
+        public async Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request)
         {
             ResponseDTO responseDTO = await SendRequestAsync("temptimetable", ApiType.POST, request);
-            return responseDTO.StatusCode == HttpStatusCode.OK;
+            return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
         }
     }
 }

@@ -46,8 +46,13 @@ namespace User_API.Src.Models
                     {
                         ReformTimetable reformTimetable = new(timetable, currentDate);
                         TimetableOutputDTO timetableOutputDTO = reformTimetable;
-                        if (await _tempService.StoreIn(timetableOutputDTO))
+                        TimetableOutputDTO result = await _tempService.StoreIn(timetableOutputDTO);
+                        if (result.Id != string.Empty)
+                        {
+                            reformTimetable.Id = result.Id;
                             ReformTimetables.Add(reformTimetable);
+                        }
+                        
                     }
                 }
                 currentDate = currentDate.AddDays(1);

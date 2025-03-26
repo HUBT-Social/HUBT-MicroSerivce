@@ -19,7 +19,7 @@ namespace TempRegister_API.Src.Controllers
     {
         private readonly IMongoService<TempTimetable> _tempTimeTable = tempTimeTable;
         
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetById([FromQuery] string id)
         {
             TempTimetable? timetable = await _tempTimeTable.GetById(id);
@@ -31,11 +31,17 @@ namespace TempRegister_API.Src.Controllers
             return Ok(timetableOutputDTO);
         }
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TimetableOutputDTO timetableInputDTO)
+        public async Task<IActionResult> Create([FromBody] TimetableOutputDTO timetableOutDTO)
         {
-            timetableInputDTO.Id = string.Empty;
-            TempTimetable timetable = _mapper.Map<TempTimetable>(timetableInputDTO);
-            return Ok(await _tempTimeTable.Create(timetable));
+            timetableOutDTO.Id = string.Empty;
+            TempTimetable timetable = _mapper.Map<TempTimetable>(timetableOutDTO);
+
+            if (await _tempTimeTable.Create(timetable))
+            {
+                timetableOutDTO.Id = timetable.Id;
+                return Ok(timetableOutDTO);
+            }
+            return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
         }
     }
 }
