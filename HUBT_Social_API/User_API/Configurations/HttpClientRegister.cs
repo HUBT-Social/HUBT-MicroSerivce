@@ -10,6 +10,8 @@ namespace User_API.Configurations
             services.AddHttpClientService();
             string? identityPath = configuration.GetSection("IdentityApi").Get<string>();
             string? NotationPath = configuration.GetSection("NotationApi").Get<string>();
+            string? HubtPath = configuration.GetSection("HUBT_Data").Get<string>();
+
             if (identityPath != null)
             {
                 services.AddRegisterClientService<IUserService, UserService>(identityPath);
@@ -18,7 +20,10 @@ namespace User_API.Configurations
             {
                 services.AddRegisterClientService<INotationService, NotationService>(NotationPath);
             }
-
+            if (HubtPath != null)
+            {
+                services.AddRegisterClientService<IOutSourceService, OutSourceService>(HubtPath);
+            }
 
             return services;
         }

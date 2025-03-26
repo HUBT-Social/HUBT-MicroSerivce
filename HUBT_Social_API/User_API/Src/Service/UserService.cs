@@ -17,9 +17,9 @@ namespace User_API.Src.Service
             string path = $"user";
             return await SendRequestAsync(path, ApiType.GET,null,accessToken);
         }
-        public async Task<ResponseDTO> GetAllUser(string accessToken)
+        public async Task<ResponseDTO> FindUserByUserName(string accessToken,string username)
         {
-            string path = $"userAll";
+            string path = $"user/get?username={username}";
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
 

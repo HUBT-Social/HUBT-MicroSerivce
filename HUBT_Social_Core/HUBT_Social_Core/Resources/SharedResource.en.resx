@@ -472,4 +472,10 @@
   <data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
     <value>There some one login you account at: </value>
   </data>
+  <data name="TimetableMemberNotfound" xml:space="preserve">
+    <value>No timetable member found</value>
+  </data>
+  <data name="TimetableNotfound" xml:space="preserve">
+    <value>Time table Not found</value>
+  </data>
 </root>

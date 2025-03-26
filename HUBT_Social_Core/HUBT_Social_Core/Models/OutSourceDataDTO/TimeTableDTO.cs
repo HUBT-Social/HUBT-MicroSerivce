@@ -5,6 +5,7 @@ namespace HUBT_Social_Core.Models.OutSourceDataDTO
     
     public class TimeTableDTO
     {
+        public string Id { get; set; } = string.Empty;
         public string ClassName { get; set; } = string.Empty;
 
         public string Day { get; set; } = string.Empty;

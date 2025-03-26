@@ -55,17 +55,17 @@ namespace User_API.Src.Controllers
             return BadRequest(result.Message);
 
         }
-        [HttpGet("userAll")]
-        public async Task<IActionResult> GetAllUser()
+        [HttpGet("user-find")]
+        public async Task<IActionResult> GetAllUser(string usename)
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
             {
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             }
-            ResponseDTO result = await _identityService.GetAllUser(accessToken);
+            ResponseDTO result = await _identityService.FindUserByUserName(accessToken,usename);
 
-            List<AUserDTO>? userDTO = result.ConvertTo<List<AUserDTO>>();
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
 
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
                 return Ok(userDTO);

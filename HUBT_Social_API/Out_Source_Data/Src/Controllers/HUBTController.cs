@@ -34,6 +34,14 @@ namespace Out_Source_Data.Src.Controllers
             StudentDTO studentDTO = _mapper.Map<StudentDTO>(studentInfo);
             return Ok(studentDTO);
         }
+        [HttpGet("sinhvien/{className}")]
+        public async Task<IActionResult> GetStudentList([FromRoute] string className)
+        {
+            List<SinhVien> students = await _student.Find(p=> p.TenLop == className).ToListAsync();
+            if (students == null || students.Count == 0) return NotFound(LocalValue.Get(KeyStore.UserNotFound));
+            List<StudentDTO> studentDTOs = _mapper.Map<List<StudentDTO>>(students);
+            return Ok(studentDTOs);
+        }
         [HttpGet("sinhvien/{masv}/diem")]
         public async Task<IActionResult> GetStudentScore2([FromRoute] string masv)
         {
@@ -64,23 +72,45 @@ namespace Out_Source_Data.Src.Controllers
             return Ok(aVGScoreDTO);
         }
         [HttpGet("thoikhoabieu")]
-        public async Task<IActionResult> GetStudentTimeTable([FromQuery] string className, [FromQuery] string? thu)
+        public async Task<IActionResult> GetStudentTimeTable([FromQuery] string? className, [FromQuery] string? thu, [FromQuery] string? id)
         {
-            if (string.IsNullOrEmpty(className)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
-            List<ThoiKhoaBieu> timeTable = await _timeTable.Find(p => p.ClassName == className).ToListAsync();
-            if (timeTable != null)
+            if (string.IsNullOrEmpty(className) && string.IsNullOrEmpty(id)) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+
+            List<ThoiKhoaBieu> timeTable = [];
+
+            if (!string.IsNullOrEmpty(id))
             {
-                if (!string.IsNullOrEmpty(thu))
+                // Search by id
+                var timeTableEntry = await _timeTable.GetById(id);
+                if (timeTableEntry != null)
                 {
-                    timeTable = timeTable.Where(p => p.Day == thu).ToList();
+                    timeTable.Add(timeTableEntry);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(className))
+            {
+                // Search by className and optionally by thu
+                var classTimeTable = await _timeTable.Find(p => p.ClassName == className).ToListAsync();
+                if (classTimeTable != null && classTimeTable.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(thu))
+                    {
+                        classTimeTable = classTimeTable.Where(p => p.Day == thu).ToList();
+                    }
+                    timeTable.AddRange(classTimeTable);
+                }
+            }
+
+            if (timeTable.Count > 0)
+            {
                 List<TimeTableDTO> timeTableDTOs = _mapper.Map<List<TimeTableDTO>>(timeTable);
                 return Ok(timeTableDTOs);
             }
+
             return NotFound(LocalValue.Get(KeyStore.UserNotFound));
-            
-            
         }
+
         //[HttpPost("create")]
         //public async Task<IActionResult> CreateStudentData()
         //{
