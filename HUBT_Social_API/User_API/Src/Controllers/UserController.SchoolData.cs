@@ -29,6 +29,7 @@ namespace User_API.Src.Controllers
             {
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             }
+
             ResponseDTO result = await _userService.GetUser(accessToken);
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO == null)
@@ -38,23 +39,50 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
-
-
-            if (timeTableDTOs != null)
+            try
             {
+                ClassScheduleVersionDTO? classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
+
                 UserTimetableOutput userTimetableOutput = new(_tempService)
                 {
                     Starttime = DateTime.UtcNow.Date,
                     Endtime = DateTime.UtcNow.Date.AddMonths(2),
                 };
-                await userTimetableOutput.GenerateReformTimetables(timeTableDTOs);
-                return Ok(userTimetableOutput);
+
+                List<TimetableOutputDTO> timetableOutputDTOs;
+
+                if (classScheduleVersionDTO.ClassName == string.Empty)
+                {
+                    List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
+                    if (timeTableDTOs == null)
+                        return BadRequest();
+                    await userTimetableOutput.GenerateReformTimetables(timeTableDTOs);
+
+                    classScheduleVersionDTO.ClassName = studentDTO.TenLop;
+                    classScheduleVersionDTO.ExpireTime = userTimetableOutput.Endtime;
+                    classScheduleVersionDTO = await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
+                    userTimetableOutput.VersionKey = classScheduleVersionDTO.VersionKey;
+                    return Ok(userTimetableOutput);
+
+                }
+                else
+                {
+                    timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
+                    if (timetableOutputDTOs.Count == 0)
+                        return BadRequest();
+
+                    userTimetableOutput.ReformTimetables = timetableOutputDTOs;
+                    userTimetableOutput.VersionKey = classScheduleVersionDTO.VersionKey;
+                    return Ok(userTimetableOutput);
+                }
+
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
 
-
-
-            return BadRequest();
+            }
         }
         [HttpGet("timetable-info")]
         public async Task<IActionResult> GetTimeTableInfo(string timetableId)
@@ -73,9 +101,9 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            TimetableOutputDTO? timeTableDTO = await _tempService.Get(timetableId);
+            TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId);
 
-            if (timeTableDTO == null)
+            if (timeTableDTO.Id == string.Empty)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
 
             List<StudentDTO> studentDTOs = await _outSourceService.GetStudentByClassName(studentDTO.TenLop);
@@ -98,6 +126,56 @@ namespace User_API.Src.Controllers
 
 
             return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));
+        }
+        [HttpGet("check-version")]
+        public async Task<IActionResult> CheckTimetableVersion(string Key)
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+            ResponseDTO result = await _userService.GetUser(accessToken);
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO == null)
+                return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+            StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+            if (studentDTO == null)
+                return NotFound();
+            ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
+
+            if (classScheduleVersionDTO.ClassName != string.Empty)
+                return Ok(classScheduleVersionDTO.VersionKey == Key);
+
+
+            return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));
+        }
+        [HttpPost("timetable")]
+        public async Task<IActionResult> CreateClassSchedule([FromBody] TimetableOutputDTO request)
+        {
+            
+            try
+            {
+                ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(request.ClassName);
+                if (classScheduleVersionDTO.ClassName == string.Empty)
+                    return BadRequest(LocalValue.Get(KeyStore.TimetableNotSetYet));
+                TimetableOutputDTO response = await _tempService.StoreIn(request);
+                
+                await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
+
+                if (response.Id != string.Empty)
+                    return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
+            }
+
+
+            return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
         }
     }
 }

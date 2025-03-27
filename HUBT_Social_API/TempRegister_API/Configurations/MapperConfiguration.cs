@@ -10,6 +10,7 @@ namespace TempRegister_API.Configurations
         public static IServiceCollection AddMongoMapper(this IServiceCollection services)
         {
             services.MongoMapperConfiguration<TempTimetable, TimetableOutputDTO>();
+            services.MongoMapperConfiguration<TempClassScheduleVersion, ClassScheduleVersionDTO>();
             services.MongoMapperConfiguration<TempUserRegister,TempUserDTO>();
             return services;
         }

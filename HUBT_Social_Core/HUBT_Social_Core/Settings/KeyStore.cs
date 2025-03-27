@@ -171,6 +171,7 @@ namespace HUBT_Social_Core.Settings
         //timetable
         public const string TimetableNotFound = "TimetableNotFound";
         public const string TimetableMemberNotfound = "TimetableMemberNotfound";
+        public const string TimetableNotSetYet = "TimetableNotSetYet";
 
         public static string GetRandomAvatarDefault(Gender gender)
         {

@@ -12,6 +12,7 @@ namespace User_API.Src.Models
         private readonly ITempService _tempService = tempService;
         private DateTime _starttime;
         private DateTime _endtime;
+        public string VersionKey { get; set; } = string.Empty;
 
         public DateTime Starttime
         {
@@ -33,9 +34,9 @@ namespace User_API.Src.Models
             }
         }
 
-        public List<ReformTimetable> ReformTimetables { get; set; } = [];
+        public List<TimetableOutputDTO> ReformTimetables { get; set; } = [];
 
-        public async Task<List<ReformTimetable>> GenerateReformTimetables(List<TimeTableDTO> timetables)
+        public async Task<List<TimetableOutputDTO>> GenerateReformTimetables(List<TimeTableDTO> timetables)
         {
             DateTime currentDate = Starttime;
             while (currentDate <= Endtime)
@@ -84,7 +85,7 @@ namespace User_API.Src.Models
             this.Id = timetable.Id;
             this.ClassName = timetable.ClassName;
             this.StartTime = SetStartTime(timetable.Session, startDay);
-            this.EndTime = Type == TimeTableType.Study ? StartTime.AddHours(5) : null;
+            this.EndTime = Type == TimeTableType.Study ? StartTime.AddHours(5) :null;
             this.Room = timetable.Room;
             this.Subject = timetable.Subject;
             this.ZoomID = timetable.ZoomID;

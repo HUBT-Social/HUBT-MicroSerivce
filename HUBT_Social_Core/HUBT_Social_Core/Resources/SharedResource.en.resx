@@ -478,4 +478,7 @@
   <data name="TimetableNotfound" xml:space="preserve">
     <value>Time table Not found</value>
   </data>
+  <data name="TimetableNotSetYet" xml:space="preserve">
+    <value>The timetable need to initiate by the class before importing new timetable</value>
+  </data>
 </root>
