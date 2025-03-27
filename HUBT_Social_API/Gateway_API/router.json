@@ -2,6 +2,22 @@
 
   "Routes": [
     {
+      "UpstreamPathTemplate": "/api/user/schooldata/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/user/schooldata/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{User__Host}",
+          "Port": 443
+        }
+      ],
+      "SwaggerKey": "user-service",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    },
+    {
       "UpstreamPathTemplate": "/api/user",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/user",
