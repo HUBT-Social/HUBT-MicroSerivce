@@ -62,6 +62,7 @@ namespace Chat_Data_API.Src.Controllers
             var newChatRoom = CreateChatRoom(createGroupRequest.GroupName, createGroupRequest.Participants);
 
             // Lưu ChatRoom vào database
+            // Gửi yêu cầu tạo một group mới, kết quả nhận về sẽ gômf một tuple ( status, message) 
             var result = await _chatService.CreateGroupAsync(newChatRoom);
             if (result.Item1)
             {

@@ -9,6 +9,11 @@ using HUBT_Social_Chat_Resources.Dtos.Response;
 using HUBT_Social_Chat_Resources.Dtos.Request.InitRequest;
 using Newtonsoft.Json.Linq;
 using HUBT_Social_Core.Models.DTOs;
+using Chat_API.Src.Constants;
+using HUBT_Social_Core.ASP_Extensions;
+using System.Text.RegularExpressions;
+using Amazon.Runtime.Internal.Transform;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 
 
@@ -19,17 +24,33 @@ namespace Chat_API.Src.Services
 
         public async Task<ResponseDTO> CreateGroupAsync(CreateGroupRequestData createGroupRequest,string token)
         {
-            return  await SendRequestAsync("api/chat/create-group", ApiType.POST, createGroupRequest, token);
+            return  await SendRequestAsync(ChatApiEndpoints.ChatService_CreateGroup, ApiType.POST, createGroupRequest, token);
         }
 
         public async Task<ResponseDTO> DeleteGroupAsync(string groupId, string token)
         {
-            return await SendRequestAsync($"api/chat/delete-group?groupId={groupId}", ApiType.DELETE, null, token);
+            string path = ChatApiEndpoints.ChatService_DeleteGroup
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        { "groupId", groupId }
+                    }
+                );
+            return await SendRequestAsync(path, ApiType.DELETE, null, token);
         }
 
         public async Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit, string token)
         {
-            var response = await SendRequestAsync($"api/chat/search-groups?keyword={keyword}&page={page}&limit={limit}", ApiType.GET, null, token);
+            string path = ChatApiEndpoints.ChatService_SearchGroups
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        { "keyword", keyword },
+                        { "page", page },
+                        { "limit", limit }
+                    }
+                );
+            var response = await SendRequestAsync(path, ApiType.GET, null, token);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 return response.ConvertTo<List<GroupSearchResponse>>() ?? new List<GroupSearchResponse>();
@@ -39,7 +60,15 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupSearchResponse>> GetAllRoomsAsync(int page, int limit, string token)
         {
-            var response = await SendRequestAsync($"api/chat/get-all-rooms?page={page}&limit={limit}", ApiType.GET,null,token);
+            string path = ChatApiEndpoints.ChatService_GetAllRooms
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        { "page", page },
+                        { "limit", limit }
+                    }
+                );
+            var response = await SendRequestAsync(path, ApiType.GET,null,token);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 return response.ConvertTo<List<GroupSearchResponse>>() ?? new List<GroupSearchResponse>();
@@ -49,7 +78,15 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(int page, int limit,string token)
         {
-            var response = await SendRequestAsync($"api/chat/get-rooms-of-user?page={page}&limit={limit}", ApiType.GET,null, token);
+            string path = ChatApiEndpoints.ChatService_GetRoomsOfUser
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        { "page", page },
+                        { "limit", limit }
+                    }
+                );
+            var response = await SendRequestAsync(path, ApiType.GET,null, token);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 return response.ConvertTo<List<GroupLoadingResponse>>() ?? new List<GroupLoadingResponse>();

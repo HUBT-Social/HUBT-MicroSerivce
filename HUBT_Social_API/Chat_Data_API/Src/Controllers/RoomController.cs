@@ -47,7 +47,7 @@ namespace Chat_Data_API.Src.Controllers
             TokenInfoDTO? userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            var result = await _roomUpdateService.UpdateGroupNameAsync(request.GroupId, request.NewName);
+            (bool,string) result = await _roomUpdateService.UpdateGroupNameAsync(request.GroupId, request.NewName);
 
             if (result.Item1)
             {
@@ -75,7 +75,7 @@ namespace Chat_Data_API.Src.Controllers
             if (string.IsNullOrEmpty(groupId) || file == null || file.Length == 0)
                 return BadRequest(new { message = "GroupId hoặc file không hợp lệ!" });
 
-            var result = await _roomUpdateService.UpdateAvatarGroupAsync(groupId, file);
+            (bool, string) result = await _roomUpdateService.UpdateAvatarGroupAsync(groupId, file);
             if (result.Item1)
             {
                 await _hubContext.Clients.Group(groupId)
@@ -98,7 +98,7 @@ namespace Chat_Data_API.Src.Controllers
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            var result = await _roomUpdateService.UpdateNickNameAsync(request.GroupId, request.UserId, request.NewNickName);
+            (bool, string) result = await _roomUpdateService.UpdateNickNameAsync(request.GroupId, request.UserId, request.NewNickName);
             if (result.Item1)
             {
                 await _hubContext.Clients.Group(request.GroupId)
@@ -123,7 +123,7 @@ namespace Chat_Data_API.Src.Controllers
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            var result = await _roomUpdateService.UpdateParticipantRoleAsync(request.groupId, request.userId, request.participantRole);
+            (bool, string) result = await _roomUpdateService.UpdateParticipantRoleAsync(request.groupId, request.userId, request.participantRole);
             if (result.Item1)
             {
                 await _hubContext.Clients.Group(request.groupId)
@@ -154,7 +154,7 @@ namespace Chat_Data_API.Src.Controllers
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
-            var result = await _roomUpdateService.JoinRoomAsync(request.GroupId, request.Participant);
+            (bool, string) result = await _roomUpdateService.JoinRoomAsync(request.GroupId, request.Participant);
             if (result.Item1)
             {
                 var connectionId = _connectionManager.GetConnectionId(request.Participant.UserId);
@@ -183,7 +183,7 @@ namespace Chat_Data_API.Src.Controllers
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            var result = await _roomUpdateService.KickMemberAsync(request);
+            (bool, string) result = await _roomUpdateService.KickMemberAsync(request);
             if (result.Item1)
             {
                 var connectionId = _connectionManager.GetConnectionId(request.KickedId);
