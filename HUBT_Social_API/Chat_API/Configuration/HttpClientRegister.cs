@@ -9,13 +9,21 @@ namespace Chat_API.Configuration
         public static IServiceCollection HttpClientRegisterConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpClientService();
-            string? chatPath = configuration.GetSection("ChatApi").Get<string>();
-            string? userPath = configuration.GetSection("UserAPI").Get<string>();
-            if (chatPath != null && userPath !=null)
+            string? chatPath = configuration.GetSection("ChatApi").Get<string>() ?? string.Empty;
+            string? userPath = configuration.GetSection("UserAPI").Get<string>() ?? string.Empty;
+            string? outDatPath = configuration.GetSection("OutSourceData").Get<string>() ?? string.Empty;
+            if (chatPath != null)
             {
                 services.AddRegisterClientService<IChatService,ChatService>(chatPath);
                 services.AddRegisterClientService<IRoomService, RoomService>(chatPath);
+            }
+            if (userPath != null)
+            {
                 services.AddRegisterClientService<IUserService, UserService>(userPath);
+            }
+            if (outDatPath != null)
+            {
+                services.AddRegisterClientService<IUserService, UserService>(outDatPath);
             }
 
             return services;

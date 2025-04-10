@@ -19,5 +19,7 @@
 
         public const string UserService_GetUser = "api/user";
         public const string UserService_GetAllUser = "api/user/userAll";
+
+        public const string OutService_GetUsersByClassName = "api/hubt/{{className}}";
     }
 }

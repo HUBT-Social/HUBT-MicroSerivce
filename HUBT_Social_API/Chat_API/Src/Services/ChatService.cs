@@ -68,11 +68,16 @@ namespace Chat_API.Src.Services
                         { "limit", limit }
                     }
                 );
-            var response = await SendRequestAsync(path, ApiType.GET,null,token);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            try
             {
-                return response.ConvertTo<List<GroupSearchResponse>>() ?? new List<GroupSearchResponse>();
+                var response = await SendRequestAsync(path, ApiType.GET, null, token);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    return response.ConvertTo<List<GroupSearchResponse>>() ?? new List<GroupSearchResponse>();
+                }
             }
+            catch { }
+            
             return new List<GroupSearchResponse>();
         }
 
@@ -86,11 +91,15 @@ namespace Chat_API.Src.Services
                         { "limit", limit }
                     }
                 );
-            var response = await SendRequestAsync(path, ApiType.GET,null, token);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            try 
             {
-                return response.ConvertTo<List<GroupLoadingResponse>>() ?? new List<GroupLoadingResponse>();
-            }
+                var response = await SendRequestAsync(path, ApiType.GET, null, token);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    return response.ConvertTo<List<GroupLoadingResponse>>() ?? new List<GroupLoadingResponse>();
+                }
+            } catch { }
+            
             return new List<GroupLoadingResponse>();
         }
 
