@@ -85,7 +85,7 @@ namespace User_API.Src.Controllers
             }
         }
         [HttpGet("timetable-info")]
-        public async Task<IActionResult> GetTimeTableInfo(string timetableId)
+        public async Task<IActionResult> GetTimeTableInfo(TimetableDetailRequest timetableId)
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
@@ -101,7 +101,7 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId);
+            TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId.Id);
 
             if (timeTableDTO.Id == string.Empty)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
@@ -128,7 +128,7 @@ namespace User_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));
         }
         [HttpGet("check-version")]
-        public async Task<IActionResult> CheckTimetableVersion(string Key)
+        public async Task<IActionResult> CheckTimetableVersion(VersionCheckRequest Key)
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
@@ -146,7 +146,7 @@ namespace User_API.Src.Controllers
             ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
 
             if (classScheduleVersionDTO.ClassName != string.Empty)
-                return Ok(classScheduleVersionDTO.VersionKey == Key);
+                return Ok(classScheduleVersionDTO.VersionKey == Key.Version);
 
 
             return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));

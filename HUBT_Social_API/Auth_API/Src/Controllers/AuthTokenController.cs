@@ -1,4 +1,5 @@
 ﻿using Amazon.Runtime.Internal.Transform;
+using Auth_API.Src.Models.Requests;
 using Auth_API.Src.Services.Identity;
 using Auth_API.Src.Services.Postcode;
 using Auth_API.Src.Services.TempUser;
@@ -21,12 +22,12 @@ namespace Auth_API.Src.Controllers
         private readonly IAuthService _authService = authService;
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> ActionResult([FromBody] string refreshToken)
+        public async Task<IActionResult> ActionResult([FromBody] RefreshTokenRequest refreshToken)
         {
             string? token = Request.Headers.ExtractBearerToken();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            ResponseDTO result = await _authService.RefreshToken(token,refreshToken);
+            ResponseDTO result = await _authService.RefreshToken(token,refreshToken.RefreshToken);
             if (result.StatusCode == HttpStatusCode.OK)
             {
                 TokenResponseDTO? tokenResponse = result.ConvertTo<TokenResponseDTO>();
