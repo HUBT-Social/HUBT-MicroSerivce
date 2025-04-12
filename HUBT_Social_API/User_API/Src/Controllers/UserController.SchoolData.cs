@@ -50,8 +50,9 @@ namespace User_API.Src.Controllers
                 };
 
                 List<TimetableOutputDTO> timetableOutputDTOs;
+                timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
 
-                if (classScheduleVersionDTO.ClassName == string.Empty)
+                if (classScheduleVersionDTO.ClassName == string.Empty && timetableOutputDTOs.Count == 0)
                 {
                     List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
                     if (timeTableDTOs == null)
@@ -67,11 +68,23 @@ namespace User_API.Src.Controllers
                 }
                 else
                 {
-                    timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
+                    if (classScheduleVersionDTO.ClassName == string.Empty)
+                    {
+                        classScheduleVersionDTO.ClassName = studentDTO.TenLop;
+                        classScheduleVersionDTO.ExpireTime = userTimetableOutput.Endtime;
+                        classScheduleVersionDTO = await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
+                    }
                     if (timetableOutputDTOs.Count == 0)
-                        return BadRequest();
-
-                    userTimetableOutput.ReformTimetables = timetableOutputDTOs;
+                    {
+                        List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
+                        if (timeTableDTOs == null)
+                            return BadRequest();
+                        await userTimetableOutput.GenerateReformTimetables(timeTableDTOs);
+                    }
+                    else
+                    {
+                        userTimetableOutput.ReformTimetables = timetableOutputDTOs;
+                    }
                     userTimetableOutput.VersionKey = classScheduleVersionDTO.VersionKey;
                     return Ok(userTimetableOutput);
                 }
