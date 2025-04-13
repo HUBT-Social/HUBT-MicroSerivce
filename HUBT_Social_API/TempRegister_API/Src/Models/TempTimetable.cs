@@ -16,5 +16,6 @@ namespace TempRegister_API.Src.Models
         [BsonElement("Room")] public string Room { get; set; } = string.Empty;
         [BsonElement("ZoomID")] public string? ZoomID { get; set; } = string.Empty;
         [BsonElement("Type")] public TimeTableType Type { get; set; } = TimeTableType.Study;
+        [BsonElement("CourseId")] public string CourseId { get; set; } = string.Empty;
     }
 }

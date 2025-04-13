@@ -76,9 +76,10 @@ namespace User_API.Src.Controllers
                 if (timetableOutputDTOs.Count == 0)
                 {
                     List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
-                    if (timeTableDTOs == null)
+                    List<CouresDTO>? couresDTOs = await _outSourceService.GetCouresAsync(studentDTO.TenLop);
+                    if (timeTableDTOs == null || couresDTOs == null)
                         return BadRequest();
-                    await userTimetableOutput.GenerateReformTimetables(timeTableDTOs);
+                    await userTimetableOutput.GenerateReformTimetables(timeTableDTOs, couresDTOs);
                 }
                 else
                 {

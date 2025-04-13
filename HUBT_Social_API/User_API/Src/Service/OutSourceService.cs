@@ -45,29 +45,22 @@ namespace User_API.Src.Service
         {
             string path = $"ThoiKhoaBieu?className={className}";
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
+            
+            return response.ConvertTo<List<TimeTableDTO>>();
+        }
+        public async Task<List<CouresDTO>?> GetCouresAsync(string className)
+        {
             string[] paths = className.Split(".");
-            string major = new (paths[0].TakeWhile(char.IsLetter).ToArray());
+            string major = new(paths[0].TakeWhile(char.IsLetter).ToArray());
             string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
 
             string path2 = $"hocphan?major={major}&course={course}";
-            ResponseDTO response2 = await SendRequestAsync(path2, ApiType.GET);
+            ResponseDTO response = await SendRequestAsync(path2, ApiType.GET);
 
-            List<TimeTableDTO>? timeTableDTOs = response.ConvertTo<List<TimeTableDTO>>();
-            List<CouresDTO>? couresDTOs = response2.ConvertTo<List<CouresDTO>>();
-            if (timeTableDTOs == null || couresDTOs == null)
-                return null;
-
-            Random random = new();
-            List<TimeTableDTO>? responses = [];
-            foreach (TimeTableDTO timeTableDTO in timeTableDTOs)
-            {
-                CouresDTO couresDTO = couresDTOs[random.Next(0,couresDTOs.Count)];
-                timeTableDTO.Subject = couresDTO.Tenmon;
-                responses.Add(timeTableDTO);
-            }
-            if (responses.Count > 0) 
-                return responses;
+            List<CouresDTO>? couresDTOs = response.ConvertTo<List<CouresDTO>>();
             
+            if (couresDTOs?.Count > 0)
+                return couresDTOs;
             return null;
         }
 

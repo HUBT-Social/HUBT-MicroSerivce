@@ -65,6 +65,7 @@ namespace HUBT_Social_Core.Models.DTOs.UserDTO
             get => _zoomID;
             set => _zoomID = value?.ToLower();
         }
+        public string CourseId { get; set; } = string.Empty;
         public TimeTableType Type { get; set; } = TimeTableType.Study;
     }
 }

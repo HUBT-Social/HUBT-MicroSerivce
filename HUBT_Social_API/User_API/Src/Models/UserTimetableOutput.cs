@@ -1,4 +1,5 @@
-﻿using HUBT_Social_Core.Models.DTOs.UserDTO;
+﻿using HUBT_Social_Core.Models.DTOs;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Settings.@enum;
 using System;
@@ -36,17 +37,24 @@ namespace User_API.Src.Models
 
         public List<TimetableOutputDTO> ReformTimetables { get; set; } = [];
 
-        public async Task<List<TimetableOutputDTO>> GenerateReformTimetables(List<TimeTableDTO> timetables)
+        public async Task<List<TimetableOutputDTO>> GenerateReformTimetables(List<TimeTableDTO> timetables,List<CouresDTO> coures)
         {
             DateTime currentDate = Starttime;
+            Random random = new();
             while (currentDate <= Endtime)
             {
                 foreach (var timetable in timetables)
                 {
+
+             
                     if (IsMatchingDay(timetable.Day, currentDate))
                     {
+                        CouresDTO couresDTO = coures[random.Next(0, coures.Count)];
+                        timetable.Subject = couresDTO.Tenmon;
+                        
                         ReformTimetable reformTimetable = new(timetable, currentDate);
                         TimetableOutputDTO timetableOutputDTO = reformTimetable;
+                        timetableOutputDTO.CourseId = couresDTO.Id;
                         TimetableOutputDTO result = await _tempService.StoreIn(timetableOutputDTO);
                         if (result.Id != string.Empty)
                         {
