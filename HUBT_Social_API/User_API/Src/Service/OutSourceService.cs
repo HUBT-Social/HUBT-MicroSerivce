@@ -8,6 +8,7 @@ using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using Amazon.Runtime.Internal;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Base.ASP_Extentions;
+using System.Collections.Generic;
 
 namespace User_API.Src.Service
 {
@@ -44,7 +45,30 @@ namespace User_API.Src.Service
         {
             string path = $"ThoiKhoaBieu?className={className}";
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
-            return response.ConvertTo<List<TimeTableDTO>>();
+            string[] paths = className.Split(".");
+            string major = new (paths[0].TakeWhile(char.IsLetter).ToArray());
+            string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
+
+            string path2 = $"hocphan?major={major}&course={course}";
+            ResponseDTO response2 = await SendRequestAsync(path2, ApiType.GET);
+
+            List<TimeTableDTO>? timeTableDTOs = response.ConvertTo<List<TimeTableDTO>>();
+            List<CouresDTO>? couresDTOs = response2.ConvertTo<List<CouresDTO>>();
+            if (timeTableDTOs == null || couresDTOs == null)
+                return null;
+
+            Random random = new();
+            List<TimeTableDTO>? responses = [];
+            foreach (TimeTableDTO timeTableDTO in timeTableDTOs)
+            {
+                CouresDTO couresDTO = couresDTOs[random.Next(0,couresDTOs.Count)];
+                timeTableDTO.Subject = couresDTO.Tenmon;
+                responses.Add(timeTableDTO);
+            }
+            if (responses.Count > 0) 
+                return responses;
+            
+            return null;
         }
 
         public async Task<TimeTableDTO?> GetTimeTableById(string id)

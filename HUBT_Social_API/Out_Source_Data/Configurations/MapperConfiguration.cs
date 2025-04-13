@@ -12,6 +12,7 @@ namespace Out_Source_Data.Configurations
             services.MongoMapperConfiguration<ThoiKhoaBieu, TimeTableDTO>();
             services.MongoMapperConfiguration<Diemtb, AVGScoreDTO>();
             services.MongoMapperConfiguration<DiemSinhVien, ScoreDTO>();
+            services.MongoMapperConfiguration<HocPhan, CouresDTO>();
             return services;
         }
     }

@@ -17,7 +17,8 @@ public static class MongoDbConfiguration
             services.RegisterMongoCollections(connectionstring, typeof(Diemtb)
                 , typeof(SinhVien)
                 , typeof(ThoiKhoaBieu)
-                , typeof(DiemSinhVien));
+                , typeof(DiemSinhVien)
+                , typeof(HocPhan));
             return services;
         }
         throw new Exception("Unable to genarate Mongodb");
