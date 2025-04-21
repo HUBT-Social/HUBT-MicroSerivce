@@ -1,4 +1,5 @@
 ﻿using HUBT_Social_Core.Models.OutSourceDataDTO;
+using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using Out_Source_Data.Src.Models;
 
@@ -12,7 +13,7 @@ namespace Out_Source_Data.Configurations
             services.MongoMapperConfiguration<ThoiKhoaBieu, TimeTableDTO>();
             services.MongoMapperConfiguration<Diemtb, AVGScoreDTO>();
             services.MongoMapperConfiguration<DiemSinhVien, ScoreDTO>();
-            services.MongoMapperConfiguration<HocPhan, CouresDTO>();
+            services.MongoMapperConfiguration<MonHoc, SubjectDTO>();
             return services;
         }
     }

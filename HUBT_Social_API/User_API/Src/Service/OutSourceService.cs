@@ -48,16 +48,16 @@ namespace User_API.Src.Service
             
             return response.ConvertTo<List<TimeTableDTO>>();
         }
-        public async Task<List<CouresDTO>?> GetCouresAsync(string className)
+        public async Task<List<SubjectDTO>?> GetCouresAsync(string className)
         {
             string[] paths = className.Split(".");
             string major = new(paths[0].TakeWhile(char.IsLetter).ToArray());
             string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
 
-            string path2 = $"hocphan?major={major}&course={course}";
-            ResponseDTO response = await SendRequestAsync(path2, ApiType.GET);
+            string path = $"monhoc?major={major}&course={course}";
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
 
-            List<CouresDTO>? couresDTOs = response.ConvertTo<List<CouresDTO>>();
+            List<SubjectDTO>? couresDTOs = response.ConvertTo<List<SubjectDTO>>();
             
             if (couresDTOs?.Count > 0)
                 return couresDTOs;

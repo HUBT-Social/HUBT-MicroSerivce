@@ -18,7 +18,7 @@ public static class MongoDbConfiguration
                 , typeof(SinhVien)
                 , typeof(ThoiKhoaBieu)
                 , typeof(DiemSinhVien)
-                , typeof(HocPhan));
+                , typeof(MonHoc));
             return services;
         }
         throw new Exception("Unable to genarate Mongodb");

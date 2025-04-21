@@ -10,6 +10,7 @@ using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using User_API.Src.Models;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
+using HUBT_Social_Core.Models.Requests.Temp;
 
 namespace User_API.Src.Controllers
 {
@@ -76,10 +77,42 @@ namespace User_API.Src.Controllers
                 if (timetableOutputDTOs.Count == 0)
                 {
                     List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
-                    List<CouresDTO>? couresDTOs = await _outSourceService.GetCouresAsync(studentDTO.TenLop);
-                    if (timeTableDTOs == null || couresDTOs == null)
+                    List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO.TenLop);
+                    if (timeTableDTOs == null || subjectDTOs == null)
                         return BadRequest();
-                    await userTimetableOutput.GenerateReformTimetables(timeTableDTOs, couresDTOs);
+
+                    List<CouresDTO> couresDTOs = [];
+                    Random random = new();
+                    Queue<int> lastPickedIndices = new(); // Track the last few picked indices
+                   
+                    foreach (var timetable in timeTableDTOs)
+                    {
+                        int randomIndex;
+                        do
+                        {
+                            randomIndex = random.Next(0, subjectDTOs.Count);
+                        } while (lastPickedIndices.Contains(randomIndex)); // Ensure the new index is not in the history
+
+                        lastPickedIndices.Enqueue(randomIndex);
+
+
+                        SubjectDTO subjectDTO = subjectDTOs[randomIndex];
+                        CreateTempCourseRequest createTempCourseRequest = new()
+                        {
+                            CourseId = subjectDTO.Id,
+                            TimeTableDTO = timetable,
+                            StudentIDs = (await _outSourceService.GetStudentByClassName(timetable.ClassName))
+                                                           .Select(student => student.MaSV)
+                                                           .ToArray()
+                        };
+                        createTempCourseRequest.TimeTableDTO.Subject = subjectDTO.TenMon;
+                        CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
+                        if (couresDTO.Id != string.Empty)
+                        {
+                            couresDTOs.Add(couresDTO);
+                        }
+                    }
+                    await userTimetableOutput.GenerateReformTimetables(couresDTOs);
                 }
                 else
                 {

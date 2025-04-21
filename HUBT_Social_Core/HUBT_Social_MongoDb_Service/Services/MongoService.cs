@@ -231,7 +231,10 @@ namespace HUBT_Social_MongoDb_Service.Services
 
             var idString = id.ToString();
             if (ObjectId.TryParse(idString, out ObjectId parsedId))
-                return Builders<T>.Filter.Eq("_id", parsedId);
+                return Builders<T>.Filter.Or(
+                    Builders<T>.Filter.Eq("_id", parsedId),
+                    Builders<T>.Filter.Eq("_id", idString)
+                );
 
             return Builders<T>.Filter.Eq("_id", idString);
         }
