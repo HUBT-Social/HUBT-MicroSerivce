@@ -138,6 +138,30 @@ namespace TempRegister_API.Src.Controllers
             return BadRequest("Database exit");
 
         }
+        [HttpPost("courses/add")]
+        public async Task<IActionResult> CreateCourse([FromBody] AddStudentToCouresRequest request)
+        {
+            TempCourse? course = await _tempCourse.Find(cs =>
+                            cs.TimeTableDTO.ClassName == request.ClassName &&
+                            cs.CourseID == request.CourseId
+                            ).FirstOrDefaultAsync();  
+            if (course != null)
+            {
+                var updatedStudentIDs = course.StudentIDs?.ToList() ?? [];
+                if (!updatedStudentIDs.Contains(request.StudentId)) 
+                {
+                    updatedStudentIDs.Add(request.StudentId);
+                }
+                course.StudentIDs = [.. updatedStudentIDs];
+
+                if (await _tempCourse.Update(course))
+                {
+                    return Ok(course);
+                }
+            }
+            return BadRequest("Database exit");
+
+        }
         [HttpGet("courses")]
         public async Task<IActionResult> GetCourse([FromQuery] string className, [FromQuery] string? coursesId)
         {
