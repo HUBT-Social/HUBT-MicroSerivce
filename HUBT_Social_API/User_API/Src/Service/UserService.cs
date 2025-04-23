@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using Amazon.Runtime.Internal;
+using HUBT_Social_Core.Settings;
 
 namespace User_API.Src.Service
 {
@@ -83,12 +84,14 @@ namespace User_API.Src.Service
 
         public Task<ResponseDTO> AddInfoUser(string accessToken, AddInfoUserRequest request)
         {
+            string avatarDefaultByGender = LocalValue.Get(KeyStore.GetRandomAvatarDefault(request.Gender));
             return UpdateUserAsync(accessToken, dto => {
                 dto.Gender = request.Gender;
                 dto.FirstName = request.FirstName;
                 dto.LastName = request.LastName;
                 dto.PhoneNumber = request.PhoneNumber;
                 dto.DateOfBirth = request.DateOfBirth;
+                dto.AvataUrl = avatarDefaultByGender;
             });
         }
         public Task<ResponseDTO> UpdateFCM(string accessToken, string FCMKey)

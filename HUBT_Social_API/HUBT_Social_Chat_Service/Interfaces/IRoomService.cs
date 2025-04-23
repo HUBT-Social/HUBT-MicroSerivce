@@ -19,11 +19,11 @@ namespace HUBT_Social_Chat_Service.Interfaces
         {
             Task<(bool, string)> UpdateGroupNameAsync(string groupId, string newName);
             Task<(bool, string)> UpdateAvatarGroupAsync(string groupId, IFormFile file);
-            Task<(bool, string)> UpdateNickNameAsync(string groupId, string changedId, string newNickName);
-            Task<(bool, string)> UpdateParticipantRoleAsync(string groupId, string changedId, ParticipantRole newParticipantRole);
+            Task<(bool, string)> UpdateNickNameAsync(string groupId, string changed, string newNickName);
+            Task<(bool, string)> UpdateParticipantRoleAsync(string groupId, string changed, ParticipantRole newParticipantRole);
             Task<(bool, string)> JoinRoomAsync(string groupId, Participant? added);
             Task<(bool, string)> KickMemberAsync(RemoveMemberRequest request);
-            Task<(bool, string)> LeaveRoomAsync(string groupId, string userId);
+            Task<(bool, string)> LeaveRoomAsync(string groupId, string user);
         }
         public interface IRoomGetService
         {

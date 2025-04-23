@@ -75,9 +75,21 @@ namespace Gateway_API
             // Add Ocelot services
             builder.Services.AddOcelot(builder.Configuration);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp", policy =>
+                {
+                    policy.WithOrigins("https://chatuitest.onrender.com", "http://localhost:3000", "http://localhost:5173")  // Chỉ cho phép origin này
+                        .AllowAnyMethod()   // Cho phép bất kỳ phương thức HTTP nào
+                        .AllowAnyHeader()   // Cho phép bất kỳ header nào
+                        .AllowCredentials(); // Cho phép gửi credentials như cookies, authorization headers
+                });
+            });
+
             builder.Services.AddSignalR();
 
             var app = builder.Build();
+            app.UseCors("AllowReactApp");
 
             // Configure the HTTP request pipeline.
             app.UseSwagger();
@@ -86,6 +98,7 @@ namespace Gateway_API
             {
                 options.PathToSwaggerGenerator = "/swagger/docs";
             });
+
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
@@ -103,6 +116,7 @@ namespace Gateway_API
                 {
                     appBuilder.UseOcelot().Wait();
                 });
+                
             app.Run();
         }
     }

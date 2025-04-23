@@ -7,7 +7,7 @@ namespace HUBT_Social_Chat_Resources.Models
 {
     public class Participant
     {
-        public string UserId { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
         public ParticipantRole Role { get; set; }
         public string NickName { get; set; } = string.Empty;
         public string? ProfilePhoto { get; set; }

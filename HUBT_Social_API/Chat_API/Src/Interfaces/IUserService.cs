@@ -1,12 +1,14 @@
 ﻿using HUBT_Social_Base;
+using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 
 namespace Chat_API.Src.Interfaces
 {
     public interface IUserService : IBaseService
     {
-        Task<HttpResponseMessage> GetUserRequest(string accessToken);
-        Task<AUserDTO?> GetUserById(string? userId, string accessToken);
-        Task<HttpResponseMessage> GetAllUser(string accessToken);
+        Task<ResponseDTO> GetUserRequest(string accessToken);
+        Task<List<AUserDTO>?> GetUsersByUserNames(ListUserNameDTO request, string accessToken);
+        Task<AUserDTO?> GetUserByUserName(string userName, string accessToken);
+        Task<ResponseDTO> GetAllUser(string accessToken);
     }
 }

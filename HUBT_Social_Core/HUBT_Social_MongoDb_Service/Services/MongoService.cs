@@ -137,6 +137,26 @@ namespace HUBT_Social_MongoDb_Service.Services
                 return [];
             }
         }
+        public async Task<IEnumerable<Collection>> GetSlide(int page, int pageSize = 10)
+        {
+            try
+            {
+                if (page < 1) page = 1;
+
+                int skip = (page - 1) * pageSize;
+
+                var query = _mongoCollection.Find(_ => true)
+                                            .Skip(skip)
+                                            .Limit(pageSize);
+
+                return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+                return [];
+            }
+        }
+
 
         public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate)
         {

@@ -9,7 +9,7 @@ namespace HUBT_Social_Chat_Resources.Dtos.Request.InitRequest
         [Required]
         public string GroupName { get; set; }
         [Required]
-        public List<string> UserIds { get; set; } = [];
+        public List<string> UserNames { get; set; } = [];
     }
     public class CreateGroupRequestData
     {

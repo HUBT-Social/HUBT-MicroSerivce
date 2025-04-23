@@ -10,8 +10,9 @@ namespace Chat_API.Configuration
         {
             services.AddHttpClientService();
             string? chatPath = configuration.GetSection("ChatApi").Get<string>() ?? string.Empty;
-            string? userPath = configuration.GetSection("UserAPI").Get<string>() ?? string.Empty;
+            string? userPath = configuration.GetSection("Indentity").Get<string>() ?? string.Empty;
             string? outDatPath = configuration.GetSection("OutSourceData").Get<string>() ?? string.Empty;
+            string? tempPath = configuration.GetSection("TempCourse").Get<string>() ?? string.Empty;
             if (chatPath != null)
             {
                 services.AddRegisterClientService<IChatService,ChatService>(chatPath);
@@ -23,7 +24,12 @@ namespace Chat_API.Configuration
             }
             if (outDatPath != null)
             {
-                services.AddRegisterClientService<IUserService, UserService>(outDatPath);
+                services.AddRegisterClientService<IOutDataService, OutDataService>(outDatPath);
+            }
+
+            if (!string.IsNullOrEmpty(tempPath)) 
+            {
+                services.AddRegisterClientService<ICourseService, CourseService>(tempPath);
             }
 
             return services;

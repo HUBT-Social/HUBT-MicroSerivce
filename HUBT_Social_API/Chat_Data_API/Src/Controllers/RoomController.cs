@@ -56,7 +56,7 @@ namespace Chat_Data_API.Src.Controllers
                     new
                     {
                         groupId = request.GroupId,
-                        changerId = userInfo.UserId,
+                        changer = userInfo.Username,
                         newGroupName = request.NewName
                     });
                 return Ok(result.Item2);
@@ -83,7 +83,7 @@ namespace Chat_Data_API.Src.Controllers
                     new
                     {
                         groupId,
-                        changerId = userInfo.UserId,
+                        changer = userInfo.Username,
                         url = result.Item2
                     });
                 return Ok(result.Item2);
@@ -91,14 +91,14 @@ namespace Chat_Data_API.Src.Controllers
 
             return BadRequest(result.Item2);
         }
-
+        //
         [HttpPut("update-nickname")]
         public async Task<IActionResult> UpdateNickNameAsync(UpdateNickNameRequest request)
         {
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            (bool, string) result = await _roomUpdateService.UpdateNickNameAsync(request.GroupId, request.UserId, request.NewNickName);
+            (bool, string) result = await _roomUpdateService.UpdateNickNameAsync(request.GroupId, request.Changed, request.NewNickName);
             if (result.Item1)
             {
                 await _hubContext.Clients.Group(request.GroupId)
@@ -106,8 +106,8 @@ namespace Chat_Data_API.Src.Controllers
                     new
                     {
                         groupId = request.GroupId,
-                        changerId = userInfo.UserId,
-                        changedId = request.UserId,
+                        changer = userInfo.Username,
+                        changed = request.Changed,
                         newNickName = request.NewNickName
                     });
                 return Ok(result.Item2);
@@ -123,7 +123,7 @@ namespace Chat_Data_API.Src.Controllers
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            (bool, string) result = await _roomUpdateService.UpdateParticipantRoleAsync(request.groupId, request.userId, request.participantRole);
+            (bool, string) result = await _roomUpdateService.UpdateParticipantRoleAsync(request.groupId, request.changed, request.participantRole);
             if (result.Item1)
             {
                 await _hubContext.Clients.Group(request.groupId)
@@ -131,8 +131,8 @@ namespace Chat_Data_API.Src.Controllers
                     new
                     {
                         request.groupId,
-                        changerId = userInfo.UserId,
-                        changedId = request.userId,
+                        changer = userInfo.Username,
+                        changed = request.changed,
                         newRole = request.participantRole
                     });
                 return Ok(result.Item2);
@@ -157,7 +157,7 @@ namespace Chat_Data_API.Src.Controllers
             (bool, string) result = await _roomUpdateService.JoinRoomAsync(request.GroupId, request.Participant);
             if (result.Item1)
             {
-                var connectionId = _connectionManager.GetConnectionId(request.Participant.UserId);
+                var connectionId = _connectionManager.GetConnectionId(request.Participant.UserName);
                 if (connectionId != null)
                 {
                     await _hubContext.Groups.AddToGroupAsync(connectionId, request.GroupId);
@@ -168,8 +168,8 @@ namespace Chat_Data_API.Src.Controllers
                     new
                     {
                         groupId = request.GroupId,
-                        AdderId = userInfo.UserId,
-                        AddedId = request.Participant
+                        Adder = userInfo.Username,
+                        Added = request.Participant
                     });
                 return Ok(result.Item2);
             }
@@ -186,7 +186,7 @@ namespace Chat_Data_API.Src.Controllers
             (bool, string) result = await _roomUpdateService.KickMemberAsync(request);
             if (result.Item1)
             {
-                var connectionId = _connectionManager.GetConnectionId(request.KickedId);
+                var connectionId = _connectionManager.GetConnectionId(request.Kicked);
                 if (connectionId != null)
                 {
                     await _hubContext.Groups.RemoveFromGroupAsync(connectionId, request.GroupId);
@@ -196,8 +196,8 @@ namespace Chat_Data_API.Src.Controllers
                     new
                     {
                         groupId = request.GroupId,
-                        KickerId = userInfo.UserId,
-                        request.KickedId
+                        kicker = userInfo.Username,
+                        kicked = request.Kicked
                     });
                 return Ok(result.Item2);
             }
@@ -211,10 +211,10 @@ namespace Chat_Data_API.Src.Controllers
             var userInfo = Request.GetUserInfoFromRequest();
             if (userInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            var result = await _roomUpdateService.LeaveRoomAsync(request.GroupId, userInfo.UserId);
+            var result = await _roomUpdateService.LeaveRoomAsync(request.GroupId, userInfo.Username);
             if (result.Item1)
             {
-                var connectionId = _connectionManager.GetConnectionId(userInfo.UserId);
+                var connectionId = _connectionManager.GetConnectionId(userInfo.Username);
                 if (connectionId != null)
                 {
                     await _hubContext.Groups.RemoveFromGroupAsync(connectionId, request.GroupId);
@@ -224,7 +224,7 @@ namespace Chat_Data_API.Src.Controllers
                         new
                         {
                             groupId = request.GroupId,
-                            userId = userInfo.UserId
+                            user = userInfo.Username
                         }
                     );
                 return Ok(result.Item2);

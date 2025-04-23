@@ -59,360 +59,358 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="InvalidInformation" xml:space="preserve">
-    <value>Invalid information.</value>
+    <value>无效信息。</value>
   </data>
   <data name="RegistrationFailed" xml:space="preserve">
-    <value>Registration failed.</value>
+    <value>注册失败。</value>
   </data>
   <data name="UnableToSendOTP" xml:space="preserve">
-    <value>Unable to send OTP code.</value>
+    <value>无法发送OTP验证码。</value>
   </data>
   <data name="RegistrationSuccess" xml:space="preserve">
-    <value>Registration successful.</value>
+    <value>注册成功。</value>
   </data>
   <data name="StepOneVerificationSuccess" xml:space="preserve">
-    <value>Step one verification successful.</value>
+    <value>第一步验证成功。</value>
   </data>
   <data name="AccountLocked" xml:space="preserve">
-    <value>Account locked.</value>
+    <value>账户已锁定。</value>
   </data>
   <data name="LoginNotAllowed" xml:space="preserve">
-    <value>Login not allowed.</value>
+    <value>不允许登录。</value>
   </data>
   <data name="TwoFactorRequired" xml:space="preserve">
-    <value>Two-factor authentication required.</value>
+    <value>需要双重认证。</value>
   </data>
   <data name="InvalidCredentials" xml:space="preserve">
-    <value>Invalid login credentials.</value>
+    <value>无效的登录凭证。</value>
   </data>
   <data name="VerificationSuccess" xml:space="preserve">
-    <value>Verification successful.</value>
+    <value>验证成功。</value>
   </data>
   <data name="OTPVerificationFailed" xml:space="preserve">
-    <value>OTP verification failed.</value>
+    <value>OTP验证失败。</value>
   </data>
   <data name="InvalidLanguage" xml:space="preserve">
-    <value>Invalid language.</value>
+    <value>无效的语言。</value>
   </data>
   <data name="LanguageChanged" xml:space="preserve">
-    <value>Language changed successfully.</value>
+    <value>语言更改成功。</value>
   </data>
   <data name="LanguageChangeFailed" xml:space="preserve">
-    <value>Failed to change language.</value>
+    <value>更改语言失败。</value>
   </data>
   <data name="InvalidMessageData" xml:space="preserve">
-    <value>Invalid message data.</value>
+    <value>无效的消息数据。</value>
   </data>
   <data name="MessageSentSuccessfully" xml:space="preserve">
-    <value>Message sent successfully.</value>
+    <value>消息发送成功。</value>
   </data>
   <data name="FailedToSendMessage" xml:space="preserve">
-    <value>Failed to send message.</value>
+    <value>发送消息失败。</value>
   </data>
   <data name="ChatRoomIdRequired" xml:space="preserve">
-    <value>Chat room ID is required.</value>
+    <value>需要聊天室ID。</value>
   </data>
   <data name="NoMessagesFound" xml:space="preserve">
-    <value>No messages found.</value>
+    <value>未找到消息。</value>
   </data>
   <data name="MessageDeletedSuccessfully" xml:space="preserve">
-    <value>Message deleted successfully.</value>
+    <value>消息删除成功。</value>
   </data>
   <data name="FailedToDeleteMessage" xml:space="preserve">
-    <value>Failed to delete message.</value>
+    <value>删除消息失败。</value>
   </data>
   <data name="ChatRoomIdAndKeywordRequired" xml:space="preserve">
-    <value>Chat room ID and keyword are required.</value>
+    <value>需要聊天室ID和关键词。</value>
   </data>
   <data name="MessagesFoundSuccessfully" xml:space="preserve">
-    <value>Messages found successfully.</value>
+    <value>成功找到消息。</value>
   </data>
   <data name="ImageUploadedSuccessfully" xml:space="preserve">
-    <value>Image uploaded successfully.</value>
+    <value>图片上传成功。</value>
   </data>
   <data name="FailedToUploadImage" xml:space="preserve">
-    <value>Failed to upload image.</value>
+    <value>上传图片失败。</value>
   </data>
   <data name="FileUploadedSuccessfully" xml:space="preserve">
-    <value>File uploaded successfully.</value>
+    <value>文件上传成功。</value>
   </data>
   <data name="FailedToUploadFile" xml:space="preserve">
-    <value>Failed to upload file.</value>
+    <value>上传文件失败。</value>
   </data>
   <data name="GroupNameRequired" xml:space="preserve">
-    <value>Group name is required.</value>
+    <value>需要群组名称。</value>
   </data>
   <data name="GroupCreatedSuccessfully" xml:space="preserve">
-    <value>Chat group created successfully.</value>
+    <value>聊天群组创建成功。</value>
   </data>
   <data name="FailedToCreateGroup" xml:space="preserve">
-    <value>Failed to create chat group.</value>
+    <value>创建聊天群组失败。</value>
   </data>
   <data name="GroupNameUpdatedSuccessfully" xml:space="preserve">
-    <value>Group name updated successfully.</value>
+    <value>群组名称更新成功。</value>
   </data>
   <data name="FailedToUpdateGroup" xml:space="preserve">
-    <value>Failed to update group name.</value>
+    <value>更新群组名称失败。</value>
   </data>
   <data name="GroupDeletedSuccessfully" xml:space="preserve">
-    <value>Chat group deleted successfully.</value>
+    <value>聊天群组删除成功。</value>
   </data>
   <data name="FailedToDeleteGroup" xml:space="preserve">
-    <value>Failed to delete chat group.</value>
+    <value>删除聊天群组失败。</value>
   </data>
   <data name="GroupNotFound" xml:space="preserve">
-    <value>Chat group not found.</value>
+    <value>未找到聊天群组。</value>
   </data>
   <data name="UserAlreadyExists" xml:space="preserve">
-    <value>User account already exists.</value>
+    <value>用户账户已存在。</value>
   </data>
   <data name="UnableToStoreInDatabase" xml:space="preserve">
-    <value>Unable to store in the database.</value>
+    <value>无法存储到数据库。</value>
   </data>
   <data name="EmailVerificationCodeSubject" xml:space="preserve">
-    <value>Email verification code.</value>
+    <value>电子邮件验证码。</value>
   </data>
   <data name="EmailCannotBeEmpty" xml:space="preserve">
-    <value>Email cannot be empty.</value>
+    <value>电子邮件不能为空。</value>
   </data>
   <data name="EmailUpdated" xml:space="preserve">
-    <value>Email updated successfully.</value>
+    <value>电子邮件更新成功。</value>
   </data>
   <data name="EmailUpdateError" xml:space="preserve">
-    <value>Failed to update email.</value>
+    <value>更新电子邮件失败。</value>
   </data>
   <data name="PasswordCannotBeEmpty" xml:space="preserve">
-    <value>Current password and new password cannot be empty.</value>
+    <value>当前密码和新密码不能为空。</value>
   </data>
   <data name="PasswordUpdated" xml:space="preserve">
-    <value>Password updated successfully.</value>
+    <value>密码更新成功。</value>
   </data>
   <data name="PasswordUpdateError" xml:space="preserve">
-    <value>Error updating password.</value>
+    <value>更新密码出错。</value>
   </data>
   <data name="NameUpdated" xml:space="preserve">
-    <value>User name updated successfully.</value>
+    <value>用户名更新成功。</value>
   </data>
   <data name="NameUpdateError" xml:space="preserve">
-    <value>Error updating user name.</value>
+    <value>更新用户名出错。</value>
   </data>
   <data name="PhoneNumberUpdated" xml:space="preserve">
-    <value>Phone number updated successfully.</value>
+    <value>电话号码更新成功。</value>
   </data>
   <data name="PhoneNumberUpdateError" xml:space="preserve">
-    <value>Error updating phone number.</value>
+    <value>更新电话号码出错。</value>
   </data>
   <data name="GenderUpdated" xml:space="preserve">
-    <value>Gender updated successfully.</value>
+    <value>性别更新成功。</value>
   </data>
   <data name="GenderUpdateError" xml:space="preserve">
-    <value>Error updating gender.</value>
+    <value>更新性别出错。</value>
   </data>
   <data name="DateOfBirthUpdated" xml:space="preserve">
-    <value>Date of birth updated successfully.</value>
+    <value>出生日期更新成功。</value>
   </data>
   <data name="DateOfBirthUpdateError" xml:space="preserve">
-    <value>Error updating date of birth.</value>
+    <value>更新出生日期出错。</value>
   </data>
   <data name="GeneralUpdateSuccess" xml:space="preserve">
-    <value>User information updated successfully.</value>
+    <value>用户信息更新成功。</value>
   </data>
   <data name="GeneralUpdateError" xml:space="preserve">
-    <value>Error updating user information.</value>
+    <value>更新用户信息出错。</value>
   </data>
   <data name="CurrentPasswordAndUsernameCannotBeEmpty" xml:space="preserve">
-    <value>Username and current password cannot be empty.</value>
+    <value>用户名和当前密码不能为空。</value>
   </data>
   <data name="PasswordCorrect" xml:space="preserve">
-    <value>Password is correct.</value>
+    <value>密码正确。</value>
   </data>
   <data name="PasswordIncorrect" xml:space="preserve">
-    <value>Password is incorrect.</value>
+    <value>密码不正确。</value>
   </data>
   <data name="UsernameCannotBeEmpty" xml:space="preserve">
-    <value>Username cannot be empty.</value>
+    <value>用户名不能为空。</value>
   </data>
   <data name="InvalidRequest" xml:space="preserve">
-    <value>Invalid request.</value>
+    <value>无效的请求。</value>
   </data>
   <data name="OtpSent" xml:space="preserve">
-    <value>OTP code sent.</value>
+    <value>OTP验证码已发送。</value>
   </data>
   <data name="OtpSendError" xml:space="preserve">
-    <value>Error sending OTP code.</value>
+    <value>发送OTP验证码出错。</value>
   </data>
-
-
   <data name="OtpVerificationSuccess" xml:space="preserve">
-    <value>OTP verification successful.</value>
+    <value>OTP验证成功。</value>
   </data>
   <data name="OtpInvalid" xml:space="preserve">
-    <value>OTP code is invalid.</value>
+    <value>OTP验证码无效。</value>
   </data>
   <data name="UserNotFound" xml:space="preserve">
-    <value>User not found.</value>
+    <value>未找到用户。</value>
   </data>
   <data name="UserInfoUpdatedSuccess" xml:space="preserve">
-    <value>User information updated successfully.</value>
+    <value>用户信息更新成功。</value>
   </data>
   <data name="UserInfoUpdateError" xml:space="preserve">
-    <value>Error updating user information.</value>
+    <value>更新用户信息出错。</value>
   </data>
   <data name="PasswordCheckEmptyError" xml:space="preserve">
-    <value>Password cannot be empty</value>
+    <value>密码不能为空</value>
   </data>
   <data name="OtpVerifyEmptyError" xml:space="preserve">
-    <value>OTP code cannot be empty.</value>
+    <value>OTP验证码不能为空。</value>
   </data>
   <data name="TokenValid" xml:space="preserve">
-    <value>Token is valid.</value>
+    <value>令牌有效。</value>
   </data>
   <data name="AvatarUpdated" xml:space="preserve">
-    <value>Avatar Updated.</value>
+    <value>头像已更新。</value>
   </data>
   <data name="AvatarUpdateError" xml:space="preserve">
-    <value>Error Updated Avatar.</value>
+    <value>更新头像出错。</value>
   </data>
   <data name="DefaultLoginError" xml:space="preserve">
-    <value>An unexpected error occurred. Please try again later.</value>
+    <value>发生意外错误。请稍后再试。</value>
   </data>
   <data name="DataNotAllowNull" xml:space="preserve">
-    <value>Information cannot be left blank.</value>
+    <value>信息不能留空。</value>
   </data>
   <data name="ConfirmPasswordError" xml:space="preserve">
-    <value>Confirm password doesn't match the password above.</value>
+    <value>确认密码与上面的密码不匹配。</value>
   </data>
   <data name="UnAuthorize" xml:space="preserve">
-    <value>UnAuthorize.</value>
+    <value>未授权。</value>
   </data>
   <data name="UserDeleted" xml:space="preserve">
-    <value>User is deleted.</value>
+    <value>用户已删除。</value>
   </data>
   <data name="UserDeletedError" xml:space="preserve">
-    <value>Deleted user faild.</value>
+    <value>删除用户失败。</value>
   </data>
   <data name="TokenDeleted" xml:space="preserve">
-    <value>Token has been deleted successfull</value>
+    <value>令牌已成功删除</value>
   </data>
   <data name="NotEnoughMembers" xml:space="preserve">
-    <value>The number of members is not enough to create a new chat group</value>
+    <value>成员数量不足以创建新的聊天群组</value>
   </data>
   <data name="EmailContentHeaderContent1" xml:space="preserve">
-    <value>Hanoi</value>
+    <value>河内</value>
   </data>
   <data name="EmailContentHeaderContent2" xml:space="preserve">
-    <value>University of Business and Technology</value>
+    <value>商业与技术大学</value>
   </data>
   <data name="EmailContentHeaderContent3" xml:space="preserve">
-    <value>HUBT Social – Connecting HUBT students! Share knowledge, stay updated on events, and grow</value>
+    <value>HUBT Social – 连接HUBT学生！分享知识，了解最新活动，一起</value>
   </data>
   <data name="EmailContentHeaderContent4" xml:space="preserve">
-    <value>together in a vibrant, creative, and passionate community.</value>
+    <value>在一个充满活力、创意和激情的社区中成长。</value>
   </data>
   <data name="EmailContentOTP0" xml:space="preserve">
-    <value>Hello</value>
+    <value>您好</value>
   </data>
   <data name="EmailContentOTP1" xml:space="preserve">
-    <value>Here is your One Time Password (OTP).</value>
+    <value>这是您的一次性密码(OTP)。</value>
   </data>
   <data name="EmailContentOTP2" xml:space="preserve">
-    <value>Please enter this code to verify your email address for HUBT Social:</value>
+    <value>请输入此代码以验证您的HUBT Social电子邮件地址：</value>
   </data>
   <data name="EmailContentOTP3" xml:space="preserve">
-    <value>Copy OTP</value>
+    <value>复制OTP</value>
   </data>
   <data name="EmailContentOTP4" xml:space="preserve">
-    <value>The OTP will expire in 2 minutes 30 seconds.</value>
+    <value>OTP将在2分30秒后过期。</value>
   </data>
   <data name="EmailContentOTP5" xml:space="preserve">
-    <value>Best Regards</value>
+    <value>最好的祝福</value>
   </data>
   <data name="EmailContentOTP6" xml:space="preserve">
-    <value>HUBT Social Team</value>
+    <value>HUBT Social团队</value>
   </data>
   <data name="EmailContentFooter1" xml:space="preserve">
-    <value>© 2024 HUBT Social. All rights reserved.</value>
+    <value>© 2024 HUBT Social. 保留所有权利。</value>
   </data>
   <data name="EmailContentFooter2" xml:space="preserve">
-    <value>You are receiving this mail because you registered to join the HUBT Social platform. 
-      If you no longer want to receive mails, click the</value>
+    <value>您收到此邮件是因为您注册加入HUBT Social平台。
+      如果您不再希望收到邮件，请点击</value>
   </data>
   <data name="EmailContentFooter3" xml:space="preserve">
-    <value>unsubscribe</value>
+    <value>取消订阅</value>
   </data>
   <data name="EmailContentFooter4" xml:space="preserve">
-    <value> link below.</value>
+    <value>下面的链接。</value>
   </data>
   <data name="Email2Text0" xml:space="preserve">
-    <value>Dear</value>
+    <value>尊敬的</value>
   </data>
   <data name="Email2Text1" xml:space="preserve">
-    <value>Your one-time code is</value>
+    <value>您的一次性代码是</value>
   </data>
   <data name="Email2Text2" xml:space="preserve">
-    <value>Please verify your identity by entering this</value>
+    <value>请在身份验证过程中输入此</value>
   </data>
   <data name="Email2Text3" xml:space="preserve">
-    <value>6-digit code during authentication. Note that this code will expire</value>
+    <value>6位数代码来验证您的身份。请注意，此代码将</value>
   </data>
   <data name="Email2Text4" xml:space="preserve">
-    <value>in 2 minutes and 30 seconds for security reasons.</value>
+    <value>在2分30秒后过期，以确保安全。</value>
   </data>
   <data name="Email2Text5" xml:space="preserve">
-    <value>We noticed access from a </value>
+    <value>我们注意到从</value>
   </data>
   <data name="Email2Text6" xml:space="preserve">
-    <value>new location or device.</value>
+    <value>新位置或设备访问。</value>
   </data>
   <data name="Email2Text7" xml:space="preserve">
-    <value>Device</value>
+    <value>设备</value>
   </data>
   <data name="Email2Text8" xml:space="preserve">
-    <value>Location</value>
+    <value>位置</value>
   </data>
   <data name="Email2Text9" xml:space="preserve">
-    <value>Date</value>
+    <value>日期</value>
   </data>
   <data name="Email2Text10" xml:space="preserve">
-    <value>If you have any questions, contact our Website Guides.</value>
+    <value>如有任何问题，请联系我们的网站指南。</value>
   </data>
   <data name="Email2Text11" xml:space="preserve">
-    <value>Or, visit our Help Center.</value>
+    <value>或者，访问我们的帮助中心。</value>
   </data>
   <data name="Email2Text12" xml:space="preserve">
-    <value>HUBTSOCIAL - A sanctuary of friendship and enlightenment, fostering profound connections within the HUBT community to inspire sharing, ignite learning, and radiate noble values, building a harmonious haven where hearts and aspirations unite.</value>
+    <value>HUBTSOCIAL - 友谊与启发的避风港，培养HUBT社区内深厚的联系，激发分享，点燃学习，并传播崇高的价值观，建立一个和谐的天堂，心与志向在此相聚。</value>
   </data>
   <data name="Email2Text13" xml:space="preserve">
-    <value>Connect with HUBTSOCIAL on Facebook, Instagram, and Twitter to stay informed, share moments, and grow with our vibrant community!</value>
+    <value>在Facebook、Instagram和Twitter上关注HUBTSOCIAL，了解信息，分享时刻，与我们活力社区一起成长！</value>
   </data>
   <data name="StoreSuccessfull" xml:space="preserve">
-    <value>Store Data Success</value>
+    <value>存储数据成功</value>
   </data>
   <data name="ApiError" xml:space="preserve">
-    <value>SomeThings Goes wrong</value>
+    <value>出现了问题</value>
   </data>
   <data name="ApiNotFound" xml:space="preserve">
-    <value>API not found</value>
+    <value>未找到API</value>
   </data>
   <data name="InternalServerError" xml:space="preserve">
-    <value>InternalServerError</value>
+    <value>内部服务器错误</value>
   </data>
   <data name="ApiForbibben" xml:space="preserve">
-    <value>You have been fobidden to access this APi</value>
+    <value>您被禁止访问此API</value>
   </data>
   <data name="NotificationSend" xml:space="preserve">
-    <value>The Notification send successfull</value>
+    <value>通知发送成功</value>
   </data>
   <data name="NotificationSendError" xml:space="preserve">
-    <value>Can't send the notification</value>
+    <value>无法发送通知</value>
   </data>
   <data name="InvalidFCMToken" xml:space="preserve">
-    <value>Invalid FCM Token due to The token has no longer been use</value>
+    <value>FCM令牌无效，因为该令牌已不再使用</value>
   </data>
   <data name="NotationSomeOneLoginYouAccountTittle" xml:space="preserve">
-    <value>You account have been login some where else</value>
+    <value>您的账户在其他地方登录</value>
   </data>
   <data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
-    <value>There some one login you account at: </value>
+    <value>有人在以下位置登录了您的账户：</value>
   </data>
 </root>

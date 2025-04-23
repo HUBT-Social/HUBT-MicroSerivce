@@ -21,7 +21,11 @@ public static class LocalizationConfig
             var supportedCultures = new[]
             {
                 new CultureInfo("vi"), // Tiếng Việt
-                new CultureInfo("en")  // Tiếng Anh
+                new CultureInfo("en"),  // Tiếng Anh
+                new CultureInfo("zh"),
+                new CultureInfo("ja"),
+                new CultureInfo("ru"),
+                new CultureInfo("ko")
                 // Có thể thêm các ngôn ngữ khác ở đây nếu cần
             };
 

@@ -95,12 +95,12 @@ namespace HUBT_Social_Chat_Service.Services
         }
 
 
-        public async Task<(bool, string)> UpdateNickNameAsync(string groupId, string changedId, string newNickName)
+        public async Task<(bool, string)> UpdateNickNameAsync(string groupId, string changed, string newNickName)
         {
             try
             {
                 // Kiểm tra đầu vào
-                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(changedId) || string.IsNullOrEmpty(newNickName))
+                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(changed) || string.IsNullOrEmpty(newNickName))
                 {
                     return (false, "The parameter is null.");
                 }
@@ -113,7 +113,7 @@ namespace HUBT_Social_Chat_Service.Services
                 }
                 // Tạo filter tìm phòng chat chứa participant có `UserId` cần đổi nickname
                 Expression<Func<ChatGroupModel, bool>> filter = r =>
-                    r.Id == groupId && r.Participant.Any(p => p.UserId == changedId);
+                    r.Id == groupId && r.Participant.Any(p => p.UserName == changed);
 
                 // Tạo update định nghĩa thay đổi nickname
                 var update = Builders<ChatGroupModel>.Update.Set("Participant.$.NickName", newNickName);
@@ -135,12 +135,12 @@ namespace HUBT_Social_Chat_Service.Services
             }
         }
 
-        public async Task<(bool, string)> UpdateParticipantRoleAsync(string groupId, string changedId, ParticipantRole newParticipantRole)
+        public async Task<(bool, string)> UpdateParticipantRoleAsync(string groupId, string changed, ParticipantRole newParticipantRole)
         {
             try
             {
                 // Kiểm tra đầu vào
-                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(changedId))
+                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(changed))
                 {
                     return (false, "The parameter is null.");
                 }
@@ -153,7 +153,7 @@ namespace HUBT_Social_Chat_Service.Services
                 }
                 // Tạo filter tìm phòng chat chứa participant có `UserId` cần cập nhật
                 Expression<Func<ChatGroupModel, bool>> filter = r =>
-                    r.Id == groupId && r.Participant.Any(p => p.UserId == changedId);
+                    r.Id == groupId && r.Participant.Any(p => p.UserName == changed);
 
                 // Định nghĩa update thay đổi vai trò của participant
                 var update = Builders<ChatGroupModel>.Update.Set("Participant.$.Role", newParticipantRole);
@@ -223,14 +223,14 @@ namespace HUBT_Social_Chat_Service.Services
             try
             {
                 // Kiểm tra đầu vào
-                if (request is null || string.IsNullOrEmpty(request.KickedId))
+                if (request is null || string.IsNullOrEmpty(request.Kicked))
                 {
                     return (false, "The parameter is null.");
                 }
 
                 // Kiểm tra xem phòng chat có tồn tại không
                 var chatRoom = await _chatGroups.Find(c => c.Id == request.GroupId).FirstOrDefaultAsync();
-                if (chatRoom == null)
+                if (chatRoom == null) 
                 {
                     return (false, "The group dose not exist.");
                 }
@@ -239,7 +239,7 @@ namespace HUBT_Social_Chat_Service.Services
 
                 // Xóa thành viên khỏi danh sách `Participant`
                 var update = Builders<ChatGroupModel>.Update.PullFilter(r => r.Participant,
-                    p => p.UserId == request.KickedId);
+                    p => p.UserName == request.Kicked);
 
                 // Thực hiện cập nhật
                 var success = await _chatGroups.UpdateByFilter(filter, update);
@@ -259,12 +259,12 @@ namespace HUBT_Social_Chat_Service.Services
             }
         }
 
-        public async Task<(bool, string)> LeaveRoomAsync(string groupId, string userId)
+        public async Task<(bool, string)> LeaveRoomAsync(string groupId, string user)
         {
             try
             {
                 // Kiểm tra đầu vào
-                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(userId))
+                if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(user))
                 {
                     return (false, "The parameter is null.");
                 }
@@ -279,7 +279,7 @@ namespace HUBT_Social_Chat_Service.Services
                 Expression<Func<ChatGroupModel, bool>> filter = c => c.Id == groupId;
 
                 // Xóa người dùng khỏi danh sách `Participant`
-                var update = Builders<ChatGroupModel>.Update.PullFilter(r => r.Participant, p => p.UserId == userId);
+                var update = Builders<ChatGroupModel>.Update.PullFilter(r => r.Participant, p => p.UserName == user);
 
                 // Thực hiện cập nhật
                 var success = await _chatGroups.UpdateByFilter(filter, update);

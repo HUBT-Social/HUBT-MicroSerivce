@@ -31,7 +31,7 @@ namespace Auth_API
             {
                 options.AddPolicy("AllowReactApp", policy =>
                 {
-                    policy.WithOrigins("https://chatuitest.onrender.com", "http://localhost:3000")  // Chỉ cho phép origin này
+                    policy.WithOrigins("https://chatuitest.onrender.com", "http://localhost:3000", "http://localhost:5173")  // Chỉ cho phép origin này
                         .AllowAnyMethod()   // Cho phép bất kỳ phương thức HTTP nào
                         .AllowAnyHeader()   // Cho phép bất kỳ header nào
                         .AllowCredentials(); // Cho phép gửi credentials như cookies, authorization headers

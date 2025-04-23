@@ -44,6 +44,24 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }
+        [HttpGet("users-in-list-userName")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUsersInListAsync([FromQuery] ListUserNameDTO request)
+        {
+            if (!ModelState.IsValid || request.userNames == null || request.userNames.Count == 0)
+                return BadRequest("Danh sách userNames không hợp lệ");
+
+            var userTasks = request.userNames.Select(username => _identityService.FindUserByUserNameAsync(username));
+            var users = await Task.WhenAll(userTasks);
+
+            var validUsers = users.Where(u => u != null).ToList();
+
+            if (validUsers.Count == 0)
+                return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+            var userDTOs = validUsers.Select(user => _mapper.Map<AUserDTO>(user)).ToList();
+            return Ok(userDTOs);
+        }
         [HttpGet("user")]
         public async Task<IActionResult> GetUser()
         {

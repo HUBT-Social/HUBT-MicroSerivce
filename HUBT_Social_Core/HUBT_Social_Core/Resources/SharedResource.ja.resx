@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidInformation" xml:space="preserve">
+    <value>無効な情報です。</value>
+</data>
+<data name="RegistrationFailed" xml:space="preserve">
+    <value>登録に失敗しました。</value>
+</data>
+<data name="UnableToSendOTP" xml:space="preserve">
+    <value>OTPコードを送信できません。</value>
+</data>
+<data name="RegistrationSuccess" xml:space="preserve">
+    <value>登録に成功しました。</value>
+</data>
+<data name="StepOneVerificationSuccess" xml:space="preserve">
+    <value>ステップ1の認証に成功しました。</value>
+</data>
+<data name="AccountLocked" xml:space="preserve">
+    <value>アカウントがロックされました。</value>
+</data>
+<data name="LoginNotAllowed" xml:space="preserve">
+    <value>ログインは許可されていません。</value>
+</data>
+<data name="TwoFactorRequired" xml:space="preserve">
+    <value>二要素認証が必要です。</value>
+</data>
+<data name="InvalidCredentials" xml:space="preserve">
+    <value>無効なログイン認証情報です。</value>
+</data>
+<data name="VerificationSuccess" xml:space="preserve">
+    <value>認証に成功しました。</value>
+</data>
+<data name="OTPVerificationFailed" xml:space="preserve">
+    <value>OTP認証に失敗しました。</value>
+</data>
+<data name="InvalidLanguage" xml:space="preserve">
+    <value>無効な言語です。</value>
+</data>
+<data name="LanguageChanged" xml:space="preserve">
+    <value>言語が正常に変更されました。</value>
+</data>
+<data name="LanguageChangeFailed" xml:space="preserve">
+    <value>言語の変更に失敗しました。</value>
+</data>
+<data name="InvalidMessageData" xml:space="preserve">
+    <value>無効なメッセージデータです。</value>
+</data>
+<data name="MessageSentSuccessfully" xml:space="preserve">
+    <value>メッセージは正常に送信されました。</value>
+</data>
+<data name="FailedToSendMessage" xml:space="preserve">
+    <value>メッセージの送信に失敗しました。</value>
+</data>
+<data name="ChatRoomIdRequired" xml:space="preserve">
+    <value>チャットルームIDが必要です。</value>
+</data>
+<data name="NoMessagesFound" xml:space="preserve">
+    <value>メッセージが見つかりませんでした。</value>
+</data>
+<data name="MessageDeletedSuccessfully" xml:space="preserve">
+    <value>メッセージは正常に削除されました。</value>
+</data>
+<data name="FailedToDeleteMessage" xml:space="preserve">
+    <value>メッセージの削除に失敗しました。</value>
+</data>
+<data name="ChatRoomIdAndKeywordRequired" xml:space="preserve">
+    <value>チャットルームIDとキーワードが必要です。</value>
+</data>
+<data name="MessagesFoundSuccessfully" xml:space="preserve">
+    <value>メッセージが見つかりました。</value>
+</data>
+<data name="ImageUploadedSuccessfully" xml:space="preserve">
+    <value>画像は正常にアップロードされました。</value>
+</data>
+<data name="FailedToUploadImage" xml:space="preserve">
+    <value>画像のアップロードに失敗しました。</value>
+</data>
+<data name="FileUploadedSuccessfully" xml:space="preserve">
+    <value>ファイルは正常にアップロードされました。</value>
+</data>
+<data name="FailedToUploadFile" xml:space="preserve">
+    <value>ファイルのアップロードに失敗しました。</value>
+</data>
+<data name="GroupNameRequired" xml:space="preserve">
+    <value>グループ名が必要です。</value>
+</data>
+<data name="GroupCreatedSuccessfully" xml:space="preserve">
+    <value>チャットグループが正常に作成されました。</value>
+</data>
+<data name="FailedToCreateGroup" xml:space="preserve">
+    <value>チャットグループの作成に失敗しました。</value>
+</data>
+<data name="GroupNameUpdatedSuccessfully" xml:space="preserve">
+    <value>グループ名が正常に更新されました。</value>
+</data>
+<data name="FailedToUpdateGroup" xml:space="preserve">
+    <value>グループ名の更新に失敗しました。</value>
+</data>
+<data name="GroupDeletedSuccessfully" xml:space="preserve">
+    <value>チャットグループが正常に削除されました。</value>
+</data>
+<data name="FailedToDeleteGroup" xml:space="preserve">
+    <value>チャットグループの削除に失敗しました。</value>
+</data>
+<data name="GroupNotFound" xml:space="preserve">
+    <value>チャットグループが見つかりません。</value>
+</data>
+<data name="UserAlreadyExists" xml:space="preserve">
+    <value>ユーザーアカウントは既に存在します。</value>
+</data>
+<data name="UnableToStoreInDatabase" xml:space="preserve">
+    <value>データベースに保存できません。</value>
+</data>
+<data name="EmailVerificationCodeSubject" xml:space="preserve">
+    <value>メール認証コード。</value>
+</data>
+<data name="EmailCannotBeEmpty" xml:space="preserve">
+    <value>メールアドレスは空にできません。</value>
+</data>
+<data name="EmailUpdated" xml:space="preserve">
+    <value>メールアドレスは正常に更新されました。</value>
+</data>
+<data name="EmailUpdateError" xml:space="preserve">
+    <value>メールアドレスの更新に失敗しました。</value>
+</data>
+<data name="PasswordCannotBeEmpty" xml:space="preserve">
+    <value>現在のパスワードと新しいパスワードは空にできません。</value>
+</data>
+<data name="PasswordUpdated" xml:space="preserve">
+    <value>パスワードは正常に更新されました。</value>
+</data>
+<data name="PasswordUpdateError" xml:space="preserve">
+    <value>パスワードの更新エラー。</value>
+</data>
+<data name="NameUpdated" xml:space="preserve">
+    <value>ユーザー名は正常に更新されました。</value>
+</data>
+<data name="NameUpdateError" xml:space="preserve">
+    <value>ユーザー名の更新エラー。</value>
+</data>
+<data name="PhoneNumberUpdated" xml:space="preserve">
+    <value>電話番号は正常に更新されました。</value>
+</data>
+<data name="PhoneNumberUpdateError" xml:space="preserve">
+    <value>電話番号の更新エラー。</value>
+</data>
+<data name="GenderUpdated" xml:space="preserve">
+    <value>性別は正常に更新されました。</value>
+</data>
+<data name="GenderUpdateError" xml:space="preserve">
+    <value>性別の更新エラー。</value>
+</data>
+<data name="DateOfBirthUpdated" xml:space="preserve">
+    <value>生年月日は正常に更新されました。</value>
+</data>
+<data name="DateOfBirthUpdateError" xml:space="preserve">
+    <value>生年月日の更新エラー。</value>
+</data>
+<data name="GeneralUpdateSuccess" xml:space="preserve">
+    <value>ユーザー情報は正常に更新されました。</value>
+</data>
+<data name="GeneralUpdateError" xml:space="preserve">
+    <value>ユーザー情報の更新エラー。</value>
+</data>
+<data name="CurrentPasswordAndUsernameCannotBeEmpty" xml:space="preserve">
+    <value>ユーザー名と現在のパスワードは空にできません。</value>
+</data>
+<data name="PasswordCorrect" xml:space="preserve">
+    <value>パスワードは正しいです。</value>
+</data>
+<data name="PasswordIncorrect" xml:space="preserve">
+    <value>パスワードが間違っています。</value>
+</data>
+<data name="UsernameCannotBeEmpty" xml:space="preserve">
+    <value>ユーザー名は空にできません。</value>
+</data>
+<data name="InvalidRequest" xml:space="preserve">
+    <value>無効なリクエストです。</value>
+</data>
+<data name="OtpSent" xml:space="preserve">
+    <value>OTPコードを送信しました。</value>
+</data>
+<data name="OtpSendError" xml:space="preserve">
+    <value>OTPコードの送信エラー。</value>
+</data>
+<data name="OtpVerificationSuccess" xml:space="preserve">
+    <value>OTP認証に成功しました。</value>
+</data>
+<data name="OtpInvalid" xml:space="preserve">
+    <value>OTPコードが無効です。</value>
+</data>
+<data name="UserNotFound" xml:space="preserve">
+    <value>ユーザーが見つかりません。</value>
+</data>
+<data name="UserInfoUpdatedSuccess" xml:space="preserve">
+    <value>ユーザー情報は正常に更新されました。</value>
+</data>
+<data name="UserInfoUpdateError" xml:space="preserve">
+    <value>ユーザー情報の更新エラー。</value>
+</data>
+<data name="PasswordCheckEmptyError" xml:space="preserve">
+    <value>パスワードは空にできません。</value>
+</data>
+<data name="OtpVerifyEmptyError" xml:space="preserve">
+    <value>OTPコードは空にできません。</value>
+</data>
+<data name="TokenValid" xml:space="preserve">
+    <value>トークンは有効です。</value>
+</data>
+<data name="AvatarUpdated" xml:space="preserve">
+    <value>アバターを更新しました。</value>
+</data>
+<data name="AvatarUpdateError" xml:space="preserve">
+    <value>アバターの更新エラー。</value>
+</data>
+<data name="DefaultLoginError" xml:space="preserve">
+    <value>予期しないエラーが発生しました。後でもう一度お試しください。</value>
+</data>
+<data name="DataNotAllowNull" xml:space="preserve">
+    <value>情報を空白にすることはできません。</value>
+</data>
+<data name="ConfirmPasswordError" xml:space="preserve">
+    <value>確認パスワードが上記のパスワードと一致しません。</value>
+</data>
+<data name="UnAuthorize" xml:space="preserve">
+    <value>認証されていません。</value>
+</data>
+<data name="UserDeleted" xml:space="preserve">
+    <value>ユーザーは削除されました。</value>
+</data>
+<data name="UserDeletedError" xml:space="preserve">
+    <value>ユーザーの削除に失敗しました。</value>
+</data>
+<data name="TokenDeleted" xml:space="preserve">
+    <value>トークンは正常に削除されました。</value>
+</data>
+<data name="NotEnoughMembers" xml:space="preserve">
+    <value>新しいチャットグループを作成するには、メンバーの数が足りません。</value>
+</data>
+<data name="EmailContentHeaderContent1" xml:space="preserve">
+    <value>ハノイ</value>
+</data>
+<data name="EmailContentHeaderContent2" xml:space="preserve">
+    <value>ビジネス技術大学</value>
+</data>
+<data name="EmailContentHeaderContent3" xml:space="preserve">
+    <value>HUBT Social – HUBTの学生をつなぐ！知識を共有し、イベントの最新情報を入手し、活気に満ちた、創造的で情熱的なコミュニティで共に成長しましょう。</value>
+</data>
+<data name="EmailContentHeaderContent4" xml:space="preserve">
+    <value>活気に満ち、創造的で情熱的なコミュニティで共に成長しましょう。</value>
+</data>
+<data name="EmailContentOTP0" xml:space="preserve">
+    <value>こんにちは</value>
+</data>
+<data name="EmailContentOTP1" xml:space="preserve">
+    <value>ワンタイムパスワード（OTP）はこちらです。</value>
+</data>
+<data name="EmailContentOTP2" xml:space="preserve">
+    <value>HUBT Socialのメールアドレスを確認するには、このコードを入力してください。</value>
+</data>
+<data name="EmailContentOTP3" xml:space="preserve">
+    <value>OTPをコピー</value>
+</data>
+<data name="EmailContentOTP4" xml:space="preserve">
+    <value>OTPは2分30秒で有効期限が切れます。</value>
+</data>
+<data name="EmailContentOTP5" xml:space="preserve">
+    <value>敬具</value>
+</data>
+<data name="EmailContentOTP6" xml:space="preserve">
+    <value>HUBT Socialチーム</value>
+</data>
+<data name="EmailContentFooter1" xml:space="preserve">
+    <value>© 2024 HUBT Social. All rights reserved.</value>
+</data>
+<data name="EmailContentFooter2" xml:space="preserve">
+    <value>HUBT Socialプラットフォームへの登録により、このメールを受信しています。
+    今後メールの受信を希望しない場合は、以下の</value>
+</data>
+<data name="EmailContentFooter3" xml:space="preserve">
+    <value>購読解除</value>
+</data>
+<data name="EmailContentFooter4" xml:space="preserve">
+    <value>リンクをクリックしてください。</value>
+</data>
+<data name="Email2Text0" xml:space="preserve">
+    <value>拝啓</value>
+</data>
+<data name="Email2Text1" xml:space="preserve">
+    <value>お客様のワンタイムコードは</value>
+</data>
+<data name="Email2Text2" xml:space="preserve">
+    <value>認証中にこの</value>
+</data>
+<data name="Email2Text3" xml:space="preserve">
+    <value>6桁のコードを入力して、本人確認を行ってください。このコードはセキュリティ上の理由により</value>
+</data>
+<data name="Email2Text4" xml:space="preserve">
+    <value>2分30秒で有効期限が切れます。</value>
+</data>
+<data name="Email2Text5" xml:space="preserve">
+    <value>新しい場所またはデバイスからのアクセスを確認しました。</value>
+</data>
+<data name="Email2Text6" xml:space="preserve">
+    <value>新しい場所またはデバイス。</value>
+</data>
+<data name="Email2Text7" xml:space="preserve">
+    <value>デバイス</value>
+</data>
+<data name="Email2Text8" xml:space="preserve">
+    <value>場所</value>
+</data>
+<data name="Email2Text9" xml:space="preserve">
+    <value>日付</value>
+</data>
+<data name="Email2Text10" xml:space="preserve">
+    <value>ご不明な点がございましたら、当社のウェブサイトガイドにお問い合わせください。</value>
+</data>
+<data name="Email2Text11" xml:space="preserve">
+    <value>または、ヘルプセンターをご覧ください。</value>
+</data>
+<data name="Email2Text12" xml:space="preserve">
+    <value>HUBTSOCIAL - 友情と啓発の聖域であり、HUBTコミュニティ内の深い繋がりを育み、共有を促し、学びを刺激し、高貴な価値観を広め、心と願望が結びつく調和のとれた安息の地を築きます。</value>
+</data>
+<data name="Email2Text13" xml:space="preserve">
+    <value>Facebook、Instagram、TwitterでHUBTSOCIALと繋がり、最新情報を入手し、瞬間を共有し、活気に満ちたコミュニティと共に成長しましょう！</value>
+</data>
+<data name="StoreSuccessfull" xml:space="preserve">
+    <value>データの保存に成功しました。</value>
+</data>
+<data name="ApiError" xml:space="preserve">
+    <value>何らかの問題が発生しました。</value>
+</data>
+<data name="ApiNotFound" xml:space="preserve">
+    <value>APIが見つかりません。</value>
+</data>
+<data name="InternalServerError" xml:space="preserve">
+    <value>内部サーバーエラー。</value>
+</data>
+<data name="ApiForbibben" xml:space="preserve">
+    <value>このAPIへのアクセスは禁止されています。</value>
+</data>
+<data name="NotificationSend" xml:space="preserve">
+    <value>通知は正常に送信されました。</value>
+</data>
+<data name="NotificationSendError" xml:space="preserve">
+    <value>通知を送信できません。</value>
+</data>
+<data name="InvalidFCMToken" xml:space="preserve">
+    <value>トークンが既に使用されていないため、無効なFCMトークンです。</value>
+</data>
+<data name="NotationSomeOneLoginYouAccountTittle" xml:space="preserve">
+    <value>あなたのアカウントは別の場所でログインされました。</value>
+</data>
+<data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
+    <value>あなたのアカウントは以下でログインされました：</value>
+</data>
+</root>

@@ -172,13 +172,13 @@ namespace HUBT_Social_Core.Settings
             List<string> avatarUrls = gender switch
             {
                 Gender.Male => [
-                                        AvatarDefaultMale1,
+                        AvatarDefaultMale1,
                         AvatarDefaultMale2,
                         AvatarDefaultMale3,
                         AvatarDefaultMale4
                                     ],
                 Gender.Female => [
-                                        AvatarDefaultFemale1,
+                        AvatarDefaultFemale1,
                         AvatarDefaultFemale2,
                         AvatarDefaultFemale3,
                         AvatarDefaultFemale4,

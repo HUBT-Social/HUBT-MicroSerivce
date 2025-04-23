@@ -6,6 +6,7 @@ using HUBT_Social_Chat_Service.ASP_Extensions;
 using HUBT_Social_Chat_Service.Helper;
 using HUBT_Social_Core.ASP_Extensions;
 using HUBT_Social_Core.Settings;
+using Identity_API.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -25,6 +26,8 @@ namespace Chat_Data_API
             builder.Services.ConfigureLocalization();
             builder.Services.ConfigureCloudinary(builder.Configuration);
             builder.Services.AddMongoMapper();
+            builder.Services.AddOutDataConfiguration(builder.Configuration);
+            builder.Services.OutServiceRegister();
 
 
 

@@ -21,7 +21,6 @@ namespace TempRegister_API.Src.Controllers
         IMapper mapper) : DataLayerController(mapper, option)
     {
         private readonly IMongoService<TempUserRegister> _tempUserRegister = tempUserRegister;
-
         [HttpPost]
         public async Task<IActionResult> StoreTempUser([FromBody] RegisterRequest model)
         {

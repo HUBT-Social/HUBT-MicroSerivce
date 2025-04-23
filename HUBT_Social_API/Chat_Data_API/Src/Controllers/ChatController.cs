@@ -23,6 +23,7 @@ using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using Amazon.Runtime.Internal;
 using Chat_Data_API.Src.Hubs;
+using Chat_Data_API.Src.Service;
 
 namespace Chat_Data_API.Src.Controllers
 {
@@ -35,7 +36,8 @@ namespace Chat_Data_API.Src.Controllers
             IHubContext<ChatHub> hubContext,
             IUserConnectionManager connectionManager,
             IMapper mapper,
-            IOptions<JwtSetting> options
+            IOptions<JwtSetting> options,
+            IOutDataService outData
         )
         : DataLayerController(mapper, options)
     {
@@ -43,6 +45,7 @@ namespace Chat_Data_API.Src.Controllers
 
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
+        private readonly IOutDataService _outData = outData;
 
 
         [HttpPost("create-group")]
@@ -131,7 +134,7 @@ namespace Chat_Data_API.Src.Controllers
                         var connectionId = _connectionManager.GetConnectionId(user.UserId);
                         if (connectionId != null)
                         {
-                            await _hubContext.Groups.AddToGroupAsync(connectionId, groupId);
+                            await _hubContext.Groups.RemoveFromGroupAsync(connectionId, groupId);
                         }
                     }
                 }

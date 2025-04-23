@@ -1,4 +1,6 @@
-﻿using Chat_API.Src.Interfaces;
+﻿using Amazon.Runtime.Internal;
+using Chat_API.Src.Interfaces;
+using Hangfire.Mongo.Dto;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.GetRequest;
 using HUBT_Social_Chat_Resources.Dtos.Request.InitRequest;
@@ -63,13 +65,17 @@ namespace Chat_API.Src.Controllers
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            AUserDTO? user = await _userService.GetUserById(request.AddedId, token);
+            if(request == null || string.IsNullOrEmpty(request.GroupId) || string.IsNullOrEmpty(request.GroupId))
+            {
+                return BadRequest();
+            }
+            AUserDTO? user = await _userService.GetUserByUserName(request.Added, token);
             if (user == null) { return BadRequest(); }
             Participant participant = new Participant
             {
-                UserId = user.Id.ToString(),
+                UserName = user.UserName,
                 Role = ParticipantRole.Member,
-                NickName = user.UserName, // Hoặc một giá trị mặc định
+                NickName = user.LastName + " " + user.FirstName, // Hoặc một giá trị mặc định
                 ProfilePhoto = user.AvataUrl
             };
             AddMemberRequestData addMemberRequestData = new AddMemberRequestData
@@ -146,7 +152,7 @@ namespace Chat_API.Src.Controllers
                 return Unauthorized();
             }
 
-            ChatUserResponse?  currentUser = users.response.FirstOrDefault(u => u.id == users.caller);
+            ChatUserResponse?  currentUser = users.response.FirstOrDefault(u => u.userName == users.caller);
 
             if (currentUser == null)
             {
@@ -159,11 +165,38 @@ namespace Chat_API.Src.Controllers
                 AvatarUrl = users.avatarUrl,
                 CurrentUser = currentUser,
                 OtherUsers = users.response
-                    .Where(u => u.id != users.caller)
+                    .Where(u => u.userName != users.caller)
                     .ToList()
             });
 
         }
 
+        [HttpGet("get-user-test")]
+        public async Task<IActionResult> GetUsersTest([FromQuery] ListUserNameDTO request)
+        {
+            string? token = ReadTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+
+            List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(request, token);
+            if (userDTOs == null  || !userDTOs.Any()) { return BadRequest(); }
+
+            List<Participant> participants = new List<Participant>();
+
+            foreach (var user in userDTOs)
+            {
+                Participant participant = new Participant
+                {
+                    UserName = user.UserName,
+                    Role = ParticipantRole.Member,
+                    NickName = user.LastName + user.FirstName, // Hoặc một giá trị mặc định
+                    ProfilePhoto = user.AvataUrl
+                };
+                participants.Add(participant);
+            }
+           
+            return Ok(participants);
+            
+        }
     }
 }

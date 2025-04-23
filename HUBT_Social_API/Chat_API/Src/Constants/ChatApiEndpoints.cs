@@ -17,8 +17,12 @@
         public const string RoomService_GetMessageHistory = "api/room/message-history";
         public const string RoomService_GetRoomUser = "api/room/get-members";
 
-        public const string UserService_GetUser = "api/user";
-        public const string UserService_GetAllUser = "api/user/userAll";
+        public const string Indentity_GetUser = "api/identity/user";
+        public const string Indentity_GetAllUser = "api/identity/user/userAll";
+        public const string Indentity_GetUserByUserName = "api/identity/user/get";
+        public const string Indentity_GetUserByUserNames = "api/identity/users-in-list-userName";
+
+        public const string TempService_GetCourse = "api/tempCourse";
 
         public const string OutService_GetUsersByClassName = "api/hubt/{{className}}";
     }
