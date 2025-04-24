@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HUBT_Social_Base;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
+using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using HUBT_Social_MongoDb_Service.Services;
@@ -18,6 +19,7 @@ namespace Out_Source_Data.Src.Controllers
         IMongoService<Diemtb> aGVScore,
         IMongoService<ThoiKhoaBieu> timeTable,
         IMongoService<DiemSinhVien> score,
+        IMongoService<MonHoc> subject,
         IOptions<JwtSetting> option,
         IMapper mapper) : DataLayerController(mapper, option)
     {
@@ -25,6 +27,8 @@ namespace Out_Source_Data.Src.Controllers
         private readonly IMongoService<Diemtb> _aGVScore = aGVScore;
         private readonly IMongoService<ThoiKhoaBieu> _timeTable = timeTable;
         private readonly IMongoService<DiemSinhVien> _score = score;
+        private readonly IMongoService<MonHoc> _subject = subject;
+
         [HttpGet("sinhvien")]
         public async Task<IActionResult> GetStudentData([FromQuery] string masv)
         {
@@ -110,18 +114,43 @@ namespace Out_Source_Data.Src.Controllers
 
             return NotFound(LocalValue.Get(KeyStore.UserNotFound));
         }
+       
+        [HttpGet("monhoc")]
+        public async Task<IActionResult> GetSubject([FromQuery] string major, [FromQuery] int? course = null)
+        {
+
+            List<MonHoc> hocPhans = await _subject.Find(hp => hp.MaNganh.Equals(major, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
+            if (hocPhans.Count <= 0)
+                return BadRequest();
+            try
+            {
+                if (course != null)
+                {
+                    hocPhans = hocPhans.Where(hp => hp.Khoas >= course).ToList();
+                }
+                List<SubjectDTO> coures = _mapper.Map<List<SubjectDTO>>(hocPhans);
+                return Ok(hocPhans);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return BadRequest();
+        }
 
         //[HttpPost("create")]
         //public async Task<IActionResult> CreateStudentData()
         //{
-        //    DiemSinhVien diem = new()
+        //    HocPhan diem = new()
         //    {
-        //        Masv = "B20DCCN001",
-        //        TenMonHoc = "Lap trinh C#",
-        //        Diem = 10
+        //        Khoa = 27,
+        //        Tenmon = "Lap trinh C#",
+        //        Manganh = "TH",
+        //        Sotinchi = 3
         //    };
         //    if (diem == null) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
-        //    await _score.Create(diem);
+        //    await _course.Create(diem);
         //    return Ok(LocalValue.Get(KeyStore.FileUploadedSuccessfully));
         //}
 

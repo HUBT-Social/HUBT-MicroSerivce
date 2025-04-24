@@ -172,7 +172,7 @@ namespace Chat_API.Src.Controllers
         }
 
         [HttpGet("get-user-test")]
-        public async Task<IActionResult> GetUsersTest([FromQuery] ListUserNameDTO request)
+        public async Task<IActionResult> GetUsersTest([FromQuery] List<string> request)
         {
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))

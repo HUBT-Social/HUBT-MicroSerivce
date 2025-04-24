@@ -23,7 +23,7 @@ namespace Notation_API.Src.Controllers
             {
                 if (request.Token.StartsWith("userId_"))
                 {
-                    string userId = request.Token.Substring(7); // Cắt bỏ "userId_" để lấy ID thực
+                    string userId = request.Token[7..]; // Cắt bỏ "userId_" để lấy ID thực
                     string? userFcm = await _userService.GetUserFCMFromId(userId);
 
                     if (string.IsNullOrEmpty(userFcm))

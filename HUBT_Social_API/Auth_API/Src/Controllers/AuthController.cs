@@ -17,41 +17,48 @@ namespace Auth_API.Src.Controllers
     [Route("api/auth")]
     [ApiController]
     public class AuthController(IAuthService authService,
-        ITempUserRegister tempUserRegister,
+        //ITempUserRegister tempUserRegister,
         IPostcodeService postcodeService) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
-        private readonly ITempUserRegister _tempUserRegister = tempUserRegister;
+        //private readonly ITempUserRegister _tempUserRegister = tempUserRegister;
         private readonly IPostcodeService _postcodeService = postcodeService;
 
         [HttpPost("sign-up")]
         public async Task<IActionResult> SignUp(RegisterRequest request)
         {
-            string userAgent = Request.Headers.UserAgent.ToString();
+            //string userAgent = Request.Headers.UserAgent.ToString();
             string? ipAddress = ServerHelper.GetIPAddress(HttpContext);
             if (ipAddress == null)
                 return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
 
-            if (!ModelState.IsValid)
-                return BadRequest(LocalValue.Get(KeyStore.InvalidCredentials));
 
-            ResponseDTO resultTemp = await _tempUserRegister.StoreIn(request);
-            if (resultTemp.StatusCode != HttpStatusCode.OK)
-                return BadRequest(resultTemp.Message);
+            ResponseDTO SignUpResponse = await _authService.SignUp(request);
+            DataSignUp? SignUpResult = SignUpResponse.ConvertTo<DataSignUp>();
 
-            if (await _authService.IsUsed(request) != null)
-                return BadRequest(LocalValue.Get(KeyStore.UserAlreadyExists));
+            if (SignUpResult is not { Result.Succeeded: true } || SignUpResult.User is null)
+                return Unauthorized(new SignInResponse
+                {
+                    RequiresTwoFactor = false,
+                    Message = LocalValue.Get(KeyStore.UserAlreadyExists)
+                });
 
-            var result = await _postcodeService.SendVerificationEmail(
-                request.Email,
-                request.UserName,
-                userAgent,
-                ipAddress
+            AUserDTO user = SignUpResult.User;
+            ResponseDTO TokenResult = await _authService.TokenSubcriber(user.Id.ToString());
+            TokenResponseDTO? tokenResponse = TokenResult.ConvertTo<TokenResponseDTO>();
+            return tokenResponse != null ? Ok(new SignInResponse
+            {
+                RequiresTwoFactor = false,
+                Message = TokenResult.Message,
+                MaskEmail = user.Email,
+                UserToken = tokenResponse
+            }) : BadRequest(
+            new SignInResponse
+            {
+                RequiresTwoFactor = false,
+                Message = TokenResult.Message,
+            }
             );
-
-            return result.StatusCode == HttpStatusCode.OK
-                ? Ok(result.Message)
-                : BadRequest(result.Message);
         }
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn(LoginByUserNameRequest request)

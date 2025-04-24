@@ -35,7 +35,7 @@ namespace HUBT_Social_Chat_Service.Services
                     replyMessage = new ReplyMessage
                     {
                         message = messageResult.message,
-                        replyBy = chatRequest.UserId,
+                        replyBy = chatRequest.UserName,
                         replyTo = messageResult.sentBy,
                         messageType = messageResult.messageType,
                         voiceMessageDuration = messageResult.voiceMessageDuration,
@@ -68,7 +68,7 @@ namespace HUBT_Social_Chat_Service.Services
                 RequestId = chatRequest.RequestId,
                 GroupId = chatRequest.GroupId,
                 Content = chatRequest.Content,
-                UserId = chatRequest.UserId,
+                UserId = chatRequest.UserName,
                 ReplyToMessage = replyMessage
             };
 
@@ -93,7 +93,7 @@ namespace HUBT_Social_Chat_Service.Services
                     {
                         GroupId = chatRequest.GroupId,
                         Medias = media, // Chỉ upload 1 file
-                        UserId = chatRequest.UserId,
+                        UserId = chatRequest.UserName,
                         ReplyToMessage = replyMessage
                     };
 

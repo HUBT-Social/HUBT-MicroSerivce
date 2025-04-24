@@ -24,9 +24,9 @@ namespace Chat_API.Src.Services
             string path = ChatApiEndpoints.Indentity_GetAllUser;
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
-        public async Task<List<AUserDTO>?> GetUsersByUserNames(ListUserNameDTO request, string accessToken)
+        public async Task<List<AUserDTO>?> GetUsersByUserNames(List<string> request, string accessToken)
         {
-            string queryString = string.Join("&", request.userNames.Select(u => $"userNames={Uri.EscapeDataString(u)}"));
+            string queryString = string.Join("&", request.Select(u => $"userNames={Uri.EscapeDataString(u)}"));
             Console.WriteLine(queryString);
             string path = ChatApiEndpoints.Indentity_GetUserByUserNames + "?"+ queryString;
             ResponseDTO response = await SendRequestAsync(path,ApiType.GET, null, accessToken);

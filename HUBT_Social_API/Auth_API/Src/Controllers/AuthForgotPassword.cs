@@ -1,4 +1,5 @@
 ﻿using Amazon.Runtime.Internal;
+using Auth_API.Src.Models.Requests;
 using Auth_API.Src.Services.Identity;
 using Auth_API.Src.Services.Postcode;
 using Auth_API.Src.Services.TempUser;
@@ -24,15 +25,15 @@ namespace Auth_API.Src.Controllers
         private readonly IAuthService _authService = authService;
         private readonly IPostcodeService _postcodeService = postcodeService;
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] string identifier)
+        public async Task<IActionResult> ForgotPassword([FromBody] SearchUserByUserNameOrPasswordRequest identifier)
         {
             string userAgent = Request.Headers.UserAgent.ToString();
             string? ipAddress = ServerHelper.GetIPAddress(HttpContext);
             if (ipAddress == null) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
             RegisterRequest registerRequest = new()
             {
-                Email = identifier,
-                UserName = identifier
+                Email = identifier.UserNameOrEmail,
+                UserName = identifier.UserNameOrEmail
             };
             AUserDTO? user = await _authService.IsUsed(registerRequest);
             if (user == null) return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
@@ -49,7 +50,7 @@ namespace Auth_API.Src.Controllers
 
         }
         [HttpPost("forgot-password/password-verification")]
-        public async Task<IActionResult> ConfirmCodeForgotPassword([FromBody] string code)
+        public async Task<IActionResult> ConfirmCodeForgotPassword([FromBody] OTPRequest code)
         {
             string userAgent = Request.Headers.UserAgent.ToString();
             string? ipAddress = ServerHelper.GetIPAddress(HttpContext);

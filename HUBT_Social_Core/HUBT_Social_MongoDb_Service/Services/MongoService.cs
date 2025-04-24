@@ -137,15 +137,19 @@ namespace HUBT_Social_MongoDb_Service.Services
                 return [];
             }
         }
-        public async Task<IEnumerable<Collection>> GetSlide(int page, int pageSize = 10)
+        public async Task<IEnumerable<Collection>> GetSlide(
+            int page,
+            int pageSize = 10,
+            FilterDefinition<Collection>? filter = null)
         {
             try
             {
                 if (page < 1) page = 1;
 
                 int skip = (page - 1) * pageSize;
+                var finalFilter = filter ?? Builders<Collection>.Filter.Empty;
 
-                var query = _mongoCollection.Find(_ => true)
+                var query = _mongoCollection.Find(finalFilter)
                                             .Skip(skip)
                                             .Limit(pageSize);
 
@@ -158,6 +162,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         }
 
 
+
         public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate)
         {
             try
@@ -167,7 +172,7 @@ namespace HUBT_Social_MongoDb_Service.Services
             }
             catch (Exception)
             {
-                return new List<Collection>(); // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
+                return []; // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
             }
         }
 
@@ -204,7 +209,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         )
         {
             if (startIndex < 0 || count <= 0)
-                return new List<TField>();
+                return [];
 
             try
             {
@@ -228,16 +233,16 @@ namespace HUBT_Social_MongoDb_Service.Services
 
                 // Nếu không tìm thấy document, trả về danh sách rỗng
                 if (result == null || result.Count == 0)
-                    return new List<TField>();
+                    return [];
 
                 // Trích xuất danh sách từ result
-                var items = fieldSelector.Compile()(result.FirstOrDefault());
-                return items?.ToList() ?? new List<TField>();
+                var items = fieldSelector.Compile()(result.FirstOrDefault()!);
+                return items?.ToList() ?? [];
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Lỗi khi lấy dữ liệu: {ex.Message}");
-                return new List<TField>();
+                return [];
             }
         }
 
@@ -251,7 +256,10 @@ namespace HUBT_Social_MongoDb_Service.Services
 
             var idString = id.ToString();
             if (ObjectId.TryParse(idString, out ObjectId parsedId))
-                return Builders<T>.Filter.Eq("_id", parsedId);
+                return Builders<T>.Filter.Or(
+                    Builders<T>.Filter.Eq("_id", parsedId),
+                    Builders<T>.Filter.Eq("_id", idString)
+                );
 
             return Builders<T>.Filter.Eq("_id", idString);
         }

@@ -71,10 +71,10 @@ namespace Chat_Data_API.Src.Hubs
                 }
 
                 Console.WriteLine($"User connected: UserId = {userInfo.UserId}, Username = {userInfo.Username}");
-                var groupIds = await _chatGroups.GetUserGroupConnectedAsync(userInfo.UserId);
+                var groupIds = await _chatGroups.GetUserGroupConnectedAsync(userInfo.Username);
                 Console.WriteLine($"Group IDs: {string.Join(", ", groupIds)}");
 
-                _userConnectionManager.AddConnection(userInfo.UserId, Context.ConnectionId);
+                _userConnectionManager.AddConnection(userInfo.Username, Context.ConnectionId);
                 await Task.WhenAll(groupIds.Select(groupId => Groups.AddToGroupAsync(Context.ConnectionId, groupId)));
 
                 // Gửi danh sách người dùng online cho client mới kết nối
@@ -82,7 +82,7 @@ namespace Chat_Data_API.Src.Hubs
                 await Clients.Caller.SendAsync("OnlineUsersList", onlineUsers);
 
                 // Thông báo tới các client khác rằng người dùng đã online
-                await Clients.Others.SendAsync("UserStatusChanged", new { userId = userInfo.UserId, isOnline = true });
+                await Clients.Others.SendAsync("UserStatusChanged", new { Username = userInfo.Username, isOnline = true });
 
                 await base.OnConnectedAsync();
             }
@@ -98,8 +98,8 @@ namespace Chat_Data_API.Src.Hubs
             var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
             if (userInfo != null)
             {
-                await Clients.Others.SendAsync("UserStatusChanged", new { userId = userInfo.UserId, isOnline = false });
-                _userConnectionManager.RemoveConnection(userInfo.UserId);
+                await Clients.Others.SendAsync("UserStatusChanged", new { userId = userInfo.Username, isOnline = false });
+                _userConnectionManager.RemoveConnection(userInfo.Username);
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -111,7 +111,7 @@ namespace Chat_Data_API.Src.Hubs
         {
             var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
             string? token = Context.GetHttpContext()?.Request.Headers.ExtractBearerToken();
-            if (userInfo == null && userInfo?.UserId == null && token == null)
+            if (userInfo == null && userInfo?.Username == null && token == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
@@ -124,7 +124,7 @@ namespace Chat_Data_API.Src.Hubs
             }
             var chatRequest = new ChatRequest
             {
-                UserId = userInfo.UserId,
+                UserName = userInfo.Username,
                 GroupId = inputRequest.GroupId,
                 Content = inputRequest.Content,
                 Medias = inputRequest.Medias,

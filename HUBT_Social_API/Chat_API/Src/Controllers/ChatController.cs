@@ -85,37 +85,59 @@ namespace Chat_API.Src.Controllers
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            List<string> ids = new List<string>();
-            int times = 1;
-            while (true) 
+
+            List<string> groupIds = new();
+            int page = 1;
+            const int pageSize = 10;
+
+            while (true)
             {
-                List<CreateGroupByCourse>? res = await _courseService.GetCourse(times);
-                if (res != null && res.Count>0) {
-                    foreach (CreateGroupByCourse course in res)
+                var courses = await _courseService.GetCourse(page);
+
+                if (courses == null || courses.Count == 0)
+                    break;
+
+                foreach (var course in courses)
+                {
+                    string? groupId = await CreateGroupByCourse(course, token);
+                    if (groupId == null)
+                        continue;
+
+                    groupIds.Add(groupId);
+
+                    bool updated = await _courseService.PutStatus(course.Id);
+                    if (updated)
                     {
-                        string? idGroup = await CreateGroupByCourse(course, token);
-                        if (idGroup == null) continue;
-                        ids.Add(idGroup);
+                        Console.WriteLine($"Updated tempCourse: {course.Id}");
                     }
                 }
-                 if (res != null && res.Count < 10) { break; }
-                times++;
+
+                if (courses.Count < pageSize)
+                    break;
+
+                page++;
             }
-            return Ok(new { message = $"Created {ids.Count} group chat!", ids = ids.ToArray() });
+
+            return Ok(new
+            {
+                message = $"Created {groupIds.Count} group chat!",
+                ids = groupIds
+            });
         }
+
         private async Task<string?> CreateGroupByCourse(CreateGroupByCourse request,string accesstoken)
         {
             string? token = accesstoken;
-            if (string.IsNullOrEmpty(request.Subject) || string.IsNullOrEmpty(request.ClassName) || !request.listUserNames.userNames.Any())
+            if (string.IsNullOrEmpty(request.Subject) || string.IsNullOrEmpty(request.ClassName) || !request.ListUserNames.Any())
             {
                 return null;
             }
             if (!string.IsNullOrEmpty(request.Teacher)) 
             {
-                request.listUserNames.userNames.Add(request.Teacher);
+                request.ListUserNames.Add(request.Teacher);
             }
             
-            List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(request.listUserNames, token);
+            List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(request.ListUserNames, token);
             
             if (userDTOs == null || !userDTOs.Any()) { return null; }
 

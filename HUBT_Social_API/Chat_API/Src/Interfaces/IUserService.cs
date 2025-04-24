@@ -7,7 +7,7 @@ namespace Chat_API.Src.Interfaces
     public interface IUserService : IBaseService
     {
         Task<ResponseDTO> GetUserRequest(string accessToken);
-        Task<List<AUserDTO>?> GetUsersByUserNames(ListUserNameDTO request, string accessToken);
+        Task<List<AUserDTO>?> GetUsersByUserNames(List<string> request, string accessToken);
         Task<AUserDTO?> GetUserByUserName(string userName, string accessToken);
         Task<ResponseDTO> GetAllUser(string accessToken);
     }

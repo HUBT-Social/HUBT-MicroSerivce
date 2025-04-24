@@ -471,4 +471,13 @@
   <data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
     <value />
   </data>
+  <data name="TimetableMemberNotfound" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TimetableNotfound" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TimetableNotSetYet" xml:space="preserve">
+    <value />
+  </data>
 </root>

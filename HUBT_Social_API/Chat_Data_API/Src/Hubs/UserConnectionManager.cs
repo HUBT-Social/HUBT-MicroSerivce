@@ -4,30 +4,30 @@
     {
         private readonly Dictionary<string, string> _userConnections = new Dictionary<string, string>();
 
-        public void AddConnection(string userId, string connectionId)
+        public void AddConnection(string userName, string connectionId)
         {
             lock (_userConnections)
             {
-                _userConnections[userId] = connectionId;
+                _userConnections[userName] = connectionId;
             }
         }
 
-        public void RemoveConnection(string userId)
+        public void RemoveConnection(string userName)
         {
             lock (_userConnections)
             {
-                if (_userConnections.ContainsKey(userId))
+                if (_userConnections.ContainsKey(userName))
                 {
-                    _userConnections.Remove(userId);
+                    _userConnections.Remove(userName);
                 }
             }
         }
 
-        public string? GetConnectionId(string userId)
+        public string? GetConnectionId(string userName)
         {
             lock (_userConnections)
             {
-                _userConnections.TryGetValue(userId, out var connectionId);
+                _userConnections.TryGetValue(userName, out var connectionId);
                 return connectionId;
             }
         }

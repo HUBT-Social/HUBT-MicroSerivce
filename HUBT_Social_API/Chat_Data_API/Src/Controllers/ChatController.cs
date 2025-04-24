@@ -36,8 +36,7 @@ namespace Chat_Data_API.Src.Controllers
             IHubContext<ChatHub> hubContext,
             IUserConnectionManager connectionManager,
             IMapper mapper,
-            IOptions<JwtSetting> options,
-            IOutDataService outData
+            IOptions<JwtSetting> options
         )
         : DataLayerController(mapper, options)
     {
@@ -45,7 +44,7 @@ namespace Chat_Data_API.Src.Controllers
 
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
-        private readonly IOutDataService _outData = outData;
+
 
 
         [HttpPost("create-group")]
@@ -71,7 +70,7 @@ namespace Chat_Data_API.Src.Controllers
             {
                 foreach (var user in createGroupRequest.Participants)
                 {
-                    var connectionId = _connectionManager.GetConnectionId(user.UserId);
+                    var connectionId = _connectionManager.GetConnectionId(user.UserName);
                     if (connectionId != null)
                     {
                         await _hubContext.Groups.AddToGroupAsync(connectionId, result.Item2);
@@ -131,7 +130,7 @@ namespace Chat_Data_API.Src.Controllers
                 {
                     foreach (var user in group.Participant)
                     {
-                        var connectionId = _connectionManager.GetConnectionId(user.UserId);
+                        var connectionId = _connectionManager.GetConnectionId(user.UserName);
                         if (connectionId != null)
                         {
                             await _hubContext.Groups.RemoveFromGroupAsync(connectionId, groupId);

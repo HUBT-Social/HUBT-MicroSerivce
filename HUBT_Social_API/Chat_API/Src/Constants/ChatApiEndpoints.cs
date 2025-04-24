@@ -23,6 +23,7 @@
         public const string Indentity_GetUserByUserNames = "api/identity/users-in-list-userName";
 
         public const string TempService_GetCourse = "api/tempCourse";
+        public const string TempService_PutStatus = "api/tempCourse/status";
 
         public const string OutService_GetUsersByClassName = "api/hubt/{{className}}";
     }

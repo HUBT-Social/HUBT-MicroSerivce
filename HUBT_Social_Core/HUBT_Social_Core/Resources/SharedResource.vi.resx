@@ -472,4 +472,13 @@
   <data name="NotationSomeOneLoginYouAccountBody" xml:space="preserve">
     <value>Có người đã đăng nhập vào tài khoản của bạn tại: </value>
   </data>
+  <data name="TimetableMemberNotfound" xml:space="preserve">
+    <value>Không tìm thấy thành viên thời khóa biểu</value>
+  </data>
+  <data name="TimetableNotfound" xml:space="preserve">
+    <value>Không tìm thấy thời khóa biểu</value>
+  </data>
+  <data name="TimetableNotSetYet" xml:space="preserve">
+    <value>lịch học cần phải được khởi tạo với lớp học này trước khi có thể tạo lịch học mới</value>
+  </data>
 </root>

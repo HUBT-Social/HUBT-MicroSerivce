@@ -11,7 +11,6 @@ namespace Chat_API.Configuration
             services.AddHttpClientService();
             string? chatPath = configuration.GetSection("ChatApi").Get<string>() ?? string.Empty;
             string? userPath = configuration.GetSection("Indentity").Get<string>() ?? string.Empty;
-            string? outDatPath = configuration.GetSection("OutSourceData").Get<string>() ?? string.Empty;
             string? tempPath = configuration.GetSection("TempCourse").Get<string>() ?? string.Empty;
             if (chatPath != null)
             {
@@ -22,11 +21,7 @@ namespace Chat_API.Configuration
             {
                 services.AddRegisterClientService<IUserService, UserService>(userPath);
             }
-            if (outDatPath != null)
-            {
-                services.AddRegisterClientService<IOutDataService, OutDataService>(outDatPath);
-            }
-
+        
             if (!string.IsNullOrEmpty(tempPath)) 
             {
                 services.AddRegisterClientService<ICourseService, CourseService>(tempPath);

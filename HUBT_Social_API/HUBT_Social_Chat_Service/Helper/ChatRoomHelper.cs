@@ -11,7 +11,7 @@ namespace HUBT_Social_Chat_Service.Helper
 {
     public static class ChatRoomHelper
     {
-        public static async Task<List<string>> GetUserGroupConnectedAsync(this IMongoService<ChatGroupModel> chatGroups, string userId)
+        public static async Task<List<string>> GetUserGroupConnectedAsync(this IMongoService<ChatGroupModel> chatGroups, string userName)
         {
 
             try
@@ -19,7 +19,7 @@ namespace HUBT_Social_Chat_Service.Helper
                 if (chatGroups == null)
                     throw new ArgumentNullException(nameof(chatGroups), "Chat groups service cannot be null.");
 
-                var groups = await chatGroups.Find(group => group.Participant.Any(p => p.UserId == userId));
+                var groups = await chatGroups.Find(group => group.Participant.Any(p => p.UserName == userName));
 
                 var roomIds = groups.Select(g => g.Id).ToList();
 
@@ -27,7 +27,7 @@ namespace HUBT_Social_Chat_Service.Helper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error retrieving chat groups for user {userId}: {ex.Message}");
+                Console.WriteLine($"Error retrieving chat groups for user {userName}: {ex.Message}");
                 return new List<string>();
             }
         }
@@ -50,7 +50,7 @@ namespace HUBT_Social_Chat_Service.Helper
         }
 
 
-        public static async Task<string?> GetRoleAsync(this IMongoService<ChatGroupModel> chatGroups, string roomId, string userId)
+        public static async Task<string?> GetRoleAsync(this IMongoService<ChatGroupModel> chatGroups, string roomId, string userName)
         {
             try
             {
@@ -58,16 +58,16 @@ namespace HUBT_Social_Chat_Service.Helper
                     throw new ArgumentNullException(nameof(chatGroups), "Chat groups service cannot be null.");
 
                 // Tìm nhóm chat có roomId và có userId trong danh sách Participant
-                var group = await chatGroups.Find(g => g.Id == roomId && g.Participant.Any(p => p.UserId == userId));
+                var group = await chatGroups.Find(g => g.Id == roomId && g.Participant.Any(p => p.UserName == userName));
 
                 // Lấy participant của userId trong nhóm chat đó
-                var participant = group.FirstOrDefault()?.Participant.FirstOrDefault(p => p.UserId == userId);
+                var participant = group.FirstOrDefault()?.Participant.FirstOrDefault(p => p.UserName == userName);
 
                 return participant?.Role.ToString();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error retrieving role for user {userId} in room {roomId}: {ex.Message}");
+                Console.WriteLine($"Error retrieving role for user {userName} in room {roomId}: {ex.Message}");
                 return null;
             }
         }
@@ -75,18 +75,18 @@ namespace HUBT_Social_Chat_Service.Helper
         /// <summary>
         /// Gets the nickname of a user in a specific chat room.
         /// </summary>
-        public static string UserIdToName(this string userId, ChatGroupModel chatGroups)
+        public static string UserIdToName(this string userName, ChatGroupModel chatGroups)
         {
 
             try
             {
-                Participant? user = chatGroups.Participant.Find(p => p.UserId == userId);
+                Participant? user = chatGroups.Participant.Find(p => p.UserName == userName);
 
                 return user is not null ? user.NickName : "Anonymus";
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error retrieving nickname for user {userId} in room: {ex.Message}");
+                Console.WriteLine($"Error retrieving nickname for user {userName} in room: {ex.Message}");
                 return "Anonymus";
             }
         }

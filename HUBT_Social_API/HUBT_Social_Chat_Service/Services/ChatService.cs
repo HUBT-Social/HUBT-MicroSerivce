@@ -122,12 +122,12 @@ namespace HUBT_Social_Chat_Service.Services
             return results;
         }
 
-        public async Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(string userId, int page, int limit)
+        public async Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(string userName, int page, int limit)
         {
-            if (page <= 0 || limit <= 0 || string.IsNullOrEmpty(userId))
+            if (page <= 0 || limit <= 0 || string.IsNullOrEmpty(userName))
                 return new List<GroupLoadingResponse>();
 
-            Expression<Func<ChatGroupModel, bool>> predicate = cr => cr.Participant.Any(p => p.UserId == userId);
+            Expression<Func<ChatGroupModel, bool>> predicate = cr => cr.Participant.Any(p => p.UserName == userName);
 
             // Truy vấn danh sách phòng, áp dụng phân trang
             var chatRooms = (await _chatGroups.Find(predicate)) // ✅ Gọi phương thức Find đã sửa

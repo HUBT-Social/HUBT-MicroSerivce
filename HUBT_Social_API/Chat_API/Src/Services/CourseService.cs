@@ -9,6 +9,7 @@ using HUBT_Social_Core.Settings.@enum;
 using System.Net;
 using HUBT_Social_Core.ASP_Extensions;
 using HUBT_Social_Core.Models.Requests;
+using Amazon.Runtime.Internal;
 
 namespace Chat_API.Src.Services
 {
@@ -30,7 +31,21 @@ namespace Chat_API.Src.Services
             }
             return null;
         }
+        public async Task<bool> PutStatus(string courseId)
+        {
+            string path = ChatApiEndpoints.TempService_PutStatus
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"courseId", courseId }
+                    }
+                );
+            ResponseDTO response = await SendRequestAsync(path, ApiType.PUT, null, null);
+            if (response.StatusCode == HttpStatusCode.OK) return true;
+            return false;
+        }
 
     }
+    
 }
 

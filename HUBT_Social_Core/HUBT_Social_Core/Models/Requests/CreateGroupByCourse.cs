@@ -9,9 +9,10 @@ namespace HUBT_Social_Core.Models.Requests
 {
     public class CreateGroupByCourse
     {
+        public string Id { get; set; } = string.Empty;
         public string ClassName { get; set; } = string.Empty;
         public string Subject { get; set; } = string.Empty;
         public string? Teacher {  get; set; } = string.Empty;
-        public ListUserNameDTO listUserNames { get; set; } = new ListUserNameDTO();
+        public List<string> ListUserNames { get; set; } = [];
     }
 }

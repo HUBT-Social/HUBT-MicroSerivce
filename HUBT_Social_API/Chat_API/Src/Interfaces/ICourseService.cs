@@ -7,5 +7,6 @@ namespace Chat_API.Src.Interfaces
     public interface ICourseService : IBaseService
     {
         Task<List<CreateGroupByCourse>> GetCourse(int page);
+        Task<bool> PutStatus(string courseId);
     }
 }

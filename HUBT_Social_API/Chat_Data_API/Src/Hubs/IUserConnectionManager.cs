@@ -2,9 +2,9 @@
 {
     public interface IUserConnectionManager
     {
-        void AddConnection(string userId, string connectionId);
-        void RemoveConnection(string userId);
-        string? GetConnectionId(string userId);
+        void AddConnection(string userName, string connectionId);
+        void RemoveConnection(string userName);
+        string? GetConnectionId(string userName);
         List<string> GetAllOnlineUsers();
     }
 }
