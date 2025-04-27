@@ -11,17 +11,21 @@ using HUBT_Social_Core.Models.OutSourceDataDTO;
 using User_API.Src.Models;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests.Temp;
+using HUBT_Social_Core.Models.Requests.Chat;
 
 namespace User_API.Src.Controllers
 {
     [Route("api/user/schooldata")]
     [ApiController]
-    public class UserShoolDataController(IUserService userService, IOutSourceService outSourceService, ITempService tempService) : ControllerBase
+    public class UserShoolDataController(IUserService userService,
+        IOutSourceService outSourceService,
+        ITempService tempService,
+        IChatService chatService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
         private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly ITempService _tempService = tempService;
-
+        private readonly IChatService _chatService = chatService;
         [HttpGet("timetable")]
         public async Task<IActionResult> GetUserTimeTable()
         {
@@ -110,6 +114,17 @@ namespace User_API.Src.Controllers
                         if (couresDTO.Id != string.Empty)
                         {
                             couresDTOs.Add(couresDTO);
+                            CreateGroupRequest createGroupRequest = new()
+                            {
+                                GroupName = $"{couresDTO.TimeTableDTO.Session} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
+                                UserNames = couresDTO.StudentIDs
+                            };
+                            if (await _chatService.CreateChatRoom(createGroupRequest, accessToken))
+                                Console.WriteLine("Them nhom chat thanh cong");
+                            else 
+                                Console.WriteLine("Khong them nhom chat duoc ");
+                            
+
                         }
                     }
                     await userTimetableOutput.GenerateReformTimetables(couresDTOs);

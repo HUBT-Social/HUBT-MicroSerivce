@@ -12,6 +12,7 @@ namespace User_API.Configurations
             string? NotationPath = configuration.GetSection("NotationApi").Get<string>();
             string? HubtPath = configuration.GetSection("HUBT_Data").Get<string>();
             string? tempUserPath = configuration.GetSection("TempUserApi").Get<string>();
+            string? chatPath = configuration.GetSection("ChatApi").Get<string>();
 
             if (identityPath != null)
                 services.AddRegisterClientService<IUserService, UserService>(identityPath);
@@ -24,6 +25,8 @@ namespace User_API.Configurations
             
             if (tempUserPath != null)
                 services.AddRegisterClientService<ITempService, TempService>(tempUserPath);
+            if (chatPath != null)
+                services.AddRegisterClientService<IChatService,ChatService>(chatPath);
             return services;
         }
     }
