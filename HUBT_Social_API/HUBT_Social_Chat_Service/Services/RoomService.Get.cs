@@ -74,7 +74,7 @@ namespace HUBT_Social_Chat_Service.Services
             foreach (var participant in participants)
             {
                 ChatUserResponse chatUserResponse = new();
-                chatUserResponse.userName= participant.UserName;
+                chatUserResponse.id= participant.UserName;
                 chatUserResponse.name = participant.NickName;
                 chatUserResponse.profilePhoto = participant.ProfilePhoto ?? participant.DefaultAvatarImage;
                 res.Add(chatUserResponse);
