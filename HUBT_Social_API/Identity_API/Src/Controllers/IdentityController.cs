@@ -7,6 +7,7 @@ using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Identity_Service.Services;
 using HUBT_Social_Identity_Service.Services.IdentityCustomeService;
+using HUBT_Social_MongoDb_Service.Services;
 using Identity_API.Src.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
 using System.Xml.Linq;
 
@@ -25,6 +27,7 @@ namespace Identity_API.Src.Controllers
     public class IdentityController(IHubtIdentityService<AUser, ARole> identityService, IMapper mapper, IOptions<JwtSetting> options) : DataLayerController(mapper, options)
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
+        private readonly IMongoService<AUser> _aUserService;
         [HttpGet("userAll")]
         [AllowAnonymous]
         public IActionResult GetUserAll()
@@ -168,6 +171,41 @@ namespace Identity_API.Src.Controllers
             }
             return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
         }
+        [HttpPut("update-avatar-all-develop")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateAllUserAvatar()
+        {
+            int page = 1;
+            int itemUbdated = 0;
+            try
+            {
+                while (true)
+                {
+                    var filter = Builders<AUser>.Filter.Empty;
+                    var users = await _aUserService.GetSlide(page, 10, filter);
+                    if (!users.Any())
+                    {
+                        break;
+                    }
+                    foreach (var user in users)
+                    {
+                        if (user == null) continue;
+                        user.AvataUrl = KeyStore.GetRandomAvatarDefault(user.Gender);
+                        if (await _identityService.UpdateUserAsync(user))
+                        {
+                            itemUbdated++;
+                        }
+                    }
+                    page++;
+                }
+                return Ok($"Da cap nhat xong {itemUbdated} nguoi dung.");
+
+            }
+            catch (Exception ex) {
+                return BadRequest("Update thất bại"+ ex);
+            }
+        }
+        
         [HttpDelete("delete-user")]
         public async Task<IActionResult> Delete()
         {

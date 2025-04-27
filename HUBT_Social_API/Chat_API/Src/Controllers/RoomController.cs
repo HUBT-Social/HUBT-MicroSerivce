@@ -151,7 +151,7 @@ namespace Chat_API.Src.Controllers
                 return Unauthorized();
             }
 
-            ChatUserResponse?  currentUser = users.response.FirstOrDefault(u => u.userName == users.caller);
+            ChatUserResponse?  currentUser = users.response.FirstOrDefault(u => u.id == users.caller);
 
             if (currentUser == null)
             {
@@ -164,7 +164,7 @@ namespace Chat_API.Src.Controllers
                 AvatarUrl = users.avatarUrl,
                 CurrentUser = currentUser,
                 OtherUsers = users.response
-                    .Where(u => u.userName != users.caller)
+                    .Where(u => u.id != users.caller)
                     .ToList()
             });
 
