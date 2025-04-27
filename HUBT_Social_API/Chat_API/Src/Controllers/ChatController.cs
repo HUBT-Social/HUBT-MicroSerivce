@@ -36,33 +36,86 @@ namespace Chat_API.Src.Controllers
             
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            List<AUserDTO> userDTOs = new List<AUserDTO>();
-            ResponseDTO resAllUser = await _userService.GetAllUser(token);
-            Console.WriteLine(resAllUser.ToJson());
-            ResponseDTO resUserReq = await _userService.GetUserRequest(token);
-            List<AUserDTO>? allUser =  resAllUser.ConvertTo<List<AUserDTO>>();
-            AUserDTO? userReq =  resUserReq.ConvertTo<AUserDTO>();
-
-            if (allUser == null || !allUser.Any() || userReq == null)
+            if(createGroupRequest.UserNames.Count <= 1)
             {
-                return BadRequest(new { message = "Param is null" });
+                return BadRequest("Khong du so thanh vien.");
             }
-            userDTOs.AddRange(allUser);
-            userDTOs.Add(userReq);
-            var filteredUsers = userDTOs
-                    .Where(user => createGroupRequest.UserNames.Contains(user.UserName) || user.UserName == userReq.UserName)
-                    .ToList();
 
-            List<Participant> Pct = filteredUsers
+            ResponseDTO resUserReq = await _userService.GetUserRequest(token);
+            if (resUserReq.StatusCode != HttpStatusCode.OK)
+            {
+                return BadRequest("Không tìm thấy người dùng với token hiện tại.");
+            }
+            AUserDTO? userReq = resUserReq.ConvertTo<AUserDTO>();
+            if (userReq == null) 
+            {
+                return BadRequest("Loi khi convert thong tin nguoi yeu cau.");
+            }
+
+            List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(createGroupRequest.UserNames, token);
+
+            if (userDTOs == null || userDTOs.Count == 0)
+            {
+                return BadRequest("Loi khi lay thong tin chhi tiet cua thanh vien.");
+            }
+            userDTOs.Add(userReq);
+
+            List<Participant> Pct = userDTOs
                 .Select(user => new Participant
                 {
-                    UserName = user.Id.ToString(),
-                    Role = user.Id.ToString() == userReq.Id.ToString() ? ParticipantRole.Owner : ParticipantRole.Member,
-                    NickName = user.UserName, // Hoặc một giá trị mặc định
+                    UserName = user.UserName,
+                    Role = user.UserName == userReq.UserName ? ParticipantRole.Owner : ParticipantRole.Member,
+                    NickName = user.LastName + " " + user.FirstName,
                     ProfilePhoto = user.AvataUrl
                 })
                 .ToList();
-            CreateGroupRequestData request = new CreateGroupRequestData
+            CreateGroupRequestData request = new()
+            {
+                GroupName = createGroupRequest.GroupName,
+                Participants = Pct
+            };
+            ResponseDTO? response = await _chatService.CreateGroupAsync(request, token);
+            if (response != null && response.StatusCode == HttpStatusCode.OK)
+                return Ok(new { message = response.Message });
+
+
+            if (response?.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(response.Message);
+            }
+            return BadRequest(response?.Message);
+        }
+        
+        [HttpPost("create-group-develop")]
+        public async Task<IActionResult> CreateGroupDevelop(CreateGroupRequest createGroupRequest)
+        {
+            string? token = ReadTokenFromHeader();
+
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            if (createGroupRequest.UserNames.Count <= 1)
+            {
+                return BadRequest("Khong du so thanh vien.");
+            }
+
+            List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(createGroupRequest.UserNames, token);
+
+            if (userDTOs == null || userDTOs.Count == 0)
+            {
+                return BadRequest("Loi khi lay thong tin chhi tiet cua thanh vien.");
+            }
+            string owner = userDTOs[0].UserName;
+
+            List<Participant> Pct = userDTOs
+                .Select(user => new Participant
+                {
+                    UserName = user.UserName,
+                    Role = user.UserName == owner ? ParticipantRole.Owner : ParticipantRole.Member,
+                    NickName = user.LastName + " " + user.FirstName,
+                    ProfilePhoto = user.AvataUrl
+                })
+                .ToList();
+            CreateGroupRequestData request = new()
             {
                 GroupName = createGroupRequest.GroupName,
                 Participants = Pct
@@ -86,7 +139,7 @@ namespace Chat_API.Src.Controllers
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
-            List<string> groupIds = new();
+            List<string> groupIds = [];
             int page = 1;
             const int pageSize = 10;
 
@@ -128,7 +181,7 @@ namespace Chat_API.Src.Controllers
         private async Task<string?> CreateGroupByCourse(CreateGroupByCourse request,string accesstoken)
         {
             string? token = accesstoken;
-            if (string.IsNullOrEmpty(request.Subject) || string.IsNullOrEmpty(request.ClassName) || !request.ListUserNames.Any())
+            if (string.IsNullOrEmpty(request.Subject) || string.IsNullOrEmpty(request.ClassName) || request.ListUserNames.Count == 0)
             {
                 return null;
             }
@@ -139,11 +192,11 @@ namespace Chat_API.Src.Controllers
             
             List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(request.ListUserNames, token);
             
-            if (userDTOs == null || !userDTOs.Any()) { return null; }
+            if (userDTOs == null || userDTOs.Count == 0) { return null; }
 
             AUserDTO? lastUser = userDTOs.LastOrDefault();
             if (lastUser == null) { return null; }
-            List<Participant> participants = new List<Participant>();
+            List<Participant> participants = [];
 
             foreach (var user in userDTOs)
             {
@@ -152,7 +205,7 @@ namespace Chat_API.Src.Controllers
                 {
                     role = ParticipantRole.Owner;
                 }
-                Participant participant = new Participant
+                Participant participant = new()
                 {
                     UserName = user.UserName,
                     Role = role,
@@ -161,7 +214,7 @@ namespace Chat_API.Src.Controllers
                 };
                 participants.Add(participant);
             }
-            CreateGroupRequestData createRequest = new CreateGroupRequestData
+            CreateGroupRequestData createRequest = new()
             {
                 GroupName = request.ClassName+ "_" + request.Subject,
                 Participants = participants
@@ -197,7 +250,7 @@ namespace Chat_API.Src.Controllers
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
-            List<GroupLoadingResponse> response = await _chatService.GetRoomsOfUserIdAsync(page, limit, token);
+            List<GroupLoadingResponse> response = await _chatService.GetRoomsOfUserAsync(page, limit, token);
             return Ok(response);
         }
 

@@ -31,15 +31,15 @@ namespace Chat_Data_API.Src.Controllers
             IHubContext<ChatHub> hubContext,
             IMapper mapper,
             IOptions<JwtSetting> options,
-            IUserConnectionManager connectionManager,
-            HUBT_Social_Base.Service.ICloudService clouldService
+            IUserConnectionManager connectionManager
+            //HUBT_Social_Base.Service.ICloudService clouldService
         ) : DataLayerController(mapper, options)
     {
         private readonly IRoomUpdateService _roomUpdateService = roomUpdateService;
         private readonly IHubContext<ChatHub> _hubContext = hubContext;
         private readonly IRoomGetService _roomGetService = roomGetService;
         private readonly IUserConnectionManager _connectionManager = connectionManager;
-        private readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
+        //private readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
 
         [HttpPut("update-group-name")]
         public async Task<IActionResult> UpdateGroupNameAsync(UpdateGroupNameRequest request)
@@ -132,7 +132,7 @@ namespace Chat_Data_API.Src.Controllers
                     {
                         request.groupId,
                         changer = userInfo.Username,
-                        changed = request.changed,
+                        request.changed,
                         newRole = request.participantRole
                     });
                 return Ok(result.Item2);
@@ -241,7 +241,7 @@ namespace Chat_Data_API.Src.Controllers
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             List<MessageModel> messageModels = await _roomGetService.GetMessageHistoryAsync(request);
 
-            MessageResponse<List<MessageDTO>> response = new MessageResponse<List<MessageDTO>>
+            MessageResponse<List<MessageDTO>> response = new()
             {
                 groupId = request.ChatRoomId,
                 message = _mapper.Map<List<MessageDTO>>(messageModels)
@@ -258,7 +258,7 @@ namespace Chat_Data_API.Src.Controllers
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
             (List<ChatUserResponse>, ChatGroupModel) response = await _roomGetService.GetRoomUserAsync(groupId);
-            if(!response.Item1.Any())
+            if(response.Item1.Count == 0)
             {                
                 return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
             }
@@ -268,7 +268,7 @@ namespace Chat_Data_API.Src.Controllers
                 {
                     title  = response.Item2.Name,
                     avatarUrl = response.Item2.AvatarUrl,
-                    caller = userInfo.UserId,
+                    caller = userInfo.Username,
                     response = response.Item1
                 }
             );

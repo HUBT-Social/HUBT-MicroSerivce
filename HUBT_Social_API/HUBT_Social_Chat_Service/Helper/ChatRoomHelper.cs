@@ -75,7 +75,7 @@ namespace HUBT_Social_Chat_Service.Helper
         /// <summary>
         /// Gets the nickname of a user in a specific chat room.
         /// </summary>
-        public static string UserIdToName(this string userName, ChatGroupModel chatGroups)
+        public static string UserNameToName(this string userName, ChatGroupModel chatGroups)
         {
 
             try

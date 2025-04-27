@@ -14,7 +14,7 @@ namespace HUBT_Social_Chat_Service.Interfaces
         Task<(bool, string)> DeleteGroupAsync(string idGroup);
         Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit);
         Task<List<GroupSearchResponse>> GetAllRoomsAsync(int page, int limit);
-        Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(string userId, int page, int limit);
+        Task<List<GroupLoadingResponse>> GetRoomsOfUserAsync(string userId, int page, int limit);
         Task<ChatGroupModel?> GetGroupById(string groupId);
 
     }

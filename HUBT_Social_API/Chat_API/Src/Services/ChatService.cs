@@ -81,7 +81,7 @@ namespace Chat_API.Src.Services
             return new List<GroupSearchResponse>();
         }
 
-        public async Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(int page, int limit,string token)
+        public async Task<List<GroupLoadingResponse>> GetRoomsOfUserAsync(int page, int limit,string token)
         {
             string path = ChatApiEndpoints.ChatService_GetRoomsOfUser
                 .BuildUrl(

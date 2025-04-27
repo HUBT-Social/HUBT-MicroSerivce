@@ -19,11 +19,10 @@ namespace Chat_API.Src.Controllers
 {
     [Route("api/chat/room")]
     [ApiController]
-    public class RoomController(IRoomService roomService, IChatService chatService, IUserService userService) : ControllerBase
+    public class RoomController(IRoomService roomService, IUserService userService) : ControllerBase
     {
         private readonly IRoomService _roomService = roomService;
         public readonly IUserService _userService = userService;
-        private readonly IChatService _chatService = chatService;
         private string? ReadTokenFromHeader() => Request.Headers.ExtractBearerToken();
 
         [HttpPut("update-group-name")]
@@ -71,14 +70,14 @@ namespace Chat_API.Src.Controllers
             }
             AUserDTO? user = await _userService.GetUserByUserName(request.Added, token);
             if (user == null) { return BadRequest(); }
-            Participant participant = new Participant
+            Participant participant = new()
             {
                 UserName = user.UserName,
                 Role = ParticipantRole.Member,
                 NickName = user.LastName + " " + user.FirstName, // Hoặc một giá trị mặc định
                 ProfilePhoto = user.AvataUrl
             };
-            AddMemberRequestData addMemberRequestData = new AddMemberRequestData
+            AddMemberRequestData addMemberRequestData = new()
             {
                 GroupId = request.GroupId,
                 Participant = participant
@@ -136,7 +135,7 @@ namespace Chat_API.Src.Controllers
             string? token = ReadTokenFromHeader();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            GetMemberInGroupRequest request = new GetMemberInGroupRequest()
+            GetMemberInGroupRequest request = new()
             {
                 groupId = groupId
             };
@@ -179,13 +178,13 @@ namespace Chat_API.Src.Controllers
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
             List<AUserDTO>? userDTOs = await _userService.GetUsersByUserNames(request, token);
-            if (userDTOs == null  || !userDTOs.Any()) { return BadRequest(); }
+            if (userDTOs == null  || userDTOs.Count == 0) { return BadRequest(); }
 
-            List<Participant> participants = new List<Participant>();
+            List<Participant> participants = [];
 
             foreach (var user in userDTOs)
             {
-                Participant participant = new Participant
+                Participant participant = new()
                 {
                     UserName = user.UserName,
                     Role = ParticipantRole.Member,

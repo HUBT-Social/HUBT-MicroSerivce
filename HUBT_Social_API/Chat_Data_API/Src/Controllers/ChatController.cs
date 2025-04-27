@@ -168,7 +168,7 @@ namespace Chat_Data_API.Src.Controllers
             if (userInfo is null)
                 return BadRequest(new { message = "Token is not valid" });
 
-            List<GroupLoadingResponse> chatGroups = await _chatService.GetRoomsOfUserIdAsync(userInfo.Username, page, limit);
+            List<GroupLoadingResponse> chatGroups = await _chatService.GetRoomsOfUserAsync(userInfo.Username, page, limit);
             return Ok(chatGroups);
         }
 

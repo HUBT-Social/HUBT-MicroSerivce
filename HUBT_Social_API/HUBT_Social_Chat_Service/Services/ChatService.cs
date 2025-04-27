@@ -122,12 +122,12 @@ namespace HUBT_Social_Chat_Service.Services
             return results;
         }
 
-        public async Task<List<GroupLoadingResponse>> GetRoomsOfUserIdAsync(string userName, int page, int limit)
+        public async Task<List<GroupLoadingResponse>> GetRoomsOfUserAsync(string userName, int page, int limit)
         {
             if (page <= 0 || limit <= 0 || string.IsNullOrEmpty(userName))
-                return new List<GroupLoadingResponse>();
+                return [];
 
-            Expression<Func<ChatGroupModel, bool>> predicate = cr => cr.Participant.Any(p => p.UserName == userName);
+            Expression<Func<ChatGroupModel, bool>> predicate = cr => cr.Participant.Any(p => p.UserName  == userName);
 
             // Truy vấn danh sách phòng, áp dụng phân trang
             var chatRooms = (await _chatGroups.Find(predicate)) // ✅ Gọi phương thức Find đã sửa
@@ -136,11 +136,11 @@ namespace HUBT_Social_Chat_Service.Services
                 .Take(limit)
                 .ToList();
 
-            if (!chatRooms.Any()) // ✅ Tránh gọi Task.WhenAll nếu không có phòng
-                return new List<GroupLoadingResponse>();
+            if (chatRooms.Count == 0) // ✅ Tránh gọi Task.WhenAll nếu không có phòng
+                return [];
 
             // Gọi GetGroupByIdAsync song song
-            var tasks = chatRooms.Select(cr => GetGroupByIdAsync(cr));
+            var tasks = chatRooms.Select(cr => GetGroupByUserAsync(cr));
             var responses = await Task.WhenAll(tasks);
 
             // Lọc kết quả không null
@@ -148,7 +148,7 @@ namespace HUBT_Social_Chat_Service.Services
         }
 
 
-            private async Task<GroupLoadingResponse?> GetGroupByIdAsync(ChatGroupModel chatRoom)
+            private async Task<GroupLoadingResponse?> GetGroupByUserAsync(ChatGroupModel chatRoom)
             {
                 var (LastInteraction, LastTime) = GetRecentChatItemAsync(chatRoom);
 
@@ -179,7 +179,7 @@ namespace HUBT_Social_Chat_Service.Services
                 string LastTime = FormatLastInteractionTime(recentMessage.createdAt);
 
                 // Lấy nickname bất đồng bộ
-                string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserIdToName(chatRoom);
+                string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserNameToName(chatRoom);
 
                 // Kiểm tra nếu tin nhắn là loại "Message"
                 if (recentMessage.messageType == MessageType.Text)
