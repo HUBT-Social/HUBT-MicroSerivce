@@ -18,6 +18,7 @@ namespace HUBT_Social_Core.Models.DTOs.IdentityDTO
         public string? LastName { get; set; } = string.Empty;
         public string FCMToken { get; set; } = string.Empty;
         public string? Status { get; set; } = string.Empty;
+        public string DeviceId { get; set; } = string.Empty;
         public Gender Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
     }

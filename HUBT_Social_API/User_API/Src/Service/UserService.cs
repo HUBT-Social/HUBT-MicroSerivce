@@ -94,10 +94,11 @@ namespace User_API.Src.Service
                 dto.AvataUrl = avatarDefaultByGender;
             });
         }
-        public Task<ResponseDTO> UpdateFCM(string accessToken, string FCMKey)
+        public Task<ResponseDTO> UpdateFCM(string accessToken, string FCMKey, string deviceId)
         {
             return UpdateUserAsync(accessToken, dto => {
                 dto.FCMToken= FCMKey;
+                dto.DeviceId = deviceId;
             });
         }
         public Task<ResponseDTO> UpdateBio(string accessToken, string bio)

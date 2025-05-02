@@ -28,6 +28,7 @@ namespace Identity_API.Src.Controllers
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
         private readonly IMongoService<AUser> _aUserService;
+        
         [HttpGet("userAll")]
         [AllowAnonymous]
         public IActionResult GetUserAll()
@@ -161,7 +162,11 @@ namespace Identity_API.Src.Controllers
 
                 if (updateRequest.EnableTwoFactor != null)
                     user.TwoFactorEnabled = updateRequest.EnableTwoFactor.Value;
-                
+
+                if (updateRequest.DeviceId != null)
+                    user.DeviceId = updateRequest.DeviceId;
+
+
                 if (await _identityService.UpdateUserAsync(user))
                     return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
             }

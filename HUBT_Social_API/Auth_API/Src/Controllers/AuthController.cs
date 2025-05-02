@@ -65,21 +65,11 @@ namespace Auth_API.Src.Controllers
         {
             string userAgent = Request.Headers.UserAgent.ToString();
             string? ipAddress = ServerHelper.GetIPAddress(HttpContext);
-            if (ipAddress == null) 
-                return BadRequest(
-                    new SignInResponse
-                    {
-                        RequiresTwoFactor = false,
-                        Message = LocalValue.Get(KeyStore.LoginNotAllowed),
-                    });
+            if (ipAddress == null)
+                return BadRequest(LocalValue.Get(KeyStore.LoginNotAllowed));
             ResponseDTO result = await _authService.SignIn(request);
             if (result.StatusCode == HttpStatusCode.BadRequest) 
-                return BadRequest(
-                    new SignInResponse
-                    {
-                        RequiresTwoFactor = false,
-                        Message = result.Message,
-                    });
+                return BadRequest(result.Message);
             DataSignIn? dataSignIn = result.ConvertTo<DataSignIn>();
             if (dataSignIn != null && dataSignIn.Result != null && dataSignIn.User != null)
             {
@@ -95,12 +85,7 @@ namespace Auth_API.Src.Controllers
                         Message = TokenResult.Message,
                         MaskEmail = user.Email,
                         UserToken = tokenResponse
-                    }) : BadRequest(
-                        new SignInResponse
-                        {
-                            RequiresTwoFactor = signInResult.RequiresTwoFactor,
-                            Message = TokenResult.Message,
-                        });
+                    }) : BadRequest(TokenResult.Message);
                 }
                 if (signInResult.RequiresTwoFactor)
                 {
@@ -118,21 +103,9 @@ namespace Auth_API.Src.Controllers
                                 Message = resultSendEmail.Message,
                             });
                 }
-                return dataSignIn.Result.IsLockedOut ? BadRequest(new SignInResponse
-                {
-                    RequiresTwoFactor = false,
-                    Message = LocalValue.Get(KeyStore.AccountLocked),
-                }) : BadRequest(new SignInResponse
-                {
-                    RequiresTwoFactor = false,
-                    Message = LocalValue.Get(KeyStore.LoginNotAllowed),
-                });
+                return dataSignIn.Result.IsLockedOut ? BadRequest(LocalValue.Get(KeyStore.AccountLocked)) : BadRequest(LocalValue.Get(KeyStore.LoginNotAllowed));
             }
-            return BadRequest(new SignInResponse
-            {
-                RequiresTwoFactor = false,
-                Message = result.Message,
-            });
+            return BadRequest(result.Message);
 
         }
     }

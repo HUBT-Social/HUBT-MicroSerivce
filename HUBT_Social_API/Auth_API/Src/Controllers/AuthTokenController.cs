@@ -25,6 +25,7 @@ namespace Auth_API.Src.Controllers
         public async Task<IActionResult> ActionResult([FromBody] RefreshTokenRequest refreshToken)
         {
             string? token = Request.Headers.ExtractBearerToken();
+
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             ResponseDTO result = await _authService.RefreshToken(token,refreshToken.RefreshToken);
@@ -33,7 +34,7 @@ namespace Auth_API.Src.Controllers
                 TokenResponseDTO? tokenResponse = result.ConvertTo<TokenResponseDTO>();
                 return tokenResponse != null ? Ok(tokenResponse) : BadRequest(LocalValue.Get(KeyStore.DataNotAllowNull));
             }
-            return BadRequest(result.Message);
+            return Unauthorized(result.Message);
         }
         [HttpDelete("delete-token")]
         public async Task<IActionResult> DeleteToken()
@@ -46,7 +47,7 @@ namespace Auth_API.Src.Controllers
             {
                 HttpStatusCode.OK => Ok(result.Message),
                 HttpStatusCode.Unauthorized => Unauthorized(result.Message),
-                _ => BadRequest(result.Message),
+                _ => Unauthorized(result.Message),
             };
         }
 
