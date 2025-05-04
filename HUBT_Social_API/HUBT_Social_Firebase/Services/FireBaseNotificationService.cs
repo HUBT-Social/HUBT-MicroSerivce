@@ -23,6 +23,27 @@ public class FireBaseNotificationService : IFireBaseNotificationService
                     Body = request.Body
                 }
             },
+            Apns = new ApnsConfig
+            {
+                Aps = new Aps
+                {
+                    Alert = new ApsAlert
+                    {
+                        Title = request.Title,
+                        Body = request.Body
+                    },
+                    Sound = "default",
+                    Badge = 1 // Set badge count to 1
+                },
+                Headers = new Dictionary<string, string>
+                {
+                    { "apns-priority", "10" } // Set priority to 10 for immediate delivery
+                },
+                FcmOptions = new ApnsFcmOptions
+                {
+                    ImageUrl = request.ImageUrl // <-- iOS Image URL goes in FcmOptions
+                },
+            },
             Data = new Dictionary<string, string?>
             {
                 { "type", request.Type },
