@@ -18,5 +18,7 @@ namespace Auth_API.Src.Services.Identity
         Task<ResponseDTO> DeleteToken(string accessToken);
         Task<ResponseDTO> Forgotpassword(string userName, UpdatePasswordRequestDTO request);
 
+        Task<AUserDTO?> CurrentUser(string accessToken);
+
     }
 }

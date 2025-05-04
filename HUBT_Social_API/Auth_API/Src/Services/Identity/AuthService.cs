@@ -65,5 +65,17 @@ namespace Auth_API.Src.Services.Identity
             string path = $"token";
             return SendRequestAsync(path, ApiType.DELETE, null, accessToken);
         }
+
+        public async Task<AUserDTO?> CurrentUser(string accessToken)
+        {
+            string path = $"user";
+            ResponseDTO result = await SendRequestAsync(path, ApiType.GET, null, accessToken);
+            if (result.StatusCode == HttpStatusCode.OK && result.ConvertTo<AUserDTO>() is AUserDTO user)
+                return user;
+            else
+            
+                return null;
+            
+        }
     }
 }

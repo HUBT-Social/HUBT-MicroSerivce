@@ -25,8 +25,11 @@ namespace Auth_API.Src.Controllers
         public async Task<IActionResult> ActionResult([FromBody] RefreshTokenRequest refreshToken)
         {
             string? token = Request.Headers.ExtractBearerToken();
-
+            string userAgent = Request.Headers.UserAgent.ToString() ?? "";
             if (string.IsNullOrEmpty(token))
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            AUserDTO? currentUser = await _authService.CurrentUser(token);
+            if (currentUser == null || currentUser.DeviceId != userAgent)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             ResponseDTO result = await _authService.RefreshToken(token,refreshToken.RefreshToken);
             if (result.StatusCode == HttpStatusCode.OK)
@@ -34,7 +37,7 @@ namespace Auth_API.Src.Controllers
                 TokenResponseDTO? tokenResponse = result.ConvertTo<TokenResponseDTO>();
                 return tokenResponse != null ? Ok(tokenResponse) : BadRequest(LocalValue.Get(KeyStore.DataNotAllowNull));
             }
-            return Unauthorized(result.Message);
+            return BadRequest(result.Message);
         }
         [HttpDelete("delete-token")]
         public async Task<IActionResult> DeleteToken()
