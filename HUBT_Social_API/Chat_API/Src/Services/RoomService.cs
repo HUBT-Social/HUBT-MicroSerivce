@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Chat_API.Src.Constants;
 using HUBT_Social_Core.ASP_Extensions;
+using HUBT_Social_Core.Settings;
 
 namespace Chat_API.Src.Services
 {
@@ -25,7 +26,7 @@ namespace Chat_API.Src.Services
 
         public async Task<(bool,string?)> UpdateGroupNameAsync(UpdateGroupNameRequest request, string token)
         {
-            var response = await SendRequestAsync(ChatApiEndpoints.RoomService_UpdateGroupName, ApiType.PUT, request, token);
+            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Put_Update_Group_Name, ApiType.PUT, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
         }
 
@@ -37,39 +38,39 @@ namespace Chat_API.Src.Services
 
         public async Task<(bool, string?)> UpdateNickNameAsync(UpdateNickNameRequest request, string token)
     {
-            var response = await SendRequestAsync(ChatApiEndpoints.RoomService_UpdateNickName, ApiType.PUT, request, token);
+            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Put_Update_Nick_Name, ApiType.PUT, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
         }
 
         public async Task<(bool, string?)> UpdateParticipantRoleAsync(UpdateParticipantRoleRequest request, string token)
         { 
-            var response = await SendRequestAsync(ChatApiEndpoints.RoomService_UpdateParticipantRole, ApiType.PUT, request, token);
+            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Put_Update_Participant_Role, ApiType.PUT, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
         }
 
 
         public async Task<(bool, string?)> JoinRoomAsync(AddMemberRequestData request, string token)
         {
-            var response = await SendRequestAsync(ChatApiEndpoints.RoomService_JoinRoom, ApiType.POST, request,token);
+            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Post_Join_Group, ApiType.POST, request,token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
         public async Task<(bool, string?)> KickMemberAsync(RemoveMemberRequest request, string token)
         {
-            var response = await SendRequestAsync(ChatApiEndpoints.RoomService_KickMember, ApiType.POST, request,token);
+            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Post_Kick_Member, ApiType.POST, request,token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
         public async Task<(bool, string?)> LeaveRoomAsync(LeaveRoomRequest request, string token)
         {
-            var response = await SendRequestAsync(ChatApiEndpoints.RoomService_LeaveRoom, ApiType.POST, request, token);
+            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Post_Leave_Group, ApiType.POST, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
         //Đang gặp bug convert thì bị null.
         public async Task<MessageResponse<List<MessageDTO>>?> GetMessageHistoryAsync(GetHistoryRequest request, string token)
         {
-            string path = ChatApiEndpoints.RoomService_GetMessageHistory
+            string path = KeyStore.ChatDataUrls.Get_History_Content
                 .BuildUrl(
                     new Dictionary<string, object>
                     {
@@ -90,7 +91,7 @@ namespace Chat_API.Src.Services
         }
         public async Task<GetMemberGroup> GetRoomUserAsync(GetMemberInGroupRequest request, string token)
         {
-            string path = ChatApiEndpoints.RoomService_GetRoomUser
+            string path = KeyStore.ChatDataUrls.Get_Members
                 .BuildUrl(
                     new Dictionary<string, object>
                     {

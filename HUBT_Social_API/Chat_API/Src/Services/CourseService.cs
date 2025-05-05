@@ -10,6 +10,7 @@ using System.Net;
 using HUBT_Social_Core.ASP_Extensions;
 using HUBT_Social_Core.Models.Requests;
 using Amazon.Runtime.Internal;
+using HUBT_Social_Core.Settings;
 
 namespace Chat_API.Src.Services
 {
@@ -17,7 +18,7 @@ namespace Chat_API.Src.Services
     {
         public async Task<List<CreateGroupByCourse>?> GetCourse(int page)
         {
-            string path = ChatApiEndpoints.TempService_GetCourse
+            string path = KeyStore.TempUrls.TempCourse_Get
                 .BuildUrl(
                     new Dictionary<string, object>
                     {
@@ -33,7 +34,7 @@ namespace Chat_API.Src.Services
         }
         public async Task<bool> PutStatus(string courseId)
         {
-            string path = ChatApiEndpoints.TempService_PutStatus
+            string path = KeyStore.TempUrls.TempCourse_UpdateStatus
                 .BuildUrl(
                     new Dictionary<string, object>
                     {

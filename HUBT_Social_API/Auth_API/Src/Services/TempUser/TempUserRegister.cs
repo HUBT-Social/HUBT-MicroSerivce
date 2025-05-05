@@ -1,7 +1,10 @@
-﻿using HUBT_Social_Base;
+﻿using Amazon.Runtime.Internal.Transform;
+using HUBT_Social_Base;
 using HUBT_Social_Base.Service;
+using HUBT_Social_Core.ASP_Extensions;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Settings;
 using HUBT_Social_Core.Settings.@enum;
 
 namespace Auth_API.Src.Services.TempUser
@@ -10,12 +13,19 @@ namespace Auth_API.Src.Services.TempUser
     {
         public async Task<ResponseDTO> Get(string email)
         {
-            return await SendRequestAsync($"tempRegister?email={email}", ApiType.GET);
+            string path = KeyStore.TempUrls.TempRegister_GetTempUser
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"email",email }
+                    }
+                );
+            return await SendRequestAsync(path, ApiType.GET);
         }
 
         public async Task<ResponseDTO> StoreIn(RegisterRequest request)
         {
-            return await SendRequestAsync("tempRegister", ApiType.POST, request);
+            return await SendRequestAsync(KeyStore.TempUrls.TempRegister_StoreTempUser, ApiType.POST, request);
         }
     }
 }

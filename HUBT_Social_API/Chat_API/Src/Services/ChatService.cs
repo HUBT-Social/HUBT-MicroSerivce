@@ -14,6 +14,7 @@ using HUBT_Social_Core.ASP_Extensions;
 using System.Text.RegularExpressions;
 using Amazon.Runtime.Internal.Transform;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using HUBT_Social_Core.Settings;
 
 
 
@@ -24,12 +25,12 @@ namespace Chat_API.Src.Services
 
         public async Task<ResponseDTO> CreateGroupAsync(CreateGroupRequestData createGroupRequest,string token)
         {
-            return  await SendRequestAsync(ChatApiEndpoints.ChatService_CreateGroup, ApiType.POST, createGroupRequest, token);
+            return  await SendRequestAsync(KeyStore.ChatDataUrls.Post_Create_Group, ApiType.POST, createGroupRequest, token);
         }
 
         public async Task<ResponseDTO> DeleteGroupAsync(string groupId, string token)
         {
-            string path = ChatApiEndpoints.ChatService_DeleteGroup
+            string path = KeyStore.ChatDataUrls.Delete_Group
                 .BuildUrl(
                     new Dictionary<string, object>
                     {
@@ -41,7 +42,7 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit, string token)
         {
-            string path = ChatApiEndpoints.ChatService_SearchGroups
+            string path = KeyStore.ChatDataUrls.Get_Search_Group
                 .BuildUrl(
                     new Dictionary<string, object>
                     {
@@ -60,7 +61,7 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupSearchResponse>> GetAllRoomsAsync(int page, int limit, string token)
         {
-            string path = ChatApiEndpoints.ChatService_GetAllRooms
+            string path = KeyStore.ChatDataUrls.Get_All_Group
                 .BuildUrl(
                     new Dictionary<string, object>
                     {
@@ -83,7 +84,7 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupLoadingResponse>> GetRoomsOfUserAsync(int page, int limit,string token)
         {
-            string path = ChatApiEndpoints.ChatService_GetRoomsOfUser
+            string path = KeyStore.ChatDataUrls.Get_User_Group
                 .BuildUrl(
                     new Dictionary<string, object>
                     {

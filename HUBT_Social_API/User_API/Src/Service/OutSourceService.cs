@@ -9,6 +9,9 @@ using Amazon.Runtime.Internal;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Base.ASP_Extentions;
 using System.Collections.Generic;
+using HUBT_Social_Core.Settings;
+using HUBT_Social_Core.ASP_Extensions;
+using Amazon.Runtime.Internal.Transform;
 
 namespace User_API.Src.Service
 {
@@ -16,34 +19,56 @@ namespace User_API.Src.Service
     {
         public async Task<AVGScoreDTO?> GetAVGScoreByMasv(string masv)
         {
-            string path = $"diemtb?masv={masv}";
+            string path = KeyStore.OutSourceUrls.Get_StudentAvgScore
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"masv",masv }
+                    }
+                );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<AVGScoreDTO>();
         }
 
         public async Task<StudentDTO?> GetStudentByMasv(string masv)
         {
-            string path = $"sinhvien?masv={masv}";
+
+            string path = KeyStore.OutSourceUrls.Get_StudentData
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"masv",masv }
+                    }
+                );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<StudentDTO>();
         }
         public async Task<List<StudentDTO>> GetStudentByClassName(string className)
         {
-            string path = $"sinhvien/{className}";
+            string path = KeyStore.OutSourceUrls.Get_StudentList
+                .Replace("{className}", className);
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<StudentDTO>>() ?? [];
         }
 
         public async Task<List<ScoreDTO>?> GetStudentScoreByMasv(string masv)
         {
-            string path = $"sinhvien/{masv}/diem";
+            string path = KeyStore.OutSourceUrls.Get_StudentScoreByRoute
+                .Replace("{masv}", masv);
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<ScoreDTO>>();
         }
 
         public async Task<List<TimeTableDTO>?> GetTimeTableByClassName(string className)
         {
-            string path = $"ThoiKhoaBieu?className={className}";
+
+            string path = KeyStore.OutSourceUrls.Get_StudentTimeTable
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"className",className }
+                    }
+                );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             
             return response.ConvertTo<List<TimeTableDTO>>();
@@ -54,7 +79,15 @@ namespace User_API.Src.Service
             string major = new(paths[0].TakeWhile(char.IsLetter).ToArray());
             string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
 
-            string path = $"monhoc?major={major}&course={course}";
+
+            string path = KeyStore.OutSourceUrls.Get_Subject
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"major",major },
+                        {"course",course }
+                    }
+                );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
 
             List<SubjectDTO>? couresDTOs = response.ConvertTo<List<SubjectDTO>>();
@@ -66,7 +99,14 @@ namespace User_API.Src.Service
 
         public async Task<TimeTableDTO?> GetTimeTableById(string id)
         {
-            string path = $"ThoiKhoaBieu?id={id}";
+
+            string path = KeyStore.OutSourceUrls.Get_StudentTimeTable
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"id",id }
+                    }
+                );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             var timeTableList = response.ConvertTo<List<TimeTableDTO>>();
             return timeTableList?.FirstOrDefault();

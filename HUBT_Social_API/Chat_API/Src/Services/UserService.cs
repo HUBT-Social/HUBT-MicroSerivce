@@ -9,6 +9,7 @@ using Chat_API.Src.Constants;
 using System.Collections.Generic;
 using HUBT_Social_Core.ASP_Extensions;
 using System.Net;
+using HUBT_Social_Core.Settings;
 
 namespace Chat_API.Src.Services
 {
@@ -16,19 +17,19 @@ namespace Chat_API.Src.Services
     {
         public async Task<ResponseDTO> GetUserRequest(string accessToken)
         {
-            string path = ChatApiEndpoints.Indentity_GetUser;
+            string path = KeyStore.IdentityUrls.Get_Current_User;
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
         public async Task<ResponseDTO> GetAllUser(string accessToken)
         {
-            string path = ChatApiEndpoints.Indentity_GetAllUser;
+            string path = KeyStore.IdentityUrls.Get_All_User;
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
         public async Task<List<AUserDTO>?> GetUsersByUserNames(List<string> request, string accessToken)
         {
             string queryString = string.Join("&", request.Select(u => $"userNames={Uri.EscapeDataString(u)}"));
             Console.WriteLine(queryString);
-            string path = ChatApiEndpoints.Indentity_GetUserByUserNames + "?"+ queryString;
+            string path = KeyStore.IdentityUrls.Get_User_In_List_User_Name + "?"+ queryString;
             ResponseDTO response = await SendRequestAsync(path,ApiType.GET, null, accessToken);
             if(response.StatusCode == HttpStatusCode.OK)
             {
@@ -39,7 +40,7 @@ namespace Chat_API.Src.Services
 
         public async Task<AUserDTO?> GetUserByUserName(string userName, string accessToken)
         {
-            string path = ChatApiEndpoints.Indentity_GetUserByUserName
+            string path = KeyStore.IdentityUrls.Get_User_From_EUI
                 .BuildUrl(
                     new Dictionary<string, object>
                     {

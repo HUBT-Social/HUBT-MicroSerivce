@@ -8,6 +8,8 @@ using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using Amazon.Runtime.Internal;
 using HUBT_Social_Core.Settings;
+using HUBT_Social_Core.ASP_Extensions;
+using Amazon.Runtime.Internal.Transform;
 
 namespace User_API.Src.Service
 {
@@ -15,27 +17,27 @@ namespace User_API.Src.Service
     {
         public async Task<ResponseDTO> GetUser(string accessToken)
         {
-            string path = $"user";
-            return await SendRequestAsync(path, ApiType.GET,null,accessToken);
+            return await SendRequestAsync(KeyStore.IdentityUrls.Get_Current_User, ApiType.GET,null,accessToken);
         }
         public async Task<ResponseDTO> FindUserByUserName(string accessToken,string username)
         {
-            string path = $"user/get?username={username}";
+            string path = KeyStore.IdentityUrls.Get_User_From_EUI
+                .BuildUrl(
+                    new Dictionary<string, object> { { "username", username } }
+                );
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
 
         public async Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request)
         {
-            string path = $"promote";
-            return await SendRequestAsync(path, ApiType.POST, request, accessToken);
+            return await SendRequestAsync(KeyStore.IdentityUrls.Post_Promote_Role, ApiType.POST, request, accessToken);
         }
 
         private async Task<ResponseDTO> UpdateUserAsync(string accessToken, Action<UpdateUserDTO> updateAction)
         {
-            string path = "update-user";
             UpdateUserDTO updateRequest = new();
             updateAction(updateRequest);
-            return await SendRequestAsync(path, ApiType.PUT, updateRequest, accessToken);
+            return await SendRequestAsync(KeyStore.IdentityUrls.Put_Update_User, ApiType.PUT, updateRequest, accessToken);
         }
 
         public Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, UpdateAvatarUrlRequest request)
@@ -54,8 +56,7 @@ namespace User_API.Src.Service
 
         public Task<ResponseDTO> DeleteUserAsync(string accessToken)
         {
-            string path = $"delete-user";
-            return SendRequestAsync(path, ApiType.DELETE,null,accessToken);
+            return SendRequestAsync(KeyStore.IdentityUrls.Delete_User, ApiType.DELETE,null,accessToken);
         }
 
         public Task<ResponseDTO> UpdatePhoneNumberAsync(string accessToken, UpdatePhoneNumberRequest request)
