@@ -44,7 +44,7 @@ namespace Auth_API.Src.Controllers
                 TokenResponseDTO? tokenResponse = result.ConvertTo<TokenResponseDTO>();
                 return tokenResponse != null ? Ok(tokenResponse) : BadRequest(LocalValue.Get(KeyStore.DataNotAllowNull));
             }
-            Console.WriteLine("result is not return 200");
+            Console.WriteLine($"result is not return 200 : {result.Message}");
             return BadRequest(result.Message);
 
         }

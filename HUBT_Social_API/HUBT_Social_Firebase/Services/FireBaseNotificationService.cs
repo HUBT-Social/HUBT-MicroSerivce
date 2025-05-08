@@ -17,7 +17,7 @@ public class FireBaseNotificationService : IFireBaseNotificationService
             {
                 Title = request.Title,
                 Body = request.Body,
-                ImageUrl = request.ImageUrl  // <-- This is the key for showing image on Android and iOS (with extension)
+                ImageUrl = request.ImageUrl 
             },
             Android = new AndroidConfig
             {
