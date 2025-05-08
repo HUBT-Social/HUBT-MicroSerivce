@@ -140,23 +140,23 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             string? accessUserId = accessPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             ClaimsPrincipal? refreshPrincipal = refreshToken.DecodeToken(_jwtSetting,refresh:true);
-            string? refreshUserId = accessPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? refreshUserId = refreshPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (refreshUserId != null && accessUserId == refreshUserId)
             {
-                if (refreshPrincipal != null)
+                TUser? user = await _userManager.FindByIdAsync(refreshUserId);
+                if (user != null)
                 {
-                    var user = await _userManager.FindByIdAsync(refreshUserId);
-                    if (user != null)
+                    var existingRefreshToken = await _tokenManager.Find(t => t.UserId == user.Id.ToString() && t.RefreshTo == refreshToken).FirstOrDefaultAsync();
+                    if (existingRefreshToken != null)
                     {
-                        var existingRefreshToken = await _tokenManager.Find(t => t.UserId == user.Id.ToString() && t.RefreshTo == refreshToken).FirstOrDefaultAsync();
-                        if (existingRefreshToken != null)
-                        {
-                            return await GenerateTokenAsync(user);
-                        }
+                        return await GenerateTokenAsync(user);
                     }
+                    Console.WriteLine($"Refresh token not user's refresh token: {user.UserName}");
                 }
-            }
+                Console.WriteLine($"User not found with id : {refreshUserId}");
 
+            }
+            Console.WriteLine($"accessUserID and RefreshUserId doesnot match. access : {accessUserId} Refresh :{refreshUserId}");
             return null;
         }
 

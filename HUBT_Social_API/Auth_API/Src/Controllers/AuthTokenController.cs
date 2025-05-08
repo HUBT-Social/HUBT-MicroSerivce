@@ -27,17 +27,26 @@ namespace Auth_API.Src.Controllers
             string? token = Request.Headers.ExtractBearerToken();
             string userAgent = Request.Headers.UserAgent.ToString() ?? "";
             if (string.IsNullOrEmpty(token))
+            {
+                Console.WriteLine("Token is null");
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
             AUserDTO? currentUser = await _authService.CurrentUser(token);
             if (currentUser == null || currentUser.DeviceId != userAgent)
+            {
+                Console.WriteLine("User is null");
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+
+            }
             ResponseDTO result = await _authService.RefreshToken(token,refreshToken.RefreshToken);
             if (result.StatusCode == HttpStatusCode.OK)
             {
                 TokenResponseDTO? tokenResponse = result.ConvertTo<TokenResponseDTO>();
                 return tokenResponse != null ? Ok(tokenResponse) : BadRequest(LocalValue.Get(KeyStore.DataNotAllowNull));
             }
+            Console.WriteLine("result is not return 200");
             return BadRequest(result.Message);
+
         }
         [HttpDelete("delete-token")]
         public async Task<IActionResult> DeleteToken()
