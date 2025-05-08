@@ -109,14 +109,15 @@ namespace User_API.Src.Controllers
                                                            .Select(student => student.MaSV)
                                                            .ToArray()
                         };
-                        createTempCourseRequest.TimeTableDTO.Subject = subjectDTO.TenMon;
+                        if (createTempCourseRequest.TimeTableDTO.Room != "baitap")
+                            createTempCourseRequest.TimeTableDTO.Subject = subjectDTO.TenMon;
                         CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
                         if (couresDTO.Id != string.Empty)
                         {
                             couresDTOs.Add(couresDTO);
                             CreateGroupRequest createGroupRequest = new()
                             {
-                                GroupName = $"{couresDTO.TimeTableDTO.Session} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
+                                GroupName = $"{couresDTO.TimeTableDTO.Session} Thứ {couresDTO.TimeTableDTO.Day} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
                                 UserNames = couresDTO.StudentIDs
                             };
                             if (await _chatService.CreateChatRoom(createGroupRequest, accessToken))

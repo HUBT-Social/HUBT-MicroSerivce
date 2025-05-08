@@ -13,7 +13,12 @@ public class FireBaseNotificationService : IFireBaseNotificationService
     {
         Message? message = new()
         {
-
+            Notification = new Notification
+            {
+                Title = request.Title,
+                Body = request.Body,
+                ImageUrl = request.ImageUrl  // <-- This is the key for showing image on Android and iOS (with extension)
+            },
             Android = new AndroidConfig
             {
                 Notification = new AndroidNotification
@@ -33,23 +38,25 @@ public class FireBaseNotificationService : IFireBaseNotificationService
                         Body = request.Body
                     },
                     Sound = "default",
-                    Badge = 1 // Set badge count to 1
+                    Badge = 1,
+                    MutableContent = true
                 },
                 Headers = new Dictionary<string, string>
-                {
-                    { "apns-priority", "10" } // Set priority to 10 for immediate delivery
-                },
+                    {
+                        { "apns-priority", "10" }
+                    },
                 FcmOptions = new ApnsFcmOptions
                 {
-                    ImageUrl = request.ImageUrl // <-- iOS Image URL goes in FcmOptions
-                },
+                    ImageUrl = request.ImageUrl
+                }
             },
             Data = new Dictionary<string, string?>
-            {
-                { "type", request.Type },
-                { "id", request.RequestId}
-            }
-        }; ;
+                {
+                    { "type", request.Type },
+                    { "id", request.RequestId }
+                }
+        };
+
         if (request is SendGroupMessageRequest)
         {
             message.Topic = "announcement";
