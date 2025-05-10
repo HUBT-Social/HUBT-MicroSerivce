@@ -227,10 +227,7 @@
           "Port": 443
         }
       ],
-      "SwaggerKey": "auth-service",
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer"
-      }
+      "SwaggerKey": "auth-service"
     },
     {
       "UpstreamPathTemplate": "/api/auth/delete-token",
@@ -243,10 +240,7 @@
           "Port": 443
         }
       ],
-      "SwaggerKey": "auth-service",
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer"
-      }
+      "SwaggerKey": "auth-service"
     },
     {
       "UpstreamPathTemplate": "/api/auth/sign-up/verify-otp",
