@@ -1,4 +1,5 @@
-﻿using HUBT_Social_Core.Models.Requests.Firebase;
+﻿using HUBT_Social_Core.Models.DTOs.NotationDTO;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Firebase.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +49,42 @@ namespace Notation_API.Src.Controllers
             {
                 await _fireBaseNotificationService.SendNotificationAsync(request);
                 return Ok(LocalValue.Get(KeyStore.NotificationSend));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest(LocalValue.Get(KeyStore.NotificationSendError));
+            }
+        }
+        [HttpPost("topic-subscribe")]
+        public async Task<IActionResult> SubscribeTopic([FromBody] SubScribeTopicDTO request)
+        {
+
+            try
+            {
+                bool result = await _fireBaseNotificationService.SubscribeTopicAsync(request.Topic, request.Tokens);
+                if (result)
+                    Console.WriteLine($"subscribe topic {request.Topic}");
+                       
+                 
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest(LocalValue.Get(KeyStore.NotificationSendError));
+            }
+        }
+        [HttpPost("topic-unsubscribe")]
+        public async Task<IActionResult> UnsubscribeTopic([FromBody] SubScribeTopicDTO request)
+        {
+            try
+            {
+                bool result = await _fireBaseNotificationService.UnsubscribeTopicAsync(request.Topic, request.Tokens);
+                if (result)
+                    Console.Write($"unsubcribe topic {request.Topic}");
+                
+                return Ok(result);
             }
             catch (Exception e)
             {
