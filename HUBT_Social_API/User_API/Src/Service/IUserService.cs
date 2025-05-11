@@ -18,7 +18,7 @@ namespace User_API.Src.Service
         Task<ResponseDTO> UpdateNameAsync(string accessToken, UpdateNameRequest request);
         Task<ResponseDTO> UpdatePhoneNumberAsync(string accessToken, UpdatePhoneNumberRequest request);
         Task<ResponseDTO> UpdateGenderAsync(string accessToken, UpdateGenderRequest request);
-        Task<ResponseDTO> UpdateFCM(string accessToken, string FCMKey);
+        Task<ResponseDTO> UpdateFCM(string accessToken, string FCMKey, string deviceId);
         Task<ResponseDTO> UpdateBio(string accessToken, string bio);
         Task<ResponseDTO> UpdateDateOfBirthAsync(string accessToken, UpdateDateOfBornRequest request);
         Task<ResponseDTO> UpdateAddClassName(string accessToken, StudentClassName studentClassName);

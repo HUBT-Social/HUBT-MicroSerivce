@@ -11,42 +11,59 @@ public class FireBaseNotificationService : IFireBaseNotificationService
     
     public async Task SendNotificationAsync(MessageRequest request)
     {
-        Message? message = null;
-        if (request is SendGroupMessageRequest requestType)
+        Message? message = new()
         {
-            message = new Message
+            Notification = new Notification
             {
-                Topic = "announcement",
-                Notification = new Notification
+                Title = request.Title,
+                Body = request.Body,
+                ImageUrl = request.ImageUrl 
+            },
+            Android = new AndroidConfig
+            {
+                Notification = new AndroidNotification
                 {
-                    Title = requestType.Title,
-                    Body = requestType.Body,
-                    ImageUrl = requestType.ImageUrl
-                },
-                Data = new Dictionary<string, string?>
+                    ImageUrl = request.ImageUrl,
+                    Title = request.Title,
+                    Body = request.Body
+                }
+            },
+            Apns = new ApnsConfig
             {
-                { "type", requestType.Type },
-                { "id", requestType.RequestId}
-            }
-            };
+                Aps = new Aps
+                {
+                    Alert = new ApsAlert
+                    {
+                        Title = request.Title,
+                        Body = request.Body
+                    },
+                    Sound = "default",
+                    Badge = 1,
+                    MutableContent = true
+                },
+                Headers = new Dictionary<string, string>
+                    {
+                        { "apns-priority", "10" }
+                    },
+                FcmOptions = new ApnsFcmOptions
+                {
+                    ImageUrl = request.ImageUrl
+                }
+            },
+            Data = new Dictionary<string, string?>
+                {
+                    { "type", request.Type },
+                    { "id", request.RequestId }
+                }
+        };
+
+        if (request is SendGroupMessageRequest)
+        {
+            message.Topic = "announcement";
         }
-        else if (request is SendMessageRequest requestType1)
+        else if (request is SendMessageRequest requestType)
         {
-            message = new Message
-            {
-                Token = requestType1.Token,
-                Notification = new Notification
-                {
-                    Title = requestType1.Title,
-                    Body = requestType1.Body,
-                    ImageUrl = requestType1.ImageUrl
-                },
-                Data = new Dictionary<string, string?>
-            {
-                { "type", requestType1.Type },
-                { "id", requestType1.RequestId }
-            }
-            };
+            message.Token = requestType.Token;
         }
 
 

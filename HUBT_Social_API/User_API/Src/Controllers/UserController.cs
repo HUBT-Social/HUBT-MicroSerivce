@@ -140,8 +140,10 @@ namespace User_API.Src.Controllers
         [HttpPut("update/fcm-token")]
         public async Task<IActionResult> UpdateFcm([FromBody] StoreFCMRequest fcmtoken)
         {
-            string? accessToken = Request.Headers.ExtractBearerToken();
-            if (accessToken == null)
+
+            string accessToken = Request.Headers.ExtractBearerToken() ?? "";
+            string userAgent = Request.Headers.UserAgent.ToString() ?? "";
+            if (accessToken == string.Empty)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
             ResponseDTO result = await _identityService.GetUser(accessToken);
@@ -161,7 +163,7 @@ namespace User_API.Src.Controllers
                 }
             }
 
-            var response = await _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, fcmtoken.FcmToken);
+            var response = await _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, fcmtoken.FcmToken,userAgent);
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Ok(response.Message),
@@ -172,8 +174,10 @@ namespace User_API.Src.Controllers
         [HttpPut("delete/fcm-token")]
         public Task<IActionResult> UpdateFcm()
         {
+            string userAgent = Request.Headers.UserAgent.ToString() ?? "";
+
             return HandleServiceResponse(() =>
-            _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, ""));
+            _identityService.UpdateFCM(Request.Headers.ExtractBearerToken()!, "",userAgent));
         }
         [HttpPut("update/status")]
         public Task<IActionResult> UpdateStatus([FromBody] UpdateStatusRequest bio)

@@ -39,6 +39,7 @@ namespace Identity_API.Src.Controllers
                 }
                 else
                 {
+                    Console.WriteLine("ValidateTokens is null");
                     return BadRequest(LocalValue.Get(KeyStore.InvalidCredentials));
                 }
             }
