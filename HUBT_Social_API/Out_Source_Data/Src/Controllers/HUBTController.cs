@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HUBT_Social_Base;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Settings;
@@ -8,6 +9,7 @@ using HUBT_Social_MongoDb_Service.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using Out_Source_Data.Src.Models;
 
 namespace Out_Source_Data.Src.Controllers
@@ -37,6 +39,22 @@ namespace Out_Source_Data.Src.Controllers
             if (studentInfo == null) return NotFound(LocalValue.Get(KeyStore.UserNotFound));
             StudentDTO studentDTO = _mapper.Map<StudentDTO>(studentInfo);
             return Ok(studentDTO);
+        }
+        [HttpGet("getSliceStudent")]
+        public async Task<IActionResult> GetSliceStudent([FromQuery] int page)
+        {
+            var filter = Builders<SinhVien>.Filter.Empty;
+            var studentClass = await _student.GetSlide(page, 100, filter);
+            if (studentClass == null) return NotFound();
+            List<StudentClassName> studentClassName = studentClass.Select(st => new StudentClassName
+            {
+                ClassName = st.TenLop,
+                UserName = st.Masv
+            }).ToList();
+
+            if (studentClassName.Count == 0) return StatusCode(500, "Loi khi lay du lieu");
+
+            return Ok(studentClassName);
         }
         [HttpGet("sinhvien/{className}")]
         public async Task<IActionResult> GetStudentList([FromRoute] string className)

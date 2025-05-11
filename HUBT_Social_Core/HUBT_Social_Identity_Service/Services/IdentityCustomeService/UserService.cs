@@ -167,5 +167,43 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             var userlist  = _userManager.Users.ToList<TUser>();
             return userlist ?? null;
         }
+        public async Task<(List<TUser>,bool,string?)> GetUserByRole(string RoleName,int page = 0)
+        {
+            bool hasMore = true;
+            int pageSize = 100;
+            var role = _roleManager.Roles
+                .Where(r => r.Name == RoleName)
+                .FirstOrDefault();
+
+            if (role == null) return (new List<TUser>(),hasMore,"Role khong hop le.");
+            int quantityUser = _userManager.Users.Count();
+            if ((page+1)*pageSize - quantityUser >= pageSize) 
+            {
+                return (new List<TUser>(), !hasMore,null);
+            }
+            var users = _userManager.Users
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .Where(u => u.Roles.Contains(role.Id))
+                .ToList();
+
+
+            return (users, hasMore, null);
+        }
+
+        public async Task<bool> CheckRole(string userName, string roleName)
+        {
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(roleName))
+            {
+                return false;
+            }
+
+            var user = await GetUserByNameAsync(userName);
+            if (user == null) return false;
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return roles.Contains(roleName);
+        }
     }
 }

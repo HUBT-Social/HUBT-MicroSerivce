@@ -10,6 +10,8 @@ using Amazon.Runtime.Internal;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Core.ASP_Extensions;
 using Amazon.Runtime.Internal.Transform;
+using MongoDB.Driver.Core.Operations;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 
 namespace User_API.Src.Service
 {
@@ -18,6 +20,14 @@ namespace User_API.Src.Service
         public async Task<ResponseDTO> GetUser(string accessToken)
         {
             return await SendRequestAsync(KeyStore.IdentityUrls.Get_Current_User, ApiType.GET,null,accessToken);
+        }
+        public async Task<ResponseDTO> GetUserByRole(string roleName,int page)
+        {
+            string path = KeyStore.IdentityUrls.Get_User_From_RoleName
+                .BuildUrl(
+                    new Dictionary<string, object> { { "roleName", roleName },{ "page", page } }
+                );
+            return await SendRequestAsync(path, ApiType.GET, null, null);
         }
         public async Task<ResponseDTO> FindUserByUserName(string accessToken,string username)
         {
@@ -122,6 +132,16 @@ namespace User_API.Src.Service
             {
                 dto.EnableTwoFactor = false;
             });
+        }
+
+        public async Task<ResponseDTO> UpdateUserAdmin(string accessToken, AUserDTO user)
+        {
+            return await SendRequestAsync(KeyStore.IdentityUrls.Put_Update_User_Admin, ApiType.PUT, user, accessToken);
+        }
+
+        public async Task<ResponseDTO> UpdateAddClassName(string accessToken,StudentClassName studentClassName)
+        {
+            return await SendRequestAsync(KeyStore.IdentityUrls.Put_Update_User_ClassName, ApiType.PUT, studentClassName, accessToken);
         }
     }
 }

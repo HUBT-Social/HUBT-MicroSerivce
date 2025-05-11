@@ -4,8 +4,10 @@ using HUBT_Social_Core;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -17,10 +19,11 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService,INotationService notationService) : ControllerBase
+    public class UserController(IUserService userService,INotationService notationService, IOutSourceService outSourceService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
         private readonly INotationService _notationService = notationService; 
+        private readonly IOutSourceService _outSourceService = outSourceService;
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -54,6 +57,18 @@ namespace User_API.Src.Controllers
             }
             return BadRequest(result.Message);
 
+        }
+        [HttpGet("get-user-by-role")]
+        public async Task<IActionResult> GetUserByRole([FromQuery] string roleName, [FromQuery] int page = 0)
+        {
+            ResponseDTO result = await _identityService.GetUserByRole(roleName, page);
+            ResponseUserRoleDTO? responseUserRoleDTO = result.ConvertTo<ResponseUserRoleDTO>();
+            return Ok(new
+            {
+                users = responseUserRoleDTO.users,
+                hasMore = responseUserRoleDTO.hasMore,
+                message = responseUserRoleDTO.message
+            });
         }
         [HttpGet("user-find")]
         public async Task<IActionResult> GetAllUser(string usename)
@@ -166,11 +181,37 @@ namespace User_API.Src.Controllers
             return HandleServiceResponse(() => 
             _identityService.UpdateBio(Request.Headers.ExtractBearerToken()!,bio.Bio));
         }
+        [HttpPut("update-user-admin")]
+        public Task<IActionResult> UpdateUserAdmin([FromBody] AUserDTO request)
+        {
+            return HandleServiceResponse(() =>
+            _identityService.UpdateUserAdmin(Request.Headers.ExtractBearerToken()!, request));
+        }
         [HttpPut("add-info-user")]
         public Task<IActionResult> EnableTwoFactor([FromBody] AddInfoUserRequest request)
         {
             return HandleServiceResponse(() => 
             _identityService.AddInfoUser(Request.Headers.ExtractBearerToken()!,request));
+        }
+        [HttpPut("add-className")]
+        public async Task<IActionResult> UpdateAddClassName([FromBody] StudentClassName request)
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.ClassName))
+            {
+                return BadRequest("Request must be not null.");
+            }
+            try { 
+
+                await _identityService.UpdateAddClassName(accessToken, request);   
+                return Ok();
+            }
+            catch (Exception ex) {
+                return BadRequest(ex);
+            }
+            
         }
         [HttpPut("update/phone-number")]
         public Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberRequest request)

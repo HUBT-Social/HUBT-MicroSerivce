@@ -2,7 +2,9 @@
 using Hangfire.Mongo.Dto;
 using HUBT_Social_Base;
 using HUBT_Social_Core.Decode;
+using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Identity_Service.Services;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -47,6 +50,38 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }
+        [HttpGet("user-by-role")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTeacher([FromQuery] string roleName, [FromQuery] int page = 0)
+        {
+
+            var response = await _identityService.GetUserByRole(roleName, page);
+
+            if (response.Item1.Count > 0)
+            {
+                var userDTOs = response.Item1.Select(user => {
+                    AUserDTO u = _mapper.Map<AUserDTO>(user);
+                    u.Status = string.IsNullOrEmpty(u.FCMToken) ? "Inactive" : "Active";
+                    return u;
+                    }).ToList();
+
+                return Ok(
+                    new
+                    {
+                        users = userDTOs,
+                        hasMore = response.Item2,
+                        message = response.Item3
+                    });
+            }
+            return Ok(
+                    new
+                    {
+                        users = new List<AUserDTO>(),
+                        hasMore = response.Item2,
+                        message = response.Item3
+                    });
+        }
+
         [HttpGet("users-in-list-userName")]
         [AllowAnonymous]
         public async Task<IActionResult> GetUsersInListAsync([FromQuery] ListUserNameDTO request)
@@ -171,6 +206,93 @@ namespace Identity_API.Src.Controllers
             }
             return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
         }
+
+
+        [HttpPut("add-className")]
+        public async Task<IActionResult> AddClassName([FromBody] StudentClassName request)
+        {
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+
+            if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.ClassName))
+            {
+                return BadRequest("Request is empty.");
+            }
+
+            try
+            {
+
+                    AUser? user = await _identityService.FindUserByUserNameAsync(request.UserName);
+                if(user == null)
+                {
+                    return NotFound("No users were updated.");
+                }
+                    user.ClassName = request.ClassName;
+
+                if (await _identityService.UpdateUserAsync(user))
+                {
+                    return Ok($"updated successfully.");
+                }
+                return BadRequest();
+                
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while updating users.");
+            }
+        }
+
+
+
+        [HttpPut("update-user-admin")]
+        public async Task<IActionResult> UpdateAdmin([FromBody] UpdateUserAdminDTO updateRequest)
+        {
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            if(!await _identityService.CheckRole(tokenInfo.Username,"ADMIN"))
+            {
+                return BadRequest("Ban khong co quyen admin.");
+            }
+            var user = await _identityService.FindUserByUserNameAsync(updateRequest.UserName);
+            if (user == null)
+                return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+            try
+            {
+                if (!string.IsNullOrEmpty(updateRequest.FirstName))
+                    user.FirstName = updateRequest.FirstName;
+
+                if (!string.IsNullOrEmpty(updateRequest.LastName))
+                    user.LastName = updateRequest.LastName;
+
+                if (!string.IsNullOrEmpty(updateRequest.Email))
+                    user.Email = updateRequest.Email;
+
+                if (!string.IsNullOrEmpty(updateRequest.PhoneNumber))
+                    user.PhoneNumber = updateRequest.PhoneNumber;
+
+                if (!string.IsNullOrEmpty(updateRequest.AvataUrl))
+                    user.AvataUrl = updateRequest.AvataUrl;
+
+                if (updateRequest.Gender != null)
+                    user.Gender = updateRequest.Gender.Value;
+
+                if (updateRequest.DateOfBirth != null)
+                    user.DateOfBirth = updateRequest.DateOfBirth.Value;
+
+                if (updateRequest.EnableTwoFactor != null)
+                    user.TwoFactorEnabled = updateRequest.EnableTwoFactor.Value;
+
+                if (await _identityService.UpdateUserAsync(user))
+                    return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
+            }
+            catch (Exception)
+            {
+                return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
+            }
+            return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
+        }
         [HttpPut("update-avatar-all-develop")]
         [AllowAnonymous]
         public async Task<IActionResult> UpdateAllUserAvatar()
@@ -220,12 +342,45 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
         }
         [HttpPut("user/change-password")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ChangePassword([FromQuery] string userName,[FromBody] UpdatePasswordRequestDTO changePasswordDTO)
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequestDTO changePasswordDTO)
         {
-            bool result = await _identityService.UpdatePasswordAsync(userName, changePasswordDTO);
-            return result ? Ok(LocalValue.Get(KeyStore.PasswordUpdated)) : BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
+            // 1. Trích xuất thông tin người dùng từ JWT
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+            {
+                return BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError)); // Không có token hoặc token không hợp lệ
+            }
+
+            // 2. Xác định username cần thay đổi mật khẩu
+            var targetUsername = changePasswordDTO.UserName;
+            var requesterUsername = tokenInfo.Username;
+
+            // Nếu không truyền username => người dùng đổi mật khẩu cho chính mình
+            if (string.IsNullOrWhiteSpace(targetUsername))
+            {
+                targetUsername = requesterUsername;
+            }
+            else
+            {
+                // Nếu truyền username khác => chỉ Admin mới được phép đổi mật khẩu cho người khác
+                var isAdmin = await _identityService.CheckRole(requesterUsername, "ADMIN");
+                if (!isAdmin)
+                {
+                    return BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
+                }
+            }
+
+            // 3. Gọi service để đổi mật khẩu
+            var updated = await _identityService.UpdatePasswordAsync(targetUsername, changePasswordDTO);
+
+            // 4. Trả về kết quả
+            return updated
+                ? Ok(LocalValue.Get(KeyStore.PasswordUpdated))
+                : BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
         }
+
 
         [HttpPost("promote")]
         public async Task<IActionResult> Promote([FromBody] PromoteUserRequestDTO request)

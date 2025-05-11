@@ -1,5 +1,6 @@
 using HUBT_Social_Core.Settings.@enum;
 using Microsoft.AspNetCore.Hosting.Server;
+using System.Data;
 using System.Net;
 
 namespace HUBT_Social_Core.Settings
@@ -414,7 +415,10 @@ namespace HUBT_Social_Core.Settings
             public static readonly string Get_User_In_List_User_Name = $"{EndPoint_Identity}/users-in-list-userName";
             public static readonly string Get_Current_User = $"{EndPoint_Identity}/user";
             public static readonly string Get_User_From_EUI = $"{EndPoint_Identity}/user/get";
+            public static readonly string Get_User_From_RoleName = $"{EndPoint_Identity}/user-by-role";
             public static readonly string Put_Update_User = $"{EndPoint_Identity}/update-user";
+            public static readonly string Put_Update_User_ClassName = $"{EndPoint_Identity}/add-className";
+            public static readonly string Put_Update_User_Admin = $"{EndPoint_Identity}/update-user-admin";
             public static readonly string Put_Update_All_Avater_Users_Default = $"{EndPoint_Identity}/update-avatar-all-develop";
             public static readonly string Delete_User = $"{EndPoint_Identity}/delete-user";
             public static readonly string Put_Change_Password = $"{EndPoint_Identity}/user/change-password";
@@ -458,6 +462,8 @@ namespace HUBT_Social_Core.Settings
 
             // Student
             public const string Get_StudentData = "sinhvien";
+            public const string Get_Slice_Students = $"{Base}/getSliceStudent";
+
             public const string Get_StudentList = "sinhvien/{className}";
             public const string Get_StudentScoreByRoute = "sinhvien/{masv}/diem";
             public const string Get_StudentScoreByQuery = "sinhvien/diem";

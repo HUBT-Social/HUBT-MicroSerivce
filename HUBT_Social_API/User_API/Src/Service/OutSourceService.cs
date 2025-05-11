@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Core.ASP_Extensions;
 using Amazon.Runtime.Internal.Transform;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 
 namespace User_API.Src.Service
 {
@@ -110,6 +111,19 @@ namespace User_API.Src.Service
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             var timeTableList = response.ConvertTo<List<TimeTableDTO>>();
             return timeTableList?.FirstOrDefault();
+        }
+        public async Task<List<StudentClassName>> GetSlideStudentClassName(int page)
+        {
+            string path = KeyStore.OutSourceUrls.Get_Slice_Students
+                .BuildUrl(
+                    new Dictionary<string, object>
+                    {
+                        {"page",page.ToString() }
+                    }
+                );
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
+            var slice = response.ConvertTo<List<StudentClassName>>();
+            return slice??new List<StudentClassName>();
         }
     }
 }
