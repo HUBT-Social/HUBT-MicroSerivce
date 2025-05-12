@@ -209,9 +209,10 @@ namespace Chat_Data_API.Src.Hubs
                     string body = inputRequest.Content != null
                         ? inputRequest.Content
                         : "You have unread message!";
-                    SendGroupMessageRequest request = new SendGroupMessageRequest
+                    List<string> UserNames = chatGroupModel.Participant.Select(p => p.UserName).Where(u => u!= userInfo.Username).ToList();
+                    SendNotationToGroupChatRequest request = new SendNotationToGroupChatRequest
                     {
-                        GroupId = inputRequest.GroupId,
+                        UserNames = UserNames,
                         RequestId = inputRequest.RequestId,
                         Type = "chat",
                         ImageUrl = chatGroupModel.AvatarUrl,
@@ -220,7 +221,7 @@ namespace Chat_Data_API.Src.Hubs
                     };
                     if (token != null)
                     {
-                        await _notition.SendNotationToMany(request, token);
+                        await _notition.SendNotationToGroupChat(request, token);
                     }
                 }
                 catch { }

@@ -10,6 +10,11 @@ public class SendGroupMessageRequest : MessageRequest
     public string GroupId { get; set; } = string.Empty;
     
 }
+public class SendNotationToGroupChatRequest : MessageRequest
+{
+    public List<string> UserNames { get; set; } = [];
+
+}
 public class MessageRequest
 {
     public string Title { get; set; } = string.Empty;
