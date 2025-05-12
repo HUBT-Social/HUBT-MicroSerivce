@@ -24,7 +24,6 @@ using Microsoft.AspNetCore.SignalR;
 using Amazon.Runtime.Internal;
 using Chat_Data_API.Src.Hubs;
 using Chat_Data_API.Src.Service;
-using HUBT_Social_Core.Models.Requests.Chat;
 
 namespace Chat_Data_API.Src.Controllers
 {
@@ -62,7 +61,7 @@ namespace Chat_Data_API.Src.Controllers
                 return BadRequest("Token is not valid");
 
             // Tạo ChatRoomModel
-            var newChatRoom = CreateChatRoom(createGroupRequest.GroupName, createGroupRequest.Participants, createGroupRequest.GroupType);
+            var newChatRoom = CreateChatRoom(createGroupRequest.GroupName, createGroupRequest.Participants);
 
             // Lưu ChatRoom vào database
             // Gửi yêu cầu tạo một group mới, kết quả nhận về sẽ gômf một tuple ( status, message) 
@@ -103,32 +102,19 @@ namespace Chat_Data_API.Src.Controllers
         {
             if (string.IsNullOrEmpty(request.GroupName))
                 return LocalValue.Get(KeyStore.GroupNameRequired);
-
-            if (request.GroupType != TypeChatRoom.SingleChat || request.GroupType != TypeChatRoom.GroupChat)
-            {
-                return "Group Type chi nhan hai gia tri 0: P-P, 1: Group";
-            }
-            if (request.Participants.Count < 3 && request.GroupType == TypeChatRoom.GroupChat)
-            {
+            if (request.Participants.Count < 2)
                 return "Khong du nguoi";
-            }
-            if(request.Participants.Count !=2 && request.GroupType == TypeChatRoom.SingleChat)
-            {
-                return "chi cho phep mot nguoi.";
-            }
-                
             return null;
         }
 
         // Phương thức tạo ChatRoomModel
-        private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants, TypeChatRoom type = TypeChatRoom.GroupChat)
+        private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants)
         {
             return new ChatGroupModel
             {
                 Name = groupName,
                 AvatarUrl = LocalValue.Get(KeyStore.DefaultUserImage),
                 Participant = participants,
-                TypeChatGroup = type,
                 CreatedAt = DateTime.UtcNow
             };
         }
