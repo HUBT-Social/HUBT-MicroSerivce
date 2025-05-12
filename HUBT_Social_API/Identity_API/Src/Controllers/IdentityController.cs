@@ -102,6 +102,8 @@ namespace Identity_API.Src.Controllers
             return Ok(userDTOs);
         }
         [HttpGet("user")]
+        [AllowAnonymous]
+
         public async Task<IActionResult> GetUser()
         {
             var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
@@ -118,6 +120,7 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }
+
         [HttpGet("user/get")]
         [AllowAnonymous]
         public async Task<IActionResult> CheckUser([FromQuery] string? email, [FromQuery] string? userName, [FromQuery] string? userId)
