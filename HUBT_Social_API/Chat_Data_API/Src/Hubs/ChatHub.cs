@@ -30,15 +30,15 @@ namespace Chat_Data_API.Src.Hubs
         private readonly IUploadService _uploadService;
         private readonly IMapper _mapper;
         private readonly JwtSetting _jwtSettings;
-       // private readonly INotition _notition;
+        private readonly INotition _notition;
 
         public ChatHub(
             IUserConnectionManager userConnectionManager,
             IMongoService<ChatGroupModel> chatGroups,
             IUploadService uploadService,
             IMapper mapper,
-            IOptions<JwtSetting> jwtSettings
-          //  INotition notition
+            IOptions<JwtSetting> jwtSettings,
+            INotition notition
         )
         {
             _userConnectionManager = userConnectionManager;
@@ -46,7 +46,7 @@ namespace Chat_Data_API.Src.Hubs
             _uploadService = uploadService;
             _mapper = mapper;
             _jwtSettings = jwtSettings.Value;
-           // _notition = notition;
+            _notition = notition;
         }
 
         public override async Task OnConnectedAsync()
@@ -174,11 +174,16 @@ namespace Chat_Data_API.Src.Hubs
             var channel = Channel.CreateUnbounded<(bool, MessageModel?, string)>();
             _ = _uploadService.SendChatAsync(chatRequest, _chatGroups, channel);
 
+             bool sendSuccessful = false;
+
             // Đọc kết quả từ channel và gửi về client ngay khi có
             await foreach (var (success, message, itemId) in channel.Reader.ReadAllAsync())
             {
                 var status = success ? MessageStatus.Sent : MessageStatus.Failed;
-
+                if(status == MessageStatus.Sent && sendSuccessful == false)
+                {
+                    sendSuccessful = !sendSuccessful;
+                }
                 if (message is not null)
                 {
                     await Clients.Caller.SendAsync("ReceiveProcess", new
@@ -197,26 +202,31 @@ namespace Chat_Data_API.Src.Hubs
                     await Clients.Group(inputRequest.GroupId).SendAsync("ReceiveChat", messageResponse);
                 }
             }
-            //try
-            //{
-            //    string body = inputRequest.Content != null 
-            //        ? inputRequest.Content
-            //        : "You have unread message!";
-            //    SendGroupMessageRequest request = new SendGroupMessageRequest
-            //    {
-            //        GroupId = inputRequest.GroupId,
-            //        RequestId = inputRequest.RequestId,
-            //        Type = "chat",
-            //        ImageUrl = chatGroupModel.AvatarUrl,
-            //        Title = chatGroupModel.Name,
-            //        Body = $"{userInfo.UserId.UserIdToName(chatGroupModel)} : {body}"
-            //    };
-            //    if(token != null)
-            //    {
-            //        await _notition.SendNotationToMany(request, token);
-            //    }  
-            //}
-            //catch { }
+            if (sendSuccessful)
+            {
+                try
+                {
+                    string body = inputRequest.Content != null
+                        ? inputRequest.Content
+                        : "You have unread message!";
+                    SendGroupMessageRequest request = new SendGroupMessageRequest
+                    {
+                        GroupId = inputRequest.GroupId,
+                        RequestId = inputRequest.RequestId,
+                        Type = "chat",
+                        ImageUrl = chatGroupModel.AvatarUrl,
+                        Title = chatGroupModel.Name,
+                        Body =  body
+                    };
+                    if (token != null)
+                    {
+                        await _notition.SendNotationToMany(request, token);
+                    }
+                }
+                catch { }
+
+            }
+            
         }
 
 
