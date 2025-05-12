@@ -1,4 +1,5 @@
-﻿using HUBT_Social_Core.Decode;
+using HUBT_Social_Core.Decode;
+using HUBT_Social_Core.Models.DTOs.NotationDTO;
 using HUBT_Social_Core.Models.DTOs.NotationDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
