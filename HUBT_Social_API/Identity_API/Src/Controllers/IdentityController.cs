@@ -6,6 +6,7 @@ using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Identity_Service.Services;
 using HUBT_Social_Identity_Service.Services.IdentityCustomeService;
@@ -20,6 +21,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Identity_API.Src.Controllers
@@ -27,11 +30,15 @@ namespace Identity_API.Src.Controllers
     [Route("api/identity")]
     [ApiController]
     [Authorize]
-    public class IdentityController(IHubtIdentityService<AUser, ARole> identityService, IMapper mapper, IOptions<JwtSetting> options) : DataLayerController(mapper, options)
+    public class IdentityController
+        (
+            IHubtIdentityService<AUser, ARole> identityService, 
+            IMapper mapper, IOptions<JwtSetting> options
+        ) : DataLayerController(mapper, options)
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
         private readonly IMongoService<AUser> _aUserService;
-        
+
         [HttpGet("userAll")]
         [AllowAnonymous]
         public IActionResult GetUserAll()
@@ -157,6 +164,100 @@ namespace Identity_API.Src.Controllers
 
             return Ok(userDTO);
         }
+        [HttpGet("get-fmcs-by-condition-admin")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFCMsUserByConndition([FromQuery] ConditionRequest request)
+        {
+            if (request == null || (request.UserNames?.Count == 0 && request.FacultyCodes?.Count == 0 &&
+                request.CourseCodes?.Count == 0 && request.ClassCodes?.Count == 0))
+            {
+                return BadRequest("At least one condition (UserNames, FacultyCodes, CourseCodes, or ClassCodes) is required.");
+            }
+
+            List<string>? fcms = [];
+            List<AUser>? usersToProcess;
+
+            // Trường hợp lọc theo UserNames
+            if (request.UserNames?.Count > 0)
+            {
+                var userTasks = request.UserNames
+                    .Select(username => _identityService.FindUserByUserNameAsync(username));
+                var usersFromNames = await Task.WhenAll(userTasks);
+                usersToProcess = usersFromNames?.Where(u => u != null).ToList();
+            }
+            else
+            {
+                var listUsers = _identityService.GetAll();
+                Console.WriteLine("Total: ", listUsers?.Count);
+                if (listUsers == null || !listUsers.Any())
+                    return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+                var parsedUsers = listUsers
+                    .Where(u => !string.IsNullOrEmpty(u.FCMToken) && !string.IsNullOrEmpty(u.ClassName))
+                    .Select(u =>
+                    {
+                        var match = Regex.Match(u.ClassName??"", @"^([A-Z]+)(\d{2})\.(\d{2})$");
+                        if (!match.Success)
+                        {
+                            Console.WriteLine($"Invalid ClassName format for user: {u.ClassName}");
+                        }
+                        return new
+                        {
+                            User = u,
+                            FacultyCode = match.Success ? match.Groups[1].Value : null,
+                            CourseCode = match.Success ? match.Groups[2].Value : null,
+                            ClassCode = u.ClassName
+                        };
+                    })
+                    .Where(p => p.FacultyCode != null && p.CourseCode != null && p.ClassCode != null)
+                    .ToList();
+
+                if (
+                    request.FacultyCodes?.Any() != true &&
+                    request.CourseCodes?.Any() != true &&
+                    request.ClassCodes?.Any() != true
+                   )
+                {
+                    usersToProcess = parsedUsers.Select(p => p.User).ToList();
+                }
+                else
+                {                
+
+                    var filtered = parsedUsers;
+
+                    // Lọc theo thứ tự ưu tiên: FacultyCodes → CourseCodes → ClassCodes
+                    if (request.FacultyCodes?.Any() == true)
+                    {
+                        filtered = filtered.Where(p => request.FacultyCodes.Contains(p.FacultyCode)).ToList();
+                    }
+                    if (request.CourseCodes?.Any() == true)
+                    {
+                        filtered = filtered.Where(p => request.CourseCodes.Contains(p.CourseCode)).ToList();
+                    }
+                    if (request.ClassCodes?.Any() == true)
+                    {
+                        filtered = filtered.Where(p =>
+                            request.ClassCodes.Contains(p.ClassCode)).ToList();
+                    }
+                    // Nếu cả 3 điều kiện đều null/rỗng, giữ nguyên filtered (tất cả user)
+
+                    usersToProcess = filtered.Select(p => p.User).ToList();
+                }
+                
+            }
+
+            fcms = usersToProcess?
+                .Where(u => !string.IsNullOrEmpty(u.FCMToken))
+                .Select(u => u.FCMToken)
+                .Distinct()
+                .ToList();
+
+            if (fcms!=null)
+                return Ok(fcms);
+
+            return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+        }
+
 
         [HttpPut("update-user")]
         public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateRequest)

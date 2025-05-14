@@ -1,5 +1,6 @@
 ﻿using HUBT_Social_API.Src.Features.Auth.Dtos.Request.UpdateUserRequest;
 using HUBT_Social_Base.ASP_Extentions;
+using HUBT_Social_Base.Service;
 using HUBT_Social_Core;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs;
@@ -19,11 +20,12 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService,INotationService notationService, IOutSourceService outSourceService) : ControllerBase
+    public class UserController(IUserService userService,INotationService notationService, IOutSourceService outSourceService, IHttpCloudService cloudService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
         private readonly INotationService _notationService = notationService; 
         private readonly IOutSourceService _outSourceService = outSourceService;
+        private readonly IHttpCloudService _cloudService = cloudService;
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -113,10 +115,18 @@ namespace User_API.Src.Controllers
         }
 
         [HttpPut("update-avatar")]
-        public Task<IActionResult> UpdateAvatar([FromBody] UpdateAvatarUrlRequest request)
+        public async Task<IActionResult> UpdateAvatar([FromBody] UpdateAvatarRequest request)
         {
-            return HandleServiceResponse(() =>
-            _identityService.UpdateAvatarUrlAsync(Request.Headers.ExtractBearerToken()!, request));
+            if (request.File == null) return BadRequest("File is null");
+
+            string? newUrl = await _cloudService.GetUrlFormFile(request.File);
+            if (string.IsNullOrEmpty(newUrl)) return BadRequest("Update failed");
+
+            var token = Request.Headers.ExtractBearerToken();
+            if (string.IsNullOrEmpty(token)) return Unauthorized("Token missing");
+
+            return await HandleServiceResponse(() =>
+                _identityService.UpdateAvatarUrlAsync(token, newUrl));
         }
 
         [HttpPut("update/name")]

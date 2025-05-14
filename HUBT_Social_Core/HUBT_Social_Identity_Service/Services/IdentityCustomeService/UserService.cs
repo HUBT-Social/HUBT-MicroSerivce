@@ -1,9 +1,11 @@
 ﻿using AspNetCore.Identity.MongoDbCore.Models;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using MongoDB.Driver.Core.Operations;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -205,5 +207,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
 
             return roles.Contains(roleName);
         }
+
+
     }
 }

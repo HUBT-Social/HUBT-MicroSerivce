@@ -9,6 +9,7 @@ using Amazon.Runtime.Internal;
 using HUBT_Social_Base.ASP_Extentions;
 using System.Collections.Generic;
 using System.Net;
+using HUBT_Social_Core.Models.Requests.Firebase;
 
 namespace Notation_API.Src.Services
 {
@@ -44,6 +45,18 @@ namespace Notation_API.Src.Services
                     .ToList();
             }
             return null;
+        }
+        public async Task<List<string>?> GetListFMCFromCondition(ConditionRequest request)
+        {
+            string path = $"get-fmcs-by-condition-admin";
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET, request, null);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<string>? FMCs = response.ConvertTo<List<string>>();
+                return FMCs??null;
+            }
+            return null;
+
         }
     }
 }

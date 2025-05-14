@@ -50,9 +50,9 @@ namespace User_API.Src.Service
             return await SendRequestAsync(KeyStore.IdentityUrls.Put_Update_User, ApiType.PUT, updateRequest, accessToken);
         }
 
-        public Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, UpdateAvatarUrlRequest request)
+        public Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, string request)
         {
-            return UpdateUserAsync(accessToken, dto => dto.AvataUrl = request.AvatarUrl);
+            return UpdateUserAsync(accessToken, dto => dto.AvataUrl = request);
         }
 
         public Task<ResponseDTO> UpdateNameAsync(string accessToken, UpdateNameRequest request)
