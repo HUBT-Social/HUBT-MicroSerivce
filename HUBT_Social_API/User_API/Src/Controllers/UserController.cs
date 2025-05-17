@@ -27,14 +27,23 @@ namespace User_API.Src.Controllers
         private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly IHttpCloudService _cloudService = cloudService;
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] string? username)
         {
             string? accessToken =  Request.Headers.ExtractBearerToken();
             if (accessToken == null)
             {
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
             }
-            ResponseDTO result = await _identityService.GetUser(accessToken);
+
+            ResponseDTO result;
+            if (!string.IsNullOrEmpty(username))
+            {
+                result = await _identityService.FindUserByUserName(accessToken, username);
+            }
+            else
+            {
+                result = await _identityService.GetUser(accessToken);
+            }
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
             {
@@ -85,7 +94,17 @@ namespace User_API.Src.Controllers
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
 
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
-                return Ok(userDTO);
+                return Ok(new
+                {
+                    AvatarUrl = userDTO.AvataUrl,
+                    userDTO.UserName,
+                    userDTO.FirstName,
+                    userDTO.LastName,
+                    userDTO.Gender,
+                    userDTO.Email,
+                    BirthDay = userDTO.DateOfBirth,
+                    userDTO.PhoneNumber
+                });
 
 
             if (result.StatusCode == HttpStatusCode.Unauthorized)
