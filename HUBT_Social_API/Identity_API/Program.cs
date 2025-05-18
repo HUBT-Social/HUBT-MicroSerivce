@@ -22,7 +22,6 @@ namespace Identity_API
             builder.Services.AddJwtConfiguration(builder.Configuration);
             builder.Services.AddMongoMapper();
             builder.Services.ConfigureLocalization();
-            builder.Services.ConfigureCloudinary(builder.Configuration);
 
         }
         private static void InitServices(WebApplicationBuilder builder)
