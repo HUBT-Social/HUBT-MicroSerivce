@@ -8,11 +8,12 @@ namespace User_API.Configurations
         public static IServiceCollection HttpClientRegisterConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpClientService();
-            string? identityPath = configuration.GetSection("IdentityApi").Get<string>();
-            string? NotationPath = configuration.GetSection("NotationApi").Get<string>();
-            string? HubtPath = configuration.GetSection("HUBT_Data").Get<string>();
-            string? tempUserPath = configuration.GetSection("TempUserApi").Get<string>();
-            string? chatPath = configuration.GetSection("ChatApi").Get<string>();
+            string identityPath = configuration.GetSection("IdentityApi").Get<string>() ?? "";
+            string NotationPath = configuration.GetSection("NotationApi").Get<string>() ?? "";
+            string HubtPath = configuration.GetSection("HUBT_Data").Get<string>() ?? "";
+            string tempUserPath = configuration.GetSection("TempUserApi").Get<string>() ?? "";
+            string chatPath = configuration.GetSection("ChatApi").Get<string>() ?? "";
+            string helperPath = configuration.GetSection("Helper").Get<string>() ?? "";
 
             if (identityPath != null)
                 services.AddRegisterClientService<IUserService, UserService>(identityPath);
@@ -27,6 +28,9 @@ namespace User_API.Configurations
                 services.AddRegisterClientService<ITempService, TempService>(tempUserPath);
             if (chatPath != null)
                 services.AddRegisterClientService<IChatService,ChatService>(chatPath);
+
+            if (helperPath != null)
+                services.AddRegisterClientService<IHelperService, HelperService>(helperPath);
             return services;
         }
     }

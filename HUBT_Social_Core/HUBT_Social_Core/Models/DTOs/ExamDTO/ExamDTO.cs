@@ -1,12 +1,13 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using HUBT_Social_Core.Models.DTOs.ExamDTO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace TempRegister_API.Src.Models
+namespace HUBT_Social_Core.Models.DTOs.ExamDTO
 {
-    public class TempExam
+    public class ExamDTO
     {
-        [BsonId,BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -18,5 +19,17 @@ namespace TempRegister_API.Src.Models
 
         public Question[] Questions { get; set; } = [];
     }
+    public class Question
+    {
+        public string Title { get; set; } = string.Empty;
+        public Answer[] Answers { get; set; } = [];
 
+        public int CorrectAnswer { get; set; } = 0;
+    }
+
+    public class Answer
+    {
+        public string Content { get; set; } = string.Empty;
+
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HUBT_Social_Base;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using HUBT_Social_MongoDb_Service.Services;
@@ -27,7 +28,8 @@ namespace TempRegister_API.Src.Controllers
                 TempExam? exam = await _tempExam.GetById(id);
                 if (exam != null)
                 {
-                    return Ok(exam);
+                    ExamDTO examDTO = _mapper.Map<ExamDTO>(exam);
+                    return Ok(examDTO);
                 }
                 return NotFound(new { message = "Exam not found" });
             }
@@ -41,7 +43,8 @@ namespace TempRegister_API.Src.Controllers
                 List<TempExam> exams = await _tempExam.Find(e => e.Major.Equals(major,StringComparison.OrdinalIgnoreCase)).ToListAsync();
                 if (exams != null)
                 {
-                    return Ok(exams);
+                    List<ExamDTO> examDTOs = _mapper.Map<List<ExamDTO>>(exams);
+                    return Ok(examDTOs);
                 }
                 return NotFound(new { message = "Exams not found" });
             }

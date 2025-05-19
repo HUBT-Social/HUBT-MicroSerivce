@@ -4,6 +4,7 @@ using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using TempRegister_API.Src.Models;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
 
 namespace TempRegister_API.Configurations
 {
@@ -15,6 +16,7 @@ namespace TempRegister_API.Configurations
             services.MongoMapperConfiguration<TempClassScheduleVersion, ClassScheduleVersionDTO>();
             services.MongoMapperConfiguration<TempCourse, CouresDTO>();
             services.MongoMapperConfiguration<TempUserRegister,TempUserDTO>();
+            services.MongoMapperConfiguration<TempExam, ExamDTO>();
             return services;
         }
     }

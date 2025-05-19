@@ -73,6 +73,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
                 if (!await _roleManager.RoleExistsAsync(defaultRole))
                 {
                     var roleResult = await _roleManager.CreateAsync(new TRole { Name = defaultRole });
+
                     if (!roleResult.Succeeded)
                     {
                         var roleErrors = string.Join("; ", roleResult.Errors.Select(e => e.Description));
@@ -91,6 +92,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
 
                 // Gán vai trò và Claims cho người dùng
                 var roleAssignmentResult = await _userManager.AddToRoleAsync(user, defaultRole);
+                var roleAssignmentResult1 = await _userManager.AddToRoleAsync(user, "TEACHER");
                 if (!roleAssignmentResult.Succeeded)
                 {
                     var roleAssignErrors = string.Join("; ", roleAssignmentResult.Errors.Select(e => e.Description));

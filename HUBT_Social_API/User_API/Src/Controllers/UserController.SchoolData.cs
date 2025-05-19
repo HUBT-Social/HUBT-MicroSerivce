@@ -12,6 +12,7 @@ using User_API.Src.Models;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Models.Requests.Chat;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
 
 namespace User_API.Src.Controllers
 {
@@ -20,11 +21,13 @@ namespace User_API.Src.Controllers
     public class UserShoolDataController(IUserService userService,
         IOutSourceService outSourceService,
         ITempService tempService,
+        IHelperService helperService,
         IChatService chatService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
         private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly ITempService _tempService = tempService;
+        private readonly IHelperService _helperService = helperService;
         private readonly IChatService _chatService = chatService;
         [HttpGet("timetable")]
         public async Task<IActionResult> GetUserTimeTable()
@@ -238,6 +241,17 @@ namespace User_API.Src.Controllers
 
 
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
+        }
+        [HttpPost("extract-questions")]
+        public async Task<IActionResult> ExtractQuestions([FromForm] FormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File không hợp lệ.");
+
+            List<Question> questions = await _helperService.ExtractQuestions(file);
+            if (questions.Count > 0)
+                return Ok(questions);
+            return BadRequest("Cây hỏi không đổi được.");
         }
     }
 }
