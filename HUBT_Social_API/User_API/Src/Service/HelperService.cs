@@ -11,7 +11,7 @@ namespace User_API.Src.Service
         IHttpService httpService, 
         string basePath) : BaseService(httpService,basePath),IHelperService 
     {
-        public async Task<List<Question>> ExtractQuestions(IFormFile file)
+        public async Task<Question[]> ExtractQuestions(IFormFile file)
         {
             using MultipartFormDataContent content = new();
 
@@ -29,7 +29,7 @@ namespace User_API.Src.Service
             content.Add(streamContent);
 
             HttpResponseMessage result = await SendActionResultRequestAsync("extract-questions", ApiType.POST, content);
-            List<Question> questions = await result.ConvertTo<List<Question>>() ?? [];
+            Question[] questions = await result.ConvertTo<Question[]>() ?? [];
             return questions;
         }
     }

@@ -15,7 +15,9 @@ namespace HUBT_Social_Core.Models.DTOs.ExamDTO
         public string Image { get; set; } = string.Empty;
         public string Major { get; set; } = string.Empty;
         public int Credits { get; set; } = 0;
-        public int QuestionCount { get; set; } = 0;
+        public int QuestionCount { 
+            get => Questions.Length;  
+        }
 
         public Question[] Questions { get; set; } = [];
     }

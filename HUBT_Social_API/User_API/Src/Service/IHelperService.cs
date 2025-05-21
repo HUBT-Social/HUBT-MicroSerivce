@@ -5,7 +5,7 @@ namespace User_API.Src.Service
 {
     public interface IHelperService : IBaseService
     {
-        public Task<List<Question>> ExtractQuestions(IFormFile file);
+        public Task<Question[]> ExtractQuestions(IFormFile file);
 
     }
     

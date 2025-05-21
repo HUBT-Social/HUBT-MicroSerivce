@@ -245,20 +245,41 @@ namespace User_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
         }
         [HttpPost("extract-questions")]
-        public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel file)
+        public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel request)
         {
-            if (file == null || file.File.Length == 0)
-                return BadRequest("File không hợp lệ.");
+            if (!ModelState.IsValid)
+                return BadRequest("Đầu vào không Hợp lệ");
 
-            List<Question> questions = await _helperService.ExtractQuestions(file.File);
-            if (questions.Count > 0)
-                return Ok(questions);
-            return BadRequest("Cây hỏi không đổi được.");
+            if (request == null || request.File.Length == 0)
+                return BadRequest("File không hợp lệ.");
+            Question[] questions = await _helperService.ExtractQuestions(request.File);
+            if (questions.Length > 0)
+            {
+                ExamDTO examDTO = new()
+                    {
+                        Title = request.Title,
+                        Description = request.Description,
+                        DurationMinutes = request.DurationMinutes,
+                        Image = request.ImageUrl,
+                        Major = request.Major,
+                        Credits = request.Credits,
+                        Questions = questions
+                    };
+                return Ok(examDTO);
+            }
+        return BadRequest("Cây hỏi không đổi được.");
         }
         public class FileUploadModel
         {
             [Required]
-            public IFormFile File { get; set; }
+            public string Title { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
+            public int DurationMinutes { get; set; } = 60;
+            public string ImageUrl { get; set; } = string.Empty;
+            public string Major { get; set; } = string.Empty;
+            public int Credits { get; set; } = 2;
+            [Required]
+            public IFormFile File { get; set; } = null!;
         }
     }
 }

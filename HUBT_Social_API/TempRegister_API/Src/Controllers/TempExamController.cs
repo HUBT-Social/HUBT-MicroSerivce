@@ -52,14 +52,15 @@ namespace TempRegister_API.Src.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] TempExam exam)
+        public async Task<IActionResult> Post([FromBody] ExamDTO examDTO)
         {
-            if (exam == null) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
-            exam.Id = string.Empty;
+            if (examDTO == null) return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+            examDTO.Id = string.Empty;
             try
             {
-                
-                 return await _tempExam.Create(exam) ? 
+                TempExam exam = _mapper.Map<TempExam>(examDTO);
+
+                return await _tempExam.Create(exam) ? 
                     Ok(LocalValue.Get(KeyStore.FileUploadedSuccessfully)): 
                     BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
             }
