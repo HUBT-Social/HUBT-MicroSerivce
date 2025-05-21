@@ -11,7 +11,9 @@ namespace HUBT_Social_Core.Models.DTOs.ExamDTO
         public string Id { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public int DurationMinutes { get; set; } = 0;
+        public int DurationMinutes { 
+            get => 30*Credits;
+        }
         public string Image { get; set; } = string.Empty;
         public string Major { get; set; } = string.Empty;
         public int Credits { get; set; } = 0;

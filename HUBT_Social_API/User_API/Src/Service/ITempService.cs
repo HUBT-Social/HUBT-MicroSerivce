@@ -1,6 +1,7 @@
 ﻿using HUBT_Social_Base;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Core.Models.DTOs;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Models.Requests;
@@ -20,6 +21,8 @@ namespace User_API.Src.Service
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(string className,DateTime expireTime);
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(ClassScheduleVersionDTO request);
         Task<CouresDTO> StoreCourses(CreateTempCourseRequest request);
+
+        Task<ExamDTO> StoreExam(ExamDTO request);
 
 
     }

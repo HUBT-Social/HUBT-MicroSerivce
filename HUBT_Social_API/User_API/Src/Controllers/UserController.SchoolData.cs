@@ -259,12 +259,12 @@ namespace User_API.Src.Controllers
                     {
                         Title = request.Title,
                         Description = request.Description,
-                        DurationMinutes = request.DurationMinutes,
                         Image = request.ImageUrl,
                         Major = request.Major,
                         Credits = request.Credits,
                         Questions = questions
                     };
+                examDTO = await _tempService.StoreExam(examDTO);
                 return Ok(examDTO);
             }
         return BadRequest("Cây hỏi không đổi được.");
@@ -273,9 +273,9 @@ namespace User_API.Src.Controllers
         {
             [Required]
             public string Title { get; set; } = string.Empty;
-            public string Description { get; set; } = string.Empty;
-            public int DurationMinutes { get; set; } = 60;
-            public string ImageUrl { get; set; } = string.Empty;
+            public string Description { get; set; } = "Môn học giúp bạn có thể cải thiện kỹ năng";
+            public string ImageUrl { get; set; } = "https://cdn.pixabay.com/photo/2016/10/25/12/28/chemistry-1762804_1280.png";
+            [Required]
             public string Major { get; set; } = string.Empty;
             public int Credits { get; set; } = 2;
             [Required]

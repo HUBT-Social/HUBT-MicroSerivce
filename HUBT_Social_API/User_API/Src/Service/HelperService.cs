@@ -13,7 +13,7 @@ namespace User_API.Src.Service
     {
         public async Task<Question[]> ExtractQuestions(IFormFile file)
         {
-            using MultipartFormDataContent content = new();
+            using MultipartFormDataContent content = [];
 
             using Stream stream = file.OpenReadStream();
             var streamContent = new StreamContent(stream);

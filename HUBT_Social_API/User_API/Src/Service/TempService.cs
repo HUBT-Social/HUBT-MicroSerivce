@@ -2,6 +2,7 @@
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core.Models.DTOs;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.Requests.Temp;
@@ -68,10 +69,24 @@ namespace User_API.Src.Service
             {
                 return responseDTO.ConvertTo<CouresDTO>() ?? new();
             }
-            else
+            
+            
+            return new();
+            
+        }
+
+        public async Task<ExamDTO> StoreExam(ExamDTO request)
+        {
+            string path = $"tempexam";
+            ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.POST, request);
+            if (responseDTO.StatusCode == HttpStatusCode.OK)
             {
-                throw new Exception($"Error: {responseDTO.Message}");
+                return responseDTO.ConvertTo<ExamDTO>() ?? new();
             }
+            
+            
+            return new();
+            
         }
     }
 }

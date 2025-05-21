@@ -61,7 +61,7 @@ namespace TempRegister_API.Src.Controllers
                 TempExam exam = _mapper.Map<TempExam>(examDTO);
 
                 return await _tempExam.Create(exam) ? 
-                    Ok(LocalValue.Get(KeyStore.FileUploadedSuccessfully)): 
+                    Ok(exam): 
                     BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
             }
             catch (Exception ex)
