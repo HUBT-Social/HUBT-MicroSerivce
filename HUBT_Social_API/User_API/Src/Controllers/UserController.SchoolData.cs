@@ -13,6 +13,8 @@ using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Models.Requests.Chat;
 using HUBT_Social_Core.Models.DTOs.ExamDTO;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Headers;
 
 namespace User_API.Src.Controllers
 {
@@ -243,15 +245,20 @@ namespace User_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
         }
         [HttpPost("extract-questions")]
-        public async Task<IActionResult> ExtractQuestions([FromForm] FormFile file)
+        public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel file)
         {
-            if (file == null || file.Length == 0)
+            if (file == null || file.File.Length == 0)
                 return BadRequest("File không hợp lệ.");
 
-            List<Question> questions = await _helperService.ExtractQuestions(file);
+            List<Question> questions = await _helperService.ExtractQuestions(file.File);
             if (questions.Count > 0)
                 return Ok(questions);
             return BadRequest("Cây hỏi không đổi được.");
+        }
+        public class FileUploadModel
+        {
+            [Required]
+            public IFormFile File { get; set; }
         }
     }
 }

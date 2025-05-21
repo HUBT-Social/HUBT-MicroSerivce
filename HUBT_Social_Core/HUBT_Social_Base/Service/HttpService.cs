@@ -70,11 +70,20 @@ namespace HUBT_Social_Base.Service
 
             if (request.Data != null)
             {
-                message.Content = new StringContent(
-                    JsonConvert.SerializeObject(request.Data),
-                    Encoding.UTF8,
-                    "application/json"
-                );
+                if (request.Data is MultipartFormDataContent multipartContent)
+                {
+                    // Nếu Data đã là MultipartFormDataContent (gửi file)
+                    message.Content = multipartContent;
+                }
+                else
+                {
+                    // Gửi JSON bình thường
+                    message.Content = new StringContent(
+                        JsonConvert.SerializeObject(request.Data),
+                        Encoding.UTF8,
+                        "application/json"
+                    );
+                }
             }
 
             return message;
