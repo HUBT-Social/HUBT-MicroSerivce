@@ -461,21 +461,21 @@ namespace HUBT_Social_Core.Settings
             public const string Base = "api/hubt";
 
             // Student
-            public const string Get_StudentData = "sinhvien";
+            public const string Get_StudentData = $"{Base}/sinhvien";
             public const string Get_Slice_Students = $"{Base}/getSliceStudent";
 
-            public const string Get_StudentList = "sinhvien/{className}";
-            public const string Get_StudentScoreByRoute = "sinhvien/{masv}/diem";
-            public const string Get_StudentScoreByQuery = "sinhvien/diem";
+            public const string Get_StudentList = Base + "/sinhvien/{className}";
+            public const string Get_StudentScoreByRoute = Base + "/sinhvien/{masv}/diem";
+            public const string Get_StudentScoreByQuery = Base + "/sinhvien/diem";
 
             // Average Score
-            public const string Get_StudentAvgScore = "diemtb";
+            public const string Get_StudentAvgScore = Base + "/diemtb";
 
             // Timetable
-            public const string Get_StudentTimeTable = "thoikhoabieu";
+            public const string Get_StudentTimeTable = Base + "/thoikhoabieu";
 
             // Subject
-            public const string Get_Subject = "monhoc";
+            public const string Get_Subject = Base + "/monhoc";
         }
 
     }
