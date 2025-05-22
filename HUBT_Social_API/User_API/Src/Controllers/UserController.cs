@@ -20,11 +20,10 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService,INotationService notationService, IOutSourceService outSourceService, IHttpCloudService cloudService) : ControllerBase
+    public class UserController(IUserService userService,INotationService notationService, IHttpCloudService cloudService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
         private readonly INotationService _notationService = notationService; 
-        private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly IHttpCloudService _cloudService = cloudService;
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string? username)
@@ -74,12 +73,17 @@ namespace User_API.Src.Controllers
         {
             ResponseDTO result = await _identityService.GetUserByRole(roleName, page);
             ResponseUserRoleDTO? responseUserRoleDTO = result.ConvertTo<ResponseUserRoleDTO>();
-            return Ok(new
+
+            if (responseUserRoleDTO != null)
             {
-                users = responseUserRoleDTO.users,
-                hasMore = responseUserRoleDTO.hasMore,
-                message = responseUserRoleDTO.message
-            });
+                return Ok(new
+                {
+                    responseUserRoleDTO.users,
+                    responseUserRoleDTO.hasMore,
+                    responseUserRoleDTO.message
+                });
+            }
+            return BadRequest(result.Message);
         }
         [HttpGet("user-find")]
         public async Task<IActionResult> GetAllUser(string usename)

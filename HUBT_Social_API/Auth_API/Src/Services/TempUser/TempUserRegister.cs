@@ -13,9 +13,9 @@ namespace Auth_API.Src.Services.TempUser
     {
         public async Task<ResponseDTO> Get(string email)
         {
-            string path = KeyStore.TempUrls.TempRegister_GetTempUser
+            string path = APIEndPoint.TempUrls.TempRegister_GetTempUser
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"email",email }
                     }
@@ -25,7 +25,7 @@ namespace Auth_API.Src.Services.TempUser
 
         public async Task<ResponseDTO> StoreIn(RegisterRequest request)
         {
-            return await SendRequestAsync(KeyStore.TempUrls.TempRegister_StoreTempUser, ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.TempUrls.TempRegister_StoreTempUser, ApiType.POST, request);
         }
     }
 }

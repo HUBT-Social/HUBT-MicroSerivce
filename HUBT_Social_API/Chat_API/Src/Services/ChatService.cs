@@ -25,14 +25,14 @@ namespace Chat_API.Src.Services
 
         public async Task<ResponseDTO> CreateGroupAsync(CreateGroupRequestData createGroupRequest,string token)
         {
-            return  await SendRequestAsync(KeyStore.ChatDataUrls.Post_Create_Group, ApiType.POST, createGroupRequest, token);
+            return  await SendRequestAsync(APIEndPoint.ChatDataUrls.Post_Create_Group, ApiType.POST, createGroupRequest, token);
         }
 
         public async Task<ResponseDTO> DeleteGroupAsync(string groupId, string token)
         {
-            string path = KeyStore.ChatDataUrls.Delete_Group
+            string path = APIEndPoint.ChatDataUrls.Delete_Group
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         { "groupId", groupId }
                     }
@@ -42,31 +42,31 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit, string token)
         {
-            string path = KeyStore.ChatDataUrls.Get_Search_Group
+            string path = APIEndPoint.ChatDataUrls.Get_Search_Group
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         { "keyword", keyword },
-                        { "page", page },
-                        { "limit", limit }
+                        { "page", page.ToString() },
+                        { "limit", limit.ToString() }
                     }
                 );
             var response = await SendRequestAsync(path, ApiType.GET, null, token);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return response.ConvertTo<List<GroupSearchResponse>>() ?? new List<GroupSearchResponse>();
+                return response.ConvertTo<List<GroupSearchResponse>>() ?? [];
             }
-            return new List<GroupSearchResponse>();
+            return [];
         }
 
         public async Task<List<GroupSearchResponse>> GetAllRoomsAsync(int page, int limit, string token)
         {
-            string path = KeyStore.ChatDataUrls.Get_All_Group
+            string path = APIEndPoint.ChatDataUrls.Get_All_Group
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
-                        { "page", page },
-                        { "limit", limit }
+                        { "page", page.ToString() },
+                        { "limit", limit.ToString() }
                     }
                 );
             try
@@ -74,22 +74,22 @@ namespace Chat_API.Src.Services
                 var response = await SendRequestAsync(path, ApiType.GET, null, token);
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    return response.ConvertTo<List<GroupSearchResponse>>() ?? new List<GroupSearchResponse>();
+                    return response.ConvertTo<List<GroupSearchResponse>>() ?? [];
                 }
             }
             catch { }
             
-            return new List<GroupSearchResponse>();
+            return [];
         }
 
         public async Task<List<GroupLoadingResponse>> GetRoomsOfUserAsync(int page, int limit,string token)
         {
-            string path = KeyStore.ChatDataUrls.Get_User_Group
+            string path = APIEndPoint.ChatDataUrls.Get_User_Group
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
-                        { "page", page },
-                        { "limit", limit }
+                        { "page", page.ToString() },
+                        { "limit", limit.ToString() }
                     }
                 );
             try 
@@ -97,11 +97,11 @@ namespace Chat_API.Src.Services
                 var response = await SendRequestAsync(path, ApiType.GET, null, token);
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    return response.ConvertTo<List<GroupLoadingResponse>>() ?? new List<GroupLoadingResponse>();
+                    return response.ConvertTo<List<GroupLoadingResponse>>() ?? [];
                 }
             } catch { }
             
-            return new List<GroupLoadingResponse>();
+            return [];
         }
 
  

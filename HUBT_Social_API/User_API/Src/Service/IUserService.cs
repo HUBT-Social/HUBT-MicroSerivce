@@ -14,7 +14,7 @@ namespace User_API.Src.Service
         Task<ResponseDTO> GetUserByRole(string roleName,int page);
         Task<ResponseDTO> FindUserByUserName(string accessToken, string userName);
         Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request);
-        Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, string? request);
+        Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, string request);
         Task<ResponseDTO> UpdateNameAsync(string accessToken, UpdateNameRequest request);
         Task<ResponseDTO> UpdatePhoneNumberAsync(string accessToken, UpdatePhoneNumberRequest request);
         Task<ResponseDTO> UpdateGenderAsync(string accessToken, UpdateGenderRequest request);

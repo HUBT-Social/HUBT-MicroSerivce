@@ -32,13 +32,13 @@ namespace Identity_API.Src.Controllers
     [Authorize]
     public class IdentityController
         (
-            IHubtIdentityService<AUser, ARole> identityService, 
+            IHubtIdentityService<AUser, ARole> identityService,
             IMapper mapper, IOptions<JwtSetting> options
         ) : DataLayerController(mapper, options)
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
         private readonly IMongoService<AUser> _aUserService;
-
+        
         [HttpGet("userAll")]
         [AllowAnonymous]
         public IActionResult GetUserAll()
@@ -100,7 +100,7 @@ namespace Identity_API.Src.Controllers
             var userTasks = request.userNames.Select(username => _identityService.FindUserByUserNameAsync(username));
             var users = await Task.WhenAll(userTasks);
 
-            var validUsers = users.Where(u => u != null).ToList();
+            var validUsers = users.Where(u => u != null).Cast<AUser>().ToList();
 
             if (validUsers.Count == 0)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
@@ -175,31 +175,31 @@ namespace Identity_API.Src.Controllers
             }
 
             List<string>? fcms = [];
-            List<AUser>? usersToProcess;
+            List<AUser> usersToProcess;
 
-            // Trường hợp lọc theo UserNames
+            // Trường hợp lọc theo UserNames  
             if (request.UserNames?.Count > 0)
             {
                 var userTasks = request.UserNames
                     .Select(username => _identityService.FindUserByUserNameAsync(username));
                 var usersFromNames = await Task.WhenAll(userTasks);
-                usersToProcess = usersFromNames?.Where(u => u != null).ToList();
+                usersToProcess = usersFromNames.Where(u => u != null).Cast<AUser>().ToList();
             }
             else
             {
                 var listUsers = _identityService.GetAll();
-                Console.WriteLine("Total: ", listUsers?.Count);
-                if (listUsers == null || !listUsers.Any())
+                Console.WriteLine($"Total: {listUsers?.Count}"); 
+                if (listUsers == null || listUsers.Count == 0)
                     return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
                 var parsedUsers = listUsers
                     .Where(u => !string.IsNullOrEmpty(u.FCMToken) && !string.IsNullOrEmpty(u.ClassName))
                     .Select(u =>
                     {
-                        var match = Regex.Match(u.ClassName??"", @"^([A-Z]+)(\d{2})\.(\d{2})$");
+                        var match = Regex.Match(u.ClassName ?? "", @"^([A-Z]+)(\d{2})\.(\d{2})$");
                         if (!match.Success)
                         {
-                            Console.WriteLine($"Invalid ClassName format for user: {u.ClassName}");
+                            Console.WriteLine($"Invalid ClassName format for user: {u.ClassName}"); 
                         }
                         return new
                         {
@@ -213,37 +213,43 @@ namespace Identity_API.Src.Controllers
                     .ToList();
 
                 if (
-                    request.FacultyCodes?.Any() != true &&
-                    request.CourseCodes?.Any() != true &&
-                    request.ClassCodes?.Any() != true
+                    request.FacultyCodes?.Count == 0 &&
+                    request.CourseCodes?.Count == 0 &&
+                    request.ClassCodes?.Count == 0
                    )
                 {
                     usersToProcess = parsedUsers.Select(p => p.User).ToList();
                 }
                 else
-                {                
-
+                {
                     var filtered = parsedUsers;
 
-                    // Lọc theo thứ tự ưu tiên: FacultyCodes → CourseCodes → ClassCodes
-                    if (request.FacultyCodes?.Any() == true)
+                    // Lọc theo thứ tự ưu tiên: FacultyCodes → CourseCodes → ClassCodes  
+                    if (request.FacultyCodes?.Count == 0)
                     {
-                        filtered = filtered.Where(p => request.FacultyCodes.Contains(p.FacultyCode)).ToList();
+
+                        // Updated code to handle potential null reference for 'FacultyCode' in the Contains method.  
+                        filtered = filtered.Where(p =>
+                           p.FacultyCode != null && request.FacultyCodes.Contains(p.FacultyCode)
+                        ).ToList();
                     }
-                    if (request.CourseCodes?.Any() == true)
-                    {
-                        filtered = filtered.Where(p => request.CourseCodes.Contains(p.CourseCode)).ToList();
-                    }
-                    if (request.ClassCodes?.Any() == true)
+                    if (request.CourseCodes?.Count == 0)
                     {
                         filtered = filtered.Where(p =>
-                            request.ClassCodes.Contains(p.ClassCode)).ToList();
+                           p.CourseCode != null && p.CourseCode.Contains(p.CourseCode)
+                        ).ToList();
                     }
-                    // Nếu cả 3 điều kiện đều null/rỗng, giữ nguyên filtered (tất cả user)
+                    if (request.ClassCodes?.Count == 0)
+                    {
+                        filtered = filtered.Where(p =>
+                            p.ClassCode != null && p.ClassCode.Contains(p.ClassCode)
+                        ).ToList();
+                    }
+                    // Nếu cả 3 điều kiện đều null/rỗng, giữ nguyên filtered (tất cả user)  
 
                     usersToProcess = filtered.Select(p => p.User).ToList();
                 }
-                
+
             }
 
             fcms = usersToProcess?
@@ -252,7 +258,7 @@ namespace Identity_API.Src.Controllers
                 .Distinct()
                 .ToList();
 
-            if (fcms!=null)
+            if (fcms != null)
                 return Ok(fcms);
 
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
