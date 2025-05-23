@@ -108,5 +108,6 @@ namespace Auth_API.Src.Controllers
             return BadRequest(result.Message);
 
         }
+
     }
 }

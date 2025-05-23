@@ -7,6 +7,9 @@ using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using Amazon.Runtime.Internal;
 using HUBT_Social_Base.ASP_Extentions;
+using System.Collections.Generic;
+using System.Net;
+using HUBT_Social_Core.Models.Requests.Firebase;
 
 namespace Notation_API.Src.Services
 {
@@ -26,6 +29,34 @@ namespace Notation_API.Src.Services
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET,null, null);
             AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
             return aUserDTO?.FCMToken;
+        }
+        public async Task<List<string>?> GetListFMCFromListUserName(List<string> request)
+        {
+            string queryString = string.Join("&", request.Select(u => $"userNames={Uri.EscapeDataString(u)}"));
+            string path = "users-in-list-userName" + "?" + queryString;
+            ResponseDTO response = await SendRequestAsync(path,ApiType.GET,null,null);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<AUserDTO>? users = response.ConvertTo<List<AUserDTO>>();
+
+                return users?
+                    .Where(u => u?.FCMToken != null)              // Lọc user có FCMToken
+                    .Select(u => u!.FCMToken!)                    // Lấy FCMToken (non-null sau khi lọc)
+                    .ToList();
+            }
+            return null;
+        }
+        public async Task<List<string>?> GetListFMCFromCondition(ConditionRequest request)
+        {
+            string path = $"get-fmcs-by-condition-admin";
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET, request, null);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<string>? FMCs = response.ConvertTo<List<string>>();
+                return FMCs??null;
+            }
+            return null;
+
         }
     }
 }

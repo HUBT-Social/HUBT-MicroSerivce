@@ -1,7 +1,9 @@
-﻿using HUBT_Social_Base;
+﻿using Amazon.Runtime.Internal.Transform;
+using HUBT_Social_Base;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Base.Helpers;
 using HUBT_Social_Base.Service;
+using HUBT_Social_Core.ASP_Extensions;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.EmailDTO;
 using HUBT_Social_Core.Models.Requests;
@@ -16,13 +18,19 @@ namespace Auth_API.Src.Services.Postcode
         
         private async Task<ResponseDTO> CreatePostcodeAsync(CreatePostcodeRequest request)
         {
-            return await SendRequestAsync("create-postcode", ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.PostCodeUrls.Post_CreatePostCode, ApiType.POST, request);
         }
         public async Task<PostCodeDTO?> GetCurrentPostCode(PostcodeRequest request)
         {
-            ResponseDTO? response = await SendRequestAsync($"current-postcode?" +
-                $"UserAgent={request.UserAgent}&IpAddress={request.IpAddress}",
-                ApiType.GET);
+            string path = APIEndPoint.PostCodeUrls.Get_CurrentPostCode
+                .BuildUrl(
+                    new Dictionary<string, string>
+                    {
+                        {"UserAgent",request.UserAgent },
+                        {"IpAddress",request.IpAddress }
+                    }
+                );
+            ResponseDTO? response = await SendRequestAsync(path,ApiType.GET);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 PostCodeDTO? postcode = response.ConvertTo<PostCodeDTO>();
@@ -32,7 +40,7 @@ namespace Auth_API.Src.Services.Postcode
         }
         private async Task<ResponseDTO> SendPostcodeAsync(EmailRequest request)
         {
-            return await SendRequestAsync("send-postcode", ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.PostCodeUrls.Post_SendPostCode, ApiType.POST, request);
         }
         public async Task<ResponseDTO> SendVerificationEmail(string email, string userName, string userAgent, string ipAddress)
         {

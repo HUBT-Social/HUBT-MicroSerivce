@@ -1,5 +1,8 @@
 ﻿using AspNetCore.Identity.MongoDbCore.Models;
+using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Models.Requests.Firebase;
+using MongoDB.Bson.Serialization.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +17,14 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
     {
 
         List<TUser>? GetAll();
+        Task<(List<TUser>, bool, string?)> GetUserByRole(string RoleName, int page = 0);
+        
         Task<TUser?> FindUserByUserNameAsync(string userName);
         Task<TUser?> FindUserByIdAsync(string id);
         Task<TUser?> FindUserByEmailAsync(string email);
+
+
+        Task<bool> CheckRole(string userName, string roleName);
         Task<bool> PromoteUserAccountAsync(string currentUserName, string targetUserName, string roleName);
 
 

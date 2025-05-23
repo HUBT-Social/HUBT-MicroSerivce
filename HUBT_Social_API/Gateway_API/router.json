@@ -31,6 +31,19 @@
       "SwaggerKey": "user-service"
     },
     {
+      "UpstreamPathTemplate": "/api/user/get-user-by-role",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/user/get-user-by-role",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{User__Host}",
+          "Port": 443
+        }
+      ],
+      "SwaggerKey": "user-service"
+    },
+    {
       "UpstreamPathTemplate": "/api/user/delete-user",
       "UpstreamHttpMethod": [ "Delete" ],
       "DownstreamPathTemplate": "/api/user/delete-user",
@@ -227,10 +240,7 @@
           "Port": 443
         }
       ],
-      "SwaggerKey": "auth-service",
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer"
-      }
+      "SwaggerKey": "auth-service"
     },
     {
       "UpstreamPathTemplate": "/api/auth/delete-token",
@@ -243,10 +253,7 @@
           "Port": 443
         }
       ],
-      "SwaggerKey": "auth-service",
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer"
-      }
+      "SwaggerKey": "auth-service"
     },
     {
       "UpstreamPathTemplate": "/api/auth/sign-up/verify-otp",

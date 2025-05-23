@@ -19,6 +19,7 @@ public class AUser : MongoIdentityUser<Guid>
     public Gender Gender { get; set; } = Gender.Other;
     public string FCMToken { get; set; } = string.Empty;
     public string? Status { get; set; } = string.Empty;
+    public string? ClassName {  get; set; } = string.Empty;
 
     public string DeviceId { get; set; } = string.Empty;
 

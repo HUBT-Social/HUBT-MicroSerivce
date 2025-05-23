@@ -27,18 +27,22 @@ namespace Chat_API.Src.Controllers
         public readonly IUserService _userService = userService;
         public readonly ICourseService _courseService = courseService;
         private string? ReadTokenFromHeader() => Request.Headers.ExtractBearerToken();
-        
+
 
         [HttpPost("create-group")]
         public async Task<IActionResult> CreateGroup(CreateGroupRequest createGroupRequest)
         {
             string? token = ReadTokenFromHeader();
-            
+
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            if(createGroupRequest.UserNames.Count <= 1)
+            if (createGroupRequest.UserNames.Count <= 1)
             {
                 return BadRequest("Khong du so thanh vien.");
+            }
+            if (createGroupRequest.GroupType <0 || createGroupRequest.GroupType > 1)
+            {
+                return BadRequest("Group Type chi nhan hai gia tri 0: P-P, 1: Group");
             }
 
             ResponseDTO resUserReq = await _userService.GetUserRequest(token);
@@ -72,7 +76,8 @@ namespace Chat_API.Src.Controllers
             CreateGroupRequestData request = new()
             {
                 GroupName = createGroupRequest.GroupName,
-                Participants = Pct
+                Participants = Pct,
+                GroupType = createGroupRequest.GroupType == 0 ? TypeChatRoom.SingleChat : TypeChatRoom.GroupChat
             };
             ResponseDTO? response = await _chatService.CreateGroupAsync(request, token);
             if (response != null && response.StatusCode == HttpStatusCode.OK)

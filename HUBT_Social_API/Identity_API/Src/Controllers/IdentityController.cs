@@ -2,8 +2,11 @@
 using Hangfire.Mongo.Dto;
 using HUBT_Social_Base;
 using HUBT_Social_Core.Decode;
+using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
+using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Identity_Service.Services;
 using HUBT_Social_Identity_Service.Services.IdentityCustomeService;
@@ -13,10 +16,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Identity_API.Src.Controllers
@@ -24,7 +30,11 @@ namespace Identity_API.Src.Controllers
     [Route("api/identity")]
     [ApiController]
     [Authorize]
-    public class IdentityController(IHubtIdentityService<AUser, ARole> identityService, IMapper mapper, IOptions<JwtSetting> options) : DataLayerController(mapper, options)
+    public class IdentityController
+        (
+            IHubtIdentityService<AUser, ARole> identityService,
+            IMapper mapper, IOptions<JwtSetting> options
+        ) : DataLayerController(mapper, options)
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
         private readonly IMongoService<AUser> _aUserService;
@@ -48,6 +58,38 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }
+        [HttpGet("user-by-role")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTeacher([FromQuery] string roleName, [FromQuery] int page = 0)
+        {
+
+            var response = await _identityService.GetUserByRole(roleName, page);
+
+            if (response.Item1.Count > 0)
+            {
+                var userDTOs = response.Item1.Select(user => {
+                    AUserDTO u = _mapper.Map<AUserDTO>(user);
+                    u.Status = string.IsNullOrEmpty(u.FCMToken) ? "Inactive" : "Active";
+                    return u;
+                    }).ToList();
+
+                return Ok(
+                    new
+                    {
+                        users = userDTOs,
+                        hasMore = response.Item2,
+                        message = response.Item3
+                    });
+            }
+            return Ok(
+                    new
+                    {
+                        users = new List<AUserDTO>(),
+                        hasMore = response.Item2,
+                        message = response.Item3
+                    });
+        }
+
         [HttpGet("users-in-list-userName")]
         [AllowAnonymous]
         public async Task<IActionResult> GetUsersInListAsync([FromQuery] ListUserNameDTO request)
@@ -58,7 +100,7 @@ namespace Identity_API.Src.Controllers
             var userTasks = request.userNames.Select(username => _identityService.FindUserByUserNameAsync(username));
             var users = await Task.WhenAll(userTasks);
 
-            var validUsers = users.Where(u => u != null).ToList();
+            var validUsers = users.Where(u => u != null).Cast<AUser>().ToList();
 
             if (validUsers.Count == 0)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
@@ -67,6 +109,8 @@ namespace Identity_API.Src.Controllers
             return Ok(userDTOs);
         }
         [HttpGet("user")]
+        [AllowAnonymous]
+
         public async Task<IActionResult> GetUser()
         {
             var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
@@ -83,6 +127,7 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }
+
         [HttpGet("user/get")]
         [AllowAnonymous]
         public async Task<IActionResult> CheckUser([FromQuery] string? email, [FromQuery] string? userName, [FromQuery] string? userId)
@@ -119,6 +164,106 @@ namespace Identity_API.Src.Controllers
 
             return Ok(userDTO);
         }
+        [HttpGet("get-fmcs-by-condition-admin")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFCMsUserByConndition([FromQuery] ConditionRequest request)
+        {
+            if (request == null || (request.UserNames?.Count == 0 && request.FacultyCodes?.Count == 0 &&
+                request.CourseCodes?.Count == 0 && request.ClassCodes?.Count == 0))
+            {
+                return BadRequest("At least one condition (UserNames, FacultyCodes, CourseCodes, or ClassCodes) is required.");
+            }
+
+            List<string>? fcms = [];
+            List<AUser> usersToProcess;
+
+            // Trường hợp lọc theo UserNames  
+            if (request.UserNames?.Count > 0)
+            {
+                var userTasks = request.UserNames
+                    .Select(username => _identityService.FindUserByUserNameAsync(username));
+                var usersFromNames = await Task.WhenAll(userTasks);
+                usersToProcess = usersFromNames.Where(u => u != null).Cast<AUser>().ToList();
+            }
+            else
+            {
+                var listUsers = _identityService.GetAll();
+                Console.WriteLine($"Total: {listUsers?.Count}"); 
+                if (listUsers == null || listUsers.Count == 0)
+                    return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+                var parsedUsers = listUsers
+                    .Where(u => !string.IsNullOrEmpty(u.FCMToken) && !string.IsNullOrEmpty(u.ClassName))
+                    .Select(u =>
+                    {
+                        var match = Regex.Match(u.ClassName ?? "", @"^([A-Z]+)(\d{2})\.(\d{2})$");
+                        if (!match.Success)
+                        {
+                            Console.WriteLine($"Invalid ClassName format for user: {u.ClassName}"); 
+                        }
+                        return new
+                        {
+                            User = u,
+                            FacultyCode = match.Success ? match.Groups[1].Value : null,
+                            CourseCode = match.Success ? match.Groups[2].Value : null,
+                            ClassCode = u.ClassName
+                        };
+                    })
+                    .Where(p => p.FacultyCode != null && p.CourseCode != null && p.ClassCode != null)
+                    .ToList();
+
+                if (
+                    request.FacultyCodes?.Count == 0 &&
+                    request.CourseCodes?.Count == 0 &&
+                    request.ClassCodes?.Count == 0
+                   )
+                {
+                    usersToProcess = parsedUsers.Select(p => p.User).ToList();
+                }
+                else
+                {
+                    var filtered = parsedUsers;
+
+                    // Lọc theo thứ tự ưu tiên: FacultyCodes → CourseCodes → ClassCodes  
+                    if (request.FacultyCodes?.Count == 0)
+                    {
+
+                        // Updated code to handle potential null reference for 'FacultyCode' in the Contains method.  
+                        filtered = filtered.Where(p =>
+                           p.FacultyCode != null && request.FacultyCodes.Contains(p.FacultyCode)
+                        ).ToList();
+                    }
+                    if (request.CourseCodes?.Count == 0)
+                    {
+                        filtered = filtered.Where(p =>
+                           p.CourseCode != null && p.CourseCode.Contains(p.CourseCode)
+                        ).ToList();
+                    }
+                    if (request.ClassCodes?.Count == 0)
+                    {
+                        filtered = filtered.Where(p =>
+                            p.ClassCode != null && p.ClassCode.Contains(p.ClassCode)
+                        ).ToList();
+                    }
+                    // Nếu cả 3 điều kiện đều null/rỗng, giữ nguyên filtered (tất cả user)  
+
+                    usersToProcess = filtered.Select(p => p.User).ToList();
+                }
+
+            }
+
+            fcms = usersToProcess?
+                .Where(u => !string.IsNullOrEmpty(u.FCMToken))
+                .Select(u => u.FCMToken)
+                .Distinct()
+                .ToList();
+
+            if (fcms != null)
+                return Ok(fcms);
+
+            return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+        }
+
 
         [HttpPut("update-user")]
         public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateRequest)
@@ -166,6 +311,93 @@ namespace Identity_API.Src.Controllers
                 if (updateRequest.DeviceId != null)
                     user.DeviceId = updateRequest.DeviceId;
 
+
+                if (await _identityService.UpdateUserAsync(user))
+                    return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
+            }
+            catch (Exception)
+            {
+                return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
+            }
+            return BadRequest(LocalValue.Get(KeyStore.GeneralUpdateError));
+        }
+
+
+        [HttpPut("add-className")]
+        public async Task<IActionResult> AddClassName([FromBody] StudentClassName request)
+        {
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+
+            if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.ClassName))
+            {
+                return BadRequest("Request is empty.");
+            }
+
+            try
+            {
+
+                    AUser? user = await _identityService.FindUserByUserNameAsync(request.UserName);
+                if(user == null)
+                {
+                    return NotFound("No users were updated.");
+                }
+                    user.ClassName = request.ClassName;
+
+                if (await _identityService.UpdateUserAsync(user))
+                {
+                    return Ok($"updated successfully.");
+                }
+                return BadRequest();
+                
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while updating users.");
+            }
+        }
+
+
+
+        [HttpPut("update-user-admin")]
+        public async Task<IActionResult> UpdateAdmin([FromBody] UpdateUserAdminDTO updateRequest)
+        {
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            if(!await _identityService.CheckRole(tokenInfo.Username,"ADMIN"))
+            {
+                return BadRequest("Ban khong co quyen admin.");
+            }
+            var user = await _identityService.FindUserByUserNameAsync(updateRequest.UserName);
+            if (user == null)
+                return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+            try
+            {
+                if (!string.IsNullOrEmpty(updateRequest.FirstName))
+                    user.FirstName = updateRequest.FirstName;
+
+                if (!string.IsNullOrEmpty(updateRequest.LastName))
+                    user.LastName = updateRequest.LastName;
+
+                if (!string.IsNullOrEmpty(updateRequest.Email))
+                    user.Email = updateRequest.Email;
+
+                if (!string.IsNullOrEmpty(updateRequest.PhoneNumber))
+                    user.PhoneNumber = updateRequest.PhoneNumber;
+
+                if (!string.IsNullOrEmpty(updateRequest.AvataUrl))
+                    user.AvataUrl = updateRequest.AvataUrl;
+
+                if (updateRequest.Gender != null)
+                    user.Gender = updateRequest.Gender.Value;
+
+                if (updateRequest.DateOfBirth != null)
+                    user.DateOfBirth = updateRequest.DateOfBirth.Value;
+
+                if (updateRequest.EnableTwoFactor != null)
+                    user.TwoFactorEnabled = updateRequest.EnableTwoFactor.Value;
 
                 if (await _identityService.UpdateUserAsync(user))
                     return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
@@ -225,12 +457,45 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
         }
         [HttpPut("user/change-password")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ChangePassword([FromQuery] string userName,[FromBody] UpdatePasswordRequestDTO changePasswordDTO)
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequestDTO changePasswordDTO)
         {
-            bool result = await _identityService.UpdatePasswordAsync(userName, changePasswordDTO);
-            return result ? Ok(LocalValue.Get(KeyStore.PasswordUpdated)) : BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
+            // 1. Trích xuất thông tin người dùng từ JWT
+            var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
+            if (tokenInfo == null)
+            {
+                return BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError)); // Không có token hoặc token không hợp lệ
+            }
+
+            // 2. Xác định username cần thay đổi mật khẩu
+            var targetUsername = changePasswordDTO.UserName;
+            var requesterUsername = tokenInfo.Username;
+
+            // Nếu không truyền username => người dùng đổi mật khẩu cho chính mình
+            if (string.IsNullOrWhiteSpace(targetUsername))
+            {
+                targetUsername = requesterUsername;
+            }
+            else
+            {
+                // Nếu truyền username khác => chỉ Admin mới được phép đổi mật khẩu cho người khác
+                var isAdmin = await _identityService.CheckRole(requesterUsername, "ADMIN");
+                if (!isAdmin)
+                {
+                    return BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
+                }
+            }
+
+            // 3. Gọi service để đổi mật khẩu
+            var updated = await _identityService.UpdatePasswordAsync(targetUsername, changePasswordDTO);
+
+            // 4. Trả về kết quả
+            return updated
+                ? Ok(LocalValue.Get(KeyStore.PasswordUpdated))
+                : BadRequest(LocalValue.Get(KeyStore.PasswordUpdateError));
         }
+
 
         [HttpPost("promote")]
         public async Task<IActionResult> Promote([FromBody] PromoteUserRequestDTO request)

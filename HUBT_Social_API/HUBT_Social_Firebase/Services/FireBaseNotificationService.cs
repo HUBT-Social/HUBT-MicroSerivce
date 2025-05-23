@@ -8,7 +8,6 @@ namespace HUBT_Social_Firebase.Services;
 public class FireBaseNotificationService : IFireBaseNotificationService
 {
   
-    
     public async Task SendNotificationAsync(MessageRequest request)
     {
         Message? message = new()
@@ -57,9 +56,9 @@ public class FireBaseNotificationService : IFireBaseNotificationService
                 }
         };
 
-        if (request is SendGroupMessageRequest)
+        if (request is SendGroupMessageRequest request1)
         {
-            message.Topic = "announcement";
+            message.Topic = request1.GroupId;
         }
         else if (request is SendMessageRequest requestType)
         {
@@ -78,4 +77,44 @@ public class FireBaseNotificationService : IFireBaseNotificationService
         }
     }
 
+    public async Task<bool> SubscribeTopicAsync(string topic, string token)
+    {
+        TopicManagementResponse topicManagementResponse = await FirebaseMessaging.DefaultInstance.SubscribeToTopicAsync(
+                [token],
+                topic
+            );
+
+        Console.WriteLine(topicManagementResponse.SuccessCount.ToString());
+        
+        return topicManagementResponse.SuccessCount > 0;
+    }
+    public async Task<bool> SubscribeTopicAsync(string topic, List<string> tokens)
+    {
+        TopicManagementResponse topicManagementResponse = await FirebaseMessaging.DefaultInstance.SubscribeToTopicAsync(
+                tokens,
+                topic
+            );
+
+        Console.WriteLine(topicManagementResponse.SuccessCount.ToString());
+
+        return topicManagementResponse.SuccessCount > 0;
+    }
+    public async Task<bool> UnsubscribeTopicAsync(string topic, string token)
+    {
+        TopicManagementResponse topicManagementResponse = await FirebaseMessaging.DefaultInstance.UnsubscribeFromTopicAsync(
+                [token],
+                topic
+            );
+        Console.WriteLine(topicManagementResponse.SuccessCount.ToString());
+        return topicManagementResponse.SuccessCount > 0;
+    }
+    public async Task<bool> UnsubscribeTopicAsync(string topic, List<string> tokens)
+    {
+        TopicManagementResponse topicManagementResponse = await FirebaseMessaging.DefaultInstance.UnsubscribeFromTopicAsync(
+                tokens,
+                topic
+            );
+        Console.WriteLine(topicManagementResponse.SuccessCount.ToString());
+        return topicManagementResponse.SuccessCount > 0;
+    }
 }

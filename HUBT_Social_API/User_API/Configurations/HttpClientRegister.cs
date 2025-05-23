@@ -1,4 +1,5 @@
 ﻿using HUBT_Social_Base.ASP_Extentions;
+using HUBT_Social_Base.Service;
 using User_API.Src.Service;
 
 namespace User_API.Configurations
@@ -14,6 +15,7 @@ namespace User_API.Configurations
             string tempUserPath = configuration.GetSection("TempUserApi").Get<string>() ?? "";
             string chatPath = configuration.GetSection("ChatApi").Get<string>() ?? "";
             string helperPath = configuration.GetSection("Helper").Get<string>() ?? "";
+            string cloudPath = configuration.GetSection("CloudServiceCenter").Get<string>() ?? "";
 
             if (identityPath != null)
                 services.AddRegisterClientService<IUserService, UserService>(identityPath);
@@ -31,6 +33,8 @@ namespace User_API.Configurations
 
             if (helperPath != null)
                 services.AddRegisterClientService<IHelperService, HelperService>(helperPath);
+            if (cloudPath != null)
+                services.AddRegisterClientService<IHttpCloudService, HttpCloudService>(cloudPath);
             return services;
         }
     }
