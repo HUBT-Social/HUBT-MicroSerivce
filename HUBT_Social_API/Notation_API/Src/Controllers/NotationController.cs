@@ -64,7 +64,6 @@ namespace Notation_API.Src.Controllers
         [HttpPost("send-to-group-chat")]
         public async Task<IActionResult> SendNotationToGroupChat([FromBody] SendNotationToGroupChatRequest request)
         {
-
             try
             {
                 if(request.UserNames.Count == 0)
@@ -105,26 +104,47 @@ namespace Notation_API.Src.Controllers
         {
             try
             {
-                if (request == null) { return BadRequest(); }
-                if ((request.UserNames == null || !request.UserNames.Any()) &&
+                // Validate request
+                if (request == null)
+                {
+                    return BadRequest("Request cannot be null.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Body))
+                {
+                    return BadRequest("Title and Body are required.");
+                }
+
+                // Check conditions if SendAll is false
+                if (!request.SendAll &&
+                    (request.UserNames == null || !request.UserNames.Any()) &&
                     (request.ClassCodes == null || !request.ClassCodes.Any()) &&
                     (request.FacultyCodes == null || !request.FacultyCodes.Any()) &&
                     (request.CourseCodes == null || !request.CourseCodes.Any()))
                 {
-                    return BadRequest("Cần ít nhất một điều kiện để gửi thông báo.");
+                    return BadRequest("At least one condition (UserNames, ClassCodes, FacultyCodes, or CourseCodes) is required when SendAll is false.");
                 }
-                ConditionRequest condition = new ConditionRequest
+
+                // Map to ConditionRequest (fix swapped fields)
+                var condition = new ConditionRequest
                 {
                     ClassCodes = request.ClassCodes,
-                    CourseCodes = request.FacultyCodes,
-                    FacultyCodes = request.CourseCodes,
-                    UserNames = request.UserNames
+                    CourseCodes = request.CourseCodes, // Fixed: Correct mapping
+                    FacultyCodes = request.FacultyCodes, // Fixed: Correct mapping
+                    UserNames = request.UserNames,
+                    SendAll = request.SendAll,
                 };
-                List<string>? FMCs = await _userService.GetListFMCFromCondition(condition);
-                if (FMCs == null) { return BadRequest(); }
-                if (FMCs.Count == 0) { return BadRequest(); }
 
-                SendMessageRequest sendRequest = new SendMessageRequest
+                // Get FCM tokens
+                List<string> fmcTokens = await _userService.GetListFMCFromCondition(condition);
+      
+                if (fmcTokens.Count == 0)
+                {
+                    return BadRequest("No valid FCM tokens found for the specified conditions.");
+                }
+
+                // Prepare notification request
+                var sendRequest = new SendMessageRequest
                 {
                     Body = request.Body,
                     RequestId = request.RequestId,
@@ -132,31 +152,65 @@ namespace Notation_API.Src.Controllers
                     Type = request.Type
                 };
 
+                // Handle image upload
                 if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64String) && !string.IsNullOrEmpty(request.Image.FileName))
                 {
-                    var uploadResponse = await _httpCloudService.GetUrlFormFile(request.Image);
-                    if (uploadResponse != null)
+                    try
                     {
-                        sendRequest.ImageUrl = uploadResponse;
+                        var uploadResponse = await _httpCloudService.GetUrlFormFile(request.Image);
+                        if (string.IsNullOrEmpty(uploadResponse))
+                        {
+                            //_logger.LogWarning("Image upload failed for notification with RequestId: {RequestId}", request.RequestId);
+                            // Continue without image if upload fails
+                        }
+                        else
+                        {
+                            sendRequest.ImageUrl = uploadResponse;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //_logger.LogError(ex, "Error uploading image for notification with RequestId: {RequestId}", request.RequestId);
+                        // Continue without image
                     }
                 }
 
-                foreach (var fmc in FMCs)
+                // Send notifications
+                var failedTokens = new List<string>();
+                foreach (var fmc in fmcTokens)
                 {
-                    sendRequest.Token = fmc;
-                    await _fireBaseNotificationService.SendNotificationAsync(sendRequest);
+                    try
+                    {
+                        sendRequest.Token = fmc;
+                        await _fireBaseNotificationService.SendNotificationAsync(sendRequest);
+                    }
+                    catch (Exception ex)
+                    {
+                        //_logger.LogError(ex, "Failed to send notification to FCM token: {Token}", fmc);
+                        failedTokens.Add(fmc);
+                    }
                 }
-                return Ok("Da gui.");
+
+                // Report partial failures
+                if (failedTokens.Any())
+                {
+                    return StatusCode(207, new
+                    {
+                        Message = "Notifications sent with partial failures.",
+                        FailedTokens = failedTokens,
+                        SuccessfulCount = fmcTokens.Count - failedTokens.Count,
+                        TotalCount = fmcTokens.Count
+                    });
+                }
+
+                return Ok("Đã gửi.");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                return BadRequest(LocalValue.Get(KeyStore.NotificationSendError));
+                //_logger.LogError(ex, "Error processing notification request with RequestId: {RequestId}", request.RequestId);
+                return StatusCode(500, LocalValue.Get(KeyStore.NotificationSendError));
             }
-
         }
-
-
 
         [HttpPost("topic-subscribe")]
         public async Task<IActionResult> SubscribeTopic([FromBody] SubScribeTopicDTO request)

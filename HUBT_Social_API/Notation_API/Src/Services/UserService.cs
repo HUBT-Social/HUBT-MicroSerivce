@@ -46,16 +46,63 @@ namespace Notation_API.Src.Services
             }
             return null;
         }
-        public async Task<List<string>?> GetListFMCFromCondition(ConditionRequest request)
+        public async Task<List<string>> GetListFMCFromCondition(ConditionRequest request)
         {
-            string path = $"get-fmcs-by-condition-admin";
-            ResponseDTO response = await SendRequestAsync(path, ApiType.GET, request, null);
-            if (response.StatusCode == HttpStatusCode.OK)
+
+            string path = "get-fmcs-by-condition-admin";
+            if (request.SendAll)
             {
-                List<string>? FMCs = response.ConvertTo<List<string>>();
-                return FMCs??null;
+                path += "?SendAll=true";
             }
-            return null;
+            else
+            {
+                var queryParams = new List<string>();
+                if (request.ClassCodes?.Count > 0)
+                {
+                    queryParams.Add($"ClassCodes={Uri.EscapeDataString(string.Join(",", request.ClassCodes))}");
+                }
+                if (request.FacultyCodes?.Count > 0)
+                {
+                    queryParams.Add($"FacultyCodes={Uri.EscapeDataString(string.Join(",", request.FacultyCodes))}");
+                }
+                if (request.CourseCodes?.Count > 0)
+                {
+                    queryParams.Add($"CourseCodes={Uri.EscapeDataString(string.Join(",", request.CourseCodes))}");
+                }
+                if (request.UserNames?.Count > 0)
+                {
+                    queryParams.Add($"UserNames={Uri.EscapeDataString(string.Join(",", request.UserNames))}");
+                }
+                if (queryParams.Count > 0)
+                {
+                    path += $"?{string.Join("&", queryParams)}";
+                }
+            }
+
+            ResponseDTO? response = null;
+            try
+            {
+                response = await SendRequestAsync(path, ApiType.GET, null, null);
+            }
+            catch
+            {
+                return new List<string>();
+            }
+
+            if (response?.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    List<string>? fcmTokens = response.ConvertTo<List<string>>();
+                    return fcmTokens?.Where(token => !string.IsNullOrEmpty(token)).ToList() ?? new List<string>();
+                }
+                catch
+                {
+                    return new List<string>();
+                }
+            }
+
+            return new List<string>();
 
         }
     }

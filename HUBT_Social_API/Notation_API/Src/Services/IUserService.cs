@@ -12,6 +12,6 @@ namespace Notation_API.Src.Services
         Task<AUserDTO?> GetUserFCM(string accessToken);
         Task<string?> GetUserFCMFromId(string userId);
         Task<List<string>?> GetListFMCFromListUserName(List<string> request);
-        Task<List<string>?> GetListFMCFromCondition(ConditionRequest request);
+        Task<List<string>> GetListFMCFromCondition(ConditionRequest request);
     }
 }
