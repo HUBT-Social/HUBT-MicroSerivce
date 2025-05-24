@@ -59,6 +59,7 @@ namespace HUBT_Social_Core.Settings
             public static string PostCreatePostCode => $"{EndPointPostCode}/create-postcode";
             public static string GetCurrentPostCode => $"{EndPointPostCode}/current-postcode";
         }
+
         public static class TempUrls
         {
             // TempCourseController
@@ -105,6 +106,9 @@ namespace HUBT_Social_Core.Settings
             // Subject
             public const string GetSubject = Base + "/monhoc";
         }
-
+        public static class Helper
+        {
+            public static string ExtractQuestions => $"/extract-questions";
+        }
     }
 }

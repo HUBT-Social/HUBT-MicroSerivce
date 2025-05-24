@@ -2,6 +2,7 @@
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core.Models.DTOs.ExamDTO;
+using HUBT_Social_Core.Settings;
 using HUBT_Social_Core.Settings.@enum;
 using System.Net.Http.Headers;
 
@@ -28,7 +29,7 @@ namespace User_API.Src.Service
 
             content.Add(streamContent);
 
-            HttpResponseMessage result = await SendActionResultRequestAsync("extract-questions", ApiType.POST, content);
+            HttpResponseMessage result = await SendActionResultRequestAsync(APIEndPoint.Helper.ExtractQuestions, ApiType.POST, content);
             Question[] questions = await result.ConvertTo<Question[]>() ?? [];
             return questions;
         }

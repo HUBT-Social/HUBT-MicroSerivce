@@ -18,12 +18,12 @@ namespace Auth_API.Src.Services.Identity
     {
         public async Task<ResponseDTO> SignIn(LoginByUserNameRequest request)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Post_Login, ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PostLogin, ApiType.POST, request);
         }
 
         public async Task<ResponseDTO> SignUp(RegisterRequest request)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Post_SignUp, ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PostSignUp, ApiType.POST, request);
         }
        
         public async Task<AUserDTO?> IsUsed(RegisterRequest request)
@@ -32,7 +32,7 @@ namespace Auth_API.Src.Services.Identity
             {
                 return null;
             }
-            string path = APIEndPoint.IdentityUrls.Get_User_From_EUI
+            string path = APIEndPoint.IdentityUrls.GetUserFromEUI
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -51,7 +51,7 @@ namespace Auth_API.Src.Services.Identity
         }
         public async Task<ResponseDTO> Forgotpassword(string userName, UpdatePasswordRequestDTO request)
         {
-            string path = APIEndPoint.IdentityUrls.Put_Change_Password
+            string path = APIEndPoint.IdentityUrls.PutChangePassword
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -63,17 +63,17 @@ namespace Auth_API.Src.Services.Identity
 
         public async Task<ResponseDTO> TokenSubcriber(string userId)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Post_Generate_Token, ApiType.POST, userId);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PostGenerateToken, ApiType.POST, userId);
         }
 
         public Task<ResponseDTO> RefreshToken(string accessToken, string refreshToken)
         {
-            return SendRequestAsync(APIEndPoint.IdentityUrls.Post_Refresh_Token, ApiType.POST, refreshToken, accessToken);
+            return SendRequestAsync(APIEndPoint.IdentityUrls.PostRefreshToken, ApiType.POST, refreshToken, accessToken);
         }
 
         public Task<ResponseDTO> DeleteToken(string accessToken)
         {
-            return SendRequestAsync(APIEndPoint.IdentityUrls.Delete_Token, ApiType.DELETE, null, accessToken);
+            return SendRequestAsync(APIEndPoint.IdentityUrls.DeleteToken, ApiType.DELETE, null, accessToken);
         }
 
         public async Task<AUserDTO?> CurrentUser(string accessToken)

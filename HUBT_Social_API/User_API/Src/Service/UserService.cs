@@ -19,11 +19,11 @@ namespace User_API.Src.Service
     {
         public async Task<ResponseDTO> GetUser(string accessToken)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Get_Current_User, ApiType.GET,null,accessToken);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.GetCurrentUser, ApiType.GET,null,accessToken);
         }
         public async Task<ResponseDTO> GetUserByRole(string roleName,int page)
         {
-            string path = APIEndPoint.IdentityUrls.Get_User_From_RoleName
+            string path = APIEndPoint.IdentityUrls.GetUserFromRoleName
                 .BuildUrl(
                     new Dictionary<string, string> { { "roleName", roleName },{ "page", page.ToString() } }
                 );
@@ -31,7 +31,7 @@ namespace User_API.Src.Service
         }
         public async Task<ResponseDTO> FindUserByUserName(string accessToken,string username)
         {
-            string path = APIEndPoint.IdentityUrls.Get_User_From_EUI
+            string path = APIEndPoint.IdentityUrls.GetUserFromEUI
                 .BuildUrl(
                     new Dictionary<string, string> { { "username", username } }
                 );
@@ -40,14 +40,14 @@ namespace User_API.Src.Service
 
         public async Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Post_Promote_Role, ApiType.POST, request, accessToken);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PostPromoteRole, ApiType.POST, request, accessToken);
         }
 
         private async Task<ResponseDTO> UpdateUserAsync(string accessToken, Action<UpdateUserDTO> updateAction)
         {
             UpdateUserDTO updateRequest = new();
             updateAction(updateRequest);
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Put_Update_User, ApiType.PUT, updateRequest, accessToken);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PutUpdateUser, ApiType.PUT, updateRequest, accessToken);
         }
 
         public Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, string request)
@@ -66,7 +66,7 @@ namespace User_API.Src.Service
 
         public Task<ResponseDTO> DeleteUserAsync(string accessToken)
         {
-            return SendRequestAsync(APIEndPoint.IdentityUrls.Delete_User, ApiType.DELETE,null,accessToken);
+            return SendRequestAsync(APIEndPoint.IdentityUrls.DeleteUser, ApiType.DELETE,null,accessToken);
         }
 
         public Task<ResponseDTO> UpdatePhoneNumberAsync(string accessToken, UpdatePhoneNumberRequest request)
@@ -137,12 +137,12 @@ namespace User_API.Src.Service
 
         public async Task<ResponseDTO> UpdateUserAdmin(string accessToken, AUserDTO user)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Put_Update_User_Admin, ApiType.PUT, user, accessToken);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PutUpdateUserAdmin, ApiType.PUT, user, accessToken);
         }
 
         public async Task<ResponseDTO> UpdateAddClassName(string accessToken,StudentClassName studentClassName)
         {
-            return await SendRequestAsync(APIEndPoint.IdentityUrls.Put_Update_User_ClassName, ApiType.PUT, studentClassName, accessToken);
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.PutUpdateUserClassName, ApiType.PUT, studentClassName, accessToken);
         }
     }
 }
