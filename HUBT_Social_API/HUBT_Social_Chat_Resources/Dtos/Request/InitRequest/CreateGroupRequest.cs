@@ -10,6 +10,8 @@ namespace HUBT_Social_Chat_Resources.Dtos.Request.InitRequest
         public string GroupName { get; set; } = string.Empty;
         [Required]
         public List<string> UserNames { get; set; } = [];
+        [Required]
+        public TypeChatRoom GroupType = TypeChatRoom.SingleChat;
     }
     public class CreateGroupRequestData
     {

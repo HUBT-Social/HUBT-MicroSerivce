@@ -12,6 +12,6 @@ namespace HUBT_Social_Base.Service
     {
         Task<List<FileUploadResult>> UploadFilesAsync(List<IFormFile> files);
         Task<FileUploadResult?> UploadFileAsync(IFormFile file);
-        Task<string?> UpdateAvatarAsync(string filePath, IFormFile file);
+        Task<string?> ReplaceImageWithAlreadyPathAsync(string filePath, IFormFile file);
     }
 }

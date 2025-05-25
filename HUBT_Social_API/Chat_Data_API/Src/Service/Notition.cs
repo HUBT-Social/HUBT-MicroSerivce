@@ -8,6 +8,16 @@ namespace Chat_Data_API.Src.Service
 {
     public class Notition(IHttpService httpService, string basePath) : BaseService(httpService, basePath), INotition
     {
+        public async Task SendNotationToGroupChat(SendNotationToGroupChatRequest request, string accessToken)
+        {
+            try
+            {
+                string path = $"api/notation/send-to-group-chat";
+                await SendActionResultRequestAsync(path, ApiType.POST, request, accessToken);
+            }
+            catch { }
+        }
+
         public async Task SendNotationToMany(SendGroupMessageRequest request, string accessToken)
         {
             try

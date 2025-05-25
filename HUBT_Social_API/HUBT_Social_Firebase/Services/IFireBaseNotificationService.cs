@@ -6,4 +6,8 @@ public interface IFireBaseNotificationService
 {
     Task SendNotificationAsync(MessageRequest request);
 
+    Task<bool> SubscribeTopicAsync(string topic, string token);
+    Task<bool> SubscribeTopicAsync(string topic, List<string> tokens);
+    Task<bool> UnsubscribeTopicAsync(string topic, string token);
+    Task<bool> UnsubscribeTopicAsync(string topic, List<string> tokens);
 }

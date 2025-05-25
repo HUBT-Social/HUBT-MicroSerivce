@@ -7,5 +7,6 @@ namespace Chat_Data_API.Src.Service
     {
         Task SendNotationToOne(SendMessageRequest request, string accessToken);
         Task SendNotationToMany(SendGroupMessageRequest request, string accessToken);
+        Task SendNotationToGroupChat(SendNotationToGroupChatRequest request, string accessToken);
     }
 }

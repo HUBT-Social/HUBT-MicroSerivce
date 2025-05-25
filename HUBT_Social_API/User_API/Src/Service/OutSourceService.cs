@@ -20,9 +20,9 @@ namespace User_API.Src.Service
     {
         public async Task<AVGScoreDTO?> GetAVGScoreByMasv(string masv)
         {
-            string path = KeyStore.OutSourceUrls.Get_StudentAvgScore
+            string path = APIEndPoint.OutSourceUrls.Get_StudentAvgScore
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"masv",masv }
                     }
@@ -34,9 +34,9 @@ namespace User_API.Src.Service
         public async Task<StudentDTO?> GetStudentByMasv(string masv)
         {
 
-            string path = KeyStore.OutSourceUrls.Get_StudentData
+            string path = APIEndPoint.OutSourceUrls.Get_StudentData
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"masv",masv }
                     }
@@ -46,7 +46,7 @@ namespace User_API.Src.Service
         }
         public async Task<List<StudentDTO>> GetStudentByClassName(string className)
         {
-            string path = KeyStore.OutSourceUrls.Get_StudentList
+            string path = APIEndPoint.OutSourceUrls.Get_StudentList
                 .Replace("{className}", className);
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<StudentDTO>>() ?? [];
@@ -54,7 +54,7 @@ namespace User_API.Src.Service
 
         public async Task<List<ScoreDTO>?> GetStudentScoreByMasv(string masv)
         {
-            string path = KeyStore.OutSourceUrls.Get_StudentScoreByRoute
+            string path = APIEndPoint.OutSourceUrls.Get_StudentScoreByRoute
                 .Replace("{masv}", masv);
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<ScoreDTO>>();
@@ -63,9 +63,9 @@ namespace User_API.Src.Service
         public async Task<List<TimeTableDTO>?> GetTimeTableByClassName(string className)
         {
 
-            string path = KeyStore.OutSourceUrls.Get_StudentTimeTable
+            string path = APIEndPoint.OutSourceUrls.Get_StudentTimeTable
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"className",className }
                     }
@@ -81,9 +81,9 @@ namespace User_API.Src.Service
             string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
 
 
-            string path = KeyStore.OutSourceUrls.Get_Subject
+            string path = APIEndPoint.OutSourceUrls.Get_Subject
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"major",major },
                         {"course",course }
@@ -101,9 +101,9 @@ namespace User_API.Src.Service
         public async Task<TimeTableDTO?> GetTimeTableById(string id)
         {
 
-            string path = KeyStore.OutSourceUrls.Get_StudentTimeTable
+            string path = APIEndPoint.OutSourceUrls.Get_StudentTimeTable
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"id",id }
                     }
@@ -114,16 +114,16 @@ namespace User_API.Src.Service
         }
         public async Task<List<StudentClassName>> GetSlideStudentClassName(int page)
         {
-            string path = KeyStore.OutSourceUrls.Get_Slice_Students
+            string path = APIEndPoint.OutSourceUrls.Get_Slice_Students
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         {"page",page.ToString() }
                     }
                 );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             var slice = response.ConvertTo<List<StudentClassName>>();
-            return slice??new List<StudentClassName>();
+            return slice ?? [];
         }
     }
 }

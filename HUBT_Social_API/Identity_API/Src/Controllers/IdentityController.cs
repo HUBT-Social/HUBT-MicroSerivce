@@ -6,6 +6,7 @@ using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests;
+using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Identity_Service.Services;
 using HUBT_Social_Identity_Service.Services.IdentityCustomeService;
@@ -20,6 +21,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Identity_API.Src.Controllers
@@ -27,7 +30,11 @@ namespace Identity_API.Src.Controllers
     [Route("api/identity")]
     [ApiController]
     [Authorize]
-    public class IdentityController(IHubtIdentityService<AUser, ARole> identityService, IMapper mapper, IOptions<JwtSetting> options) : DataLayerController(mapper, options)
+    public class IdentityController
+        (
+            IHubtIdentityService<AUser, ARole> identityService,
+            IMapper mapper, IOptions<JwtSetting> options
+        ) : DataLayerController(mapper, options)
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
         private readonly IMongoService<AUser> _aUserService;
@@ -93,7 +100,7 @@ namespace Identity_API.Src.Controllers
             var userTasks = request.userNames.Select(username => _identityService.FindUserByUserNameAsync(username));
             var users = await Task.WhenAll(userTasks);
 
-            var validUsers = users.Where(u => u != null).ToList();
+            var validUsers = users.Where(u => u != null).Cast<AUser>().ToList();
 
             if (validUsers.Count == 0)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
@@ -154,6 +161,126 @@ namespace Identity_API.Src.Controllers
 
             return Ok(userDTO);
         }
+        [HttpGet("get-fmcs-by-condition-admin")]
+        //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFCMsUserByCondition([FromQuery] ConditionRequest request)
+        {
+            try
+            {
+                // Validate request
+                if (request == null ||
+                    (!request.SendAll &&
+                     (request.UserNames?.Count == 0 || request.UserNames == null) &&
+                     (request.FacultyCodes?.Count == 0 || request.FacultyCodes == null) &&
+                     (request.CourseCodes?.Count == 0 || request.CourseCodes == null) &&
+                     (request.ClassCodes?.Count == 0 || request.ClassCodes == null)))
+                {
+                    return BadRequest("At least one condition (UserNames, FacultyCodes, CourseCodes, or ClassCodes) is required when SendAll is false.");
+                }
+
+                List<string> fcms;
+                List<AUser> usersToProcess;
+
+                // Handle SendAll case
+                if (request.SendAll)
+                {
+                    var allUsers = _identityService.GetAll();
+                    if (allUsers == null || !allUsers.Any())
+                    {
+                        return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+                    }
+                    usersToProcess = allUsers.Where(u => !string.IsNullOrEmpty(u.FCMToken)).ToList();
+                }
+                // Handle UserNames case
+                else if (request.UserNames?.Count > 0)
+                {
+                    var userTasks = request.UserNames
+                        .Select(username => _identityService.FindUserByUserNameAsync(username))
+                        .ToList();
+                    var usersFromNames = await Task.WhenAll(userTasks);
+                    usersToProcess = usersFromNames
+                        .Where(u => u != null && !string.IsNullOrEmpty(u.FCMToken))
+                        .Cast<AUser>()
+                        .ToList();
+
+                    if (!usersToProcess.Any())
+                    {
+                        return BadRequest("No valid users found for the provided UserNames.");
+                    }
+                }
+                // Handle FacultyCodes, CourseCodes, ClassCodes
+                else
+                {
+                    var listUsers = _identityService.GetAll();
+                    if (listUsers == null || !listUsers.Any())
+                    {
+                        return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+                    }
+
+                    var parsedUsers = listUsers
+                        .Where(u => !string.IsNullOrEmpty(u.FCMToken) && !string.IsNullOrEmpty(u.ClassName))
+                        .Select(u =>
+                        {
+                            var match = Regex.Match(u.ClassName ?? "", @"^([A-Z]+)(\d{2})\.(\d{2})$");
+                            if (!match.Success)
+                            {
+                                // Removed logger, no action needed for invalid format
+                                return null;
+                            }
+                            return new
+                            {
+                                User = u,
+                                FacultyCode = match.Groups[1].Value,
+                                CourseCode = match.Groups[2].Value,
+                                ClassCode = u.ClassName
+                            };
+                        })
+                        .Where(p => p != null)
+                        .ToList();
+
+                    // Filter users based on conditions
+                    var filtered = parsedUsers;
+                    if (request.FacultyCodes?.Count > 0)
+                    {
+                        filtered = filtered.Where(p => request.FacultyCodes.Contains(p!.FacultyCode)).ToList();
+                    }
+                    if (request.CourseCodes?.Count > 0)
+                    {
+                        filtered = filtered.Where(p => request.CourseCodes.Contains(p!.CourseCode)).ToList();
+                    }
+                    if (request.ClassCodes?.Count > 0)
+                    {
+                        filtered = filtered.Where(p => request.ClassCodes.Contains(p!.ClassCode)).ToList();
+                    }
+
+                    usersToProcess = filtered.Select(p => p!.User).ToList();
+                    if (!usersToProcess.Any())
+                    {
+                        return BadRequest("No users matched the provided conditions.");
+                    }
+                }
+
+                // Extract distinct FCM tokens
+                fcms = usersToProcess
+                    .Where(u => !string.IsNullOrEmpty(u.FCMToken))
+                    .Select(u => u.FCMToken!)
+                    .Distinct()
+                    .ToList();
+
+                if (fcms.Any())
+                {
+                    return Ok(fcms);
+                }
+
+                return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Server error");
+            }
+        }
+
 
         [HttpPut("update-user")]
         public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateRequest)

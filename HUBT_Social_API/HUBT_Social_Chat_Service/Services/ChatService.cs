@@ -150,7 +150,7 @@ namespace HUBT_Social_Chat_Service.Services
 
             private async Task<GroupLoadingResponse?> GetGroupByUserAsync(ChatGroupModel chatRoom)
             {
-                var (LastInteraction, LastTime) = GetRecentChatItemAsync(chatRoom);
+                var (LastInteraction,LastSender, LastTime) = GetRecentChatItemAsync(chatRoom);
 
 
                 // Trả về đối tượng RoomLoadingRespone với thông tin cần thiết
@@ -160,49 +160,50 @@ namespace HUBT_Social_Chat_Service.Services
                     GroupName = chatRoom.Name,
                     AvatarUrl = chatRoom.AvatarUrl,
                     LastMessage = LastInteraction,
+                    LassSender = LastSender,
                     LastInteractionTime = LastTime
                 };
             }
 
-            private (string LastInteraction, string LastTime) GetRecentChatItemAsync(ChatGroupModel chatRoom)
+            private (string LastInteraction,string LastSender, string LastTime) GetRecentChatItemAsync(ChatGroupModel chatRoom)
             {
                 // Nếu không có danh sách ChatItems hoặc rỗng, trả về chuỗi rỗng
                 if (chatRoom.Content == null || !chatRoom.Content.Any())
-                    return (string.Empty, string.Empty);
+                    return (string.Empty, string.Empty, string.Empty);
 
             // Lấy tin nhắn mới nhất dựa vào Timestamp
                MessageModel? recentMessage = chatRoom.Content.LastOrDefault();
                 if(recentMessage == null && recentMessage?.createdAt == null)
                 {
-                     return (string.Empty, string.Empty);
+                     return (string.Empty, string.Empty, string.Empty);
                 }
                 string LastTime = FormatLastInteractionTime(recentMessage.createdAt);
 
                 // Lấy nickname bất đồng bộ
-                string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserNameToName(chatRoom);
+                string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserNameToName(chatRoom)??"";
 
                 // Kiểm tra nếu tin nhắn là loại "Message"
                 if (recentMessage.messageType == MessageType.Text)
                 {
                     string? recent = recentMessage.message ?? "";
                     // Trả về chuỗi hiển thị
-                    return (GetMessagePreview(nickName, recent), LastTime);
+                    return (recent, nickName, LastTime);
                 }
                 if (recentMessage.messageType == MessageType.Media)
                 {
-                    return ($"{nickName}: [Photo/Media]", LastTime);
+                    return ("[Photo/Media]", nickName, LastTime);
                 }
                 if (recentMessage.messageType == MessageType.File)
                 {
-                    return ($"{nickName}: [File]", LastTime);
+                    return ($"[File]", nickName, LastTime);
                 }
                 if (recentMessage.messageType == MessageType.Voice)
                 {
-                    return ($"{nickName}: [Voice]", LastTime);
+                    return ($"[Voice]", nickName, LastTime);
                 }
 
                 // Nếu không phải loại "Message", trả về chuỗi rỗng hoặc thông báo khác
-                return (string.Empty, string.Empty);
+                return (string.Empty, nickName, string.Empty);
             }
 
             private string FormatLastInteractionTime(DateTime timestamp)
@@ -237,16 +238,17 @@ namespace HUBT_Social_Chat_Service.Services
                 return timestamp.ToString("MM/yyyy"); // {tháng+năm}
             }
 
-            private string GetMessagePreview(string? nickName, string? content)
-        {
-            // Kết hợp tên người gửi và nội dung tin nhắn
-            string fullMessage = $"{nickName}: {content}";
-
-            // Nếu chuỗi dài hơn 30 ký tự, cắt và thêm dấu "..."
-            return fullMessage.Length > 30
-                ? fullMessage.Substring(0, 30) + "..."
-                : fullMessage;
-        }
+            private string GetMessagePreview(string? content)
+            {
+                if(string.IsNullOrEmpty(content))
+                {
+                    return "";
+                }
+                // Nếu chuỗi dài hơn 30 ký tự, cắt và thêm dấu "..."
+                return content.Length > 30
+                    ? content.Substring(0, 30) + "..."
+                    : content;
+            }
 
         public async Task<ChatGroupModel?> GetGroupById(string groupId)
         {

@@ -61,7 +61,7 @@ namespace HUBT_Social_Base.Service
             }
         }
 
-        public async Task<string?> UpdateAvatarAsync(string filePath, IFormFile file)
+        public async Task<string?> ReplaceImageWithAlreadyPathAsync(string filePath, IFormFile file)
         {
             if (file == null || file.Length <= 0) return null;
 

@@ -5,7 +5,7 @@ namespace HUBT_Social_Core.ASP_Extensions
 {
     public static class UrlExtension
     {
-        public static string BuildUrl(this string baseUrl, Dictionary<string, object>? queryParams = null)
+        public static string BuildUrl(this string baseUrl, Dictionary<string, string>? queryParams = null)
         {
             if (queryParams == null || queryParams.Count == 0)
             {
@@ -14,7 +14,7 @@ namespace HUBT_Social_Core.ASP_Extensions
 
             var queryString = string.Join("&", queryParams
                 .Where(kv => kv.Value != null) // Bỏ qua tham số null
-                .Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value.ToString())}"));
+                .Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}"));
 
             return $"{baseUrl}?{queryString}";
         }

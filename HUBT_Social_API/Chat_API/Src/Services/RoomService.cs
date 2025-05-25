@@ -26,7 +26,7 @@ namespace Chat_API.Src.Services
 
         public async Task<(bool,string?)> UpdateGroupNameAsync(UpdateGroupNameRequest request, string token)
         {
-            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Put_Update_Group_Name, ApiType.PUT, request, token);
+            var response = await SendRequestAsync(APIEndPoint.ChatDataUrls.Put_Update_Group_Name, ApiType.PUT, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
         }
 
@@ -38,41 +38,42 @@ namespace Chat_API.Src.Services
 
         public async Task<(bool, string?)> UpdateNickNameAsync(UpdateNickNameRequest request, string token)
     {
-            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Put_Update_Nick_Name, ApiType.PUT, request, token);
+            var response = await SendRequestAsync(APIEndPoint.ChatDataUrls.Put_Update_Nick_Name, ApiType.PUT, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
         }
 
         public async Task<(bool, string?)> UpdateParticipantRoleAsync(UpdateParticipantRoleRequest request, string token)
         { 
-            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Put_Update_Participant_Role, ApiType.PUT, request, token);
+            var response = await SendRequestAsync(APIEndPoint.ChatDataUrls.Put_Update_Participant_Role, ApiType.PUT, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
         }
 
 
         public async Task<(bool, string?)> JoinRoomAsync(AddMemberRequestData request, string token)
         {
-            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Post_Join_Group, ApiType.POST, request,token);
+            var response = await SendRequestAsync(APIEndPoint.ChatDataUrls.Post_Join_Group, ApiType.POST, request,token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
         public async Task<(bool, string?)> KickMemberAsync(RemoveMemberRequest request, string token)
         {
-            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Post_Kick_Member, ApiType.POST, request,token);
+            var response = await SendRequestAsync(APIEndPoint.ChatDataUrls.Post_Kick_Member, ApiType.POST, request,token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
         public async Task<(bool, string?)> LeaveRoomAsync(LeaveRoomRequest request, string token)
         {
-            var response = await SendRequestAsync(KeyStore.ChatDataUrls.Post_Leave_Group, ApiType.POST, request, token);
+            var response = await SendRequestAsync(APIEndPoint.ChatDataUrls.Post_Leave_Group, ApiType.POST, request, token);
             return (response.StatusCode == System.Net.HttpStatusCode.OK, response.Message?.ToString());
     }
 
-        //Đang gặp bug convert thì bị null.
+        //Đang gặp bug convert thì bị null. 
+        // có check null chó đâu thì bị null là đúng r
         public async Task<MessageResponse<List<MessageDTO>>?> GetMessageHistoryAsync(GetHistoryRequest request, string token)
         {
-            string path = KeyStore.ChatDataUrls.Get_History_Content
+            string path = APIEndPoint.ChatDataUrls.Get_History_Content
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         { "ChatRoomId", Uri.EscapeDataString(request.ChatRoomId ?? string.Empty) },
                         { "CurrentQuantity", request.CurrentQuantity.ToString()??"0" },
@@ -91,9 +92,9 @@ namespace Chat_API.Src.Services
         }
         public async Task<GetMemberGroup> GetRoomUserAsync(GetMemberInGroupRequest request, string token)
         {
-            string path = KeyStore.ChatDataUrls.Get_Members
+            string path = APIEndPoint.ChatDataUrls.Get_Members
                 .BuildUrl(
-                    new Dictionary<string, object>
+                    new Dictionary<string, string>
                     {
                         { "groupId", request.groupId }
                     }

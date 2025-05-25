@@ -41,6 +41,11 @@ namespace Chat_API.Src.Controllers
                 return BadRequest("Khong du so thanh vien.");
             }
 
+            if (createGroupRequest.GroupType != TypeChatRoom.SingleChat && createGroupRequest.GroupType != TypeChatRoom.GroupChat)
+            {
+                return BadRequest("Group Type chi nhan hai gia tri 0: P-P, 1: Group");
+            }
+
             ResponseDTO resUserReq = await _userService.GetUserRequest(token);
             if (resUserReq.StatusCode != HttpStatusCode.OK)
             {
@@ -72,7 +77,8 @@ namespace Chat_API.Src.Controllers
             CreateGroupRequestData request = new()
             {
                 GroupName = createGroupRequest.GroupName,
-                Participants = Pct
+                Participants = Pct,
+                GroupType = createGroupRequest.GroupType == TypeChatRoom.SingleChat ? TypeChatRoom.SingleChat : TypeChatRoom.GroupChat
             };
             ResponseDTO? response = await _chatService.CreateGroupAsync(request, token);
             if (response != null && response.StatusCode == HttpStatusCode.OK)
