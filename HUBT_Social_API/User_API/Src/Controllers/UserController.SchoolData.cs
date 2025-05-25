@@ -15,6 +15,7 @@ using HUBT_Social_Core.Models.Requests.Chat;
 using HUBT_Social_Core.Models.DTOs.ExamDTO;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
+using HUBT_Social_Core.Settings.@enum;
 
 namespace User_API.Src.Controllers
 {
@@ -123,7 +124,8 @@ namespace User_API.Src.Controllers
                             CreateGroupRequest createGroupRequest = new()
                             {
                                 GroupName = $"{couresDTO.TimeTableDTO.Session} Thứ {couresDTO.TimeTableDTO.Day} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
-                                UserNames = couresDTO.StudentIDs
+                                UserNames = couresDTO.StudentIDs,
+                                GroupType = TypeChatRoom.GroupChat
                             };
                             if (await _chatService.CreateChatRoom(createGroupRequest, accessToken))
                                 Console.WriteLine("Them nhom chat thanh cong");
@@ -139,6 +141,7 @@ namespace User_API.Src.Controllers
                 {
                     userTimetableOutput.ReformTimetables = timetableOutputDTOs;
                 }
+                userTimetableOutput.Starttime = DateTime.UtcNow.AddMonths(-2);
                 userTimetableOutput.VersionKey = classScheduleVersionDTO.VersionKey;
                 return Ok(userTimetableOutput);
                 

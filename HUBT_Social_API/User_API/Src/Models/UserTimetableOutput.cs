@@ -91,7 +91,7 @@ namespace User_API.Src.Models
             this.Id = timetable.Id;
             this.ClassName = timetable.ClassName;
             this.StartTime = SetStartTime(timetable.Session, startDay);
-            this.EndTime = Type == TimeTableType.Study ? StartTime.AddHours(5) :null;
+            this.EndTime = Type == TimeTableType.Study ? StartTime.AddHours(4) :null;
             this.Room = timetable.Room;
             this.Subject = timetable.Subject;
             this.ZoomID = timetable.ZoomID;

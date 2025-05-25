@@ -8,7 +8,6 @@ using MongoDB.Driver;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Resources.Dtos.Response;
-using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.InitRequest;
 using HUBT_Social_Chat_Service.Helper;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +24,7 @@ using Amazon.Runtime.Internal;
 using Chat_Data_API.Src.Hubs;
 using Chat_Data_API.Src.Service;
 using HUBT_Social_Core.Models.Requests.Chat;
+using HUBT_Social_Core.Settings.@enum;
 
 namespace Chat_Data_API.Src.Controllers
 {
@@ -99,12 +99,12 @@ namespace Chat_Data_API.Src.Controllers
             return BadRequest(result.Item2);
         }
         // Phương thức kiểm tra đầu vào
-        private string? ValidateCreateGroupRequest(CreateGroupRequestData request)
+        private static string? ValidateCreateGroupRequest(CreateGroupRequestData request)
         {
             if (string.IsNullOrEmpty(request.GroupName))
                 return LocalValue.Get(KeyStore.GroupNameRequired);
 
-            if (request.GroupType != TypeChatRoom.SingleChat || request.GroupType != TypeChatRoom.GroupChat)
+            if (request.GroupType != TypeChatRoom.SingleChat && request.GroupType != TypeChatRoom.GroupChat)
             {
                 return "Group Type chi nhan hai gia tri 0: P-P, 1: Group";
             }
@@ -121,7 +121,7 @@ namespace Chat_Data_API.Src.Controllers
         }
 
         // Phương thức tạo ChatRoomModel
-        private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants, TypeChatRoom type = TypeChatRoom.GroupChat)
+        private static ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants, TypeChatRoom type = TypeChatRoom.GroupChat)
         {
             return new ChatGroupModel
             {

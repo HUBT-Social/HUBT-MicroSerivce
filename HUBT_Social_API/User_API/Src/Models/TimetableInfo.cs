@@ -36,7 +36,7 @@ namespace User_API.Src.Models
             {
                 members.Add(new TimetableMember
                 {
-                    AvatarUrl = student.AvataUrl,
+                    AvatarUrl = student.AvataUrl ?? "",
                     UserName = student.UserName,
                     FullName = $"{student.LastName} {student.FirstName}"
                 });

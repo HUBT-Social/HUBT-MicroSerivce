@@ -1,4 +1,4 @@
-﻿namespace HUBT_Social_Chat_Resources.Dtos.Collections.Enum
+﻿namespace HUBT_Social_Core.Settings.@enum
 {
     public enum TypeChatRoom
     {
