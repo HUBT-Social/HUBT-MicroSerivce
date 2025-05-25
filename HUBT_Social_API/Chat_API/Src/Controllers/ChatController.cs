@@ -85,7 +85,61 @@ namespace Chat_API.Src.Controllers
             }
             return BadRequest(response?.Message);
         }
-        
+        [HttpPost("create-advisor-group")]
+        public async Task<IActionResult> CreateAvisiorGroup()
+        {
+            string? token = ReadTokenFromHeader();
+
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+         
+
+            ResponseDTO resUserReq = await _userService.GetUserRequest(token);
+            if (resUserReq.StatusCode != HttpStatusCode.OK)
+            {
+                return BadRequest("Không tìm thấy người dùng với token hiện tại.");
+            }
+            AUserDTO? userReq = resUserReq.ConvertTo<AUserDTO>();
+            if (userReq == null)
+            {
+                return BadRequest("Loi khi convert thong tin nguoi yeu cau.");
+            }
+
+            AUserDTO? avisior = await _userService.GetUserByUserName("DangAdmin", token);
+
+            if (avisior == null)
+            {
+                return BadRequest("Loi khi lay thong tin co van vien.");
+            }
+            List<AUserDTO> aUserDTOs =[userReq, avisior];
+
+            List<Participant> Pct = aUserDTOs
+                .Select(user => new Participant
+                {
+                    UserName = user.UserName,
+                    Role = user.UserName == userReq.UserName ? ParticipantRole.Owner : ParticipantRole.Member,
+                    NickName = user.LastName + " " + user.FirstName,
+                    ProfilePhoto = user.AvataUrl
+                })
+                .ToList();
+            CreateGroupRequestData request = new()
+            {
+                GroupName = $"Avisior sv {userReq.UserName}",
+                Participants = Pct,
+                GroupType =  TypeChatRoom.SingleChat 
+            };
+            ResponseDTO? response = await _chatService.CreateGroupAsync(request, token);
+            if (response != null && response.StatusCode == HttpStatusCode.OK)
+                return Ok(new { message = response.Message });
+
+
+            if (response?.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(response.Message);
+            }
+            return BadRequest(response?.Message);
+        }
+
         [HttpPost("create-group-develop")]
         public async Task<IActionResult> CreateGroupDevelop(CreateGroupRequest createGroupRequest)
         {

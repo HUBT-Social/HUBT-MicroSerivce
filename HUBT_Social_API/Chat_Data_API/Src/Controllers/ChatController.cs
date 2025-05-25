@@ -102,7 +102,13 @@ namespace Chat_Data_API.Src.Controllers
         {
             if (string.IsNullOrEmpty(request.GroupName))
                 return LocalValue.Get(KeyStore.GroupNameRequired);
-            if (request.Participants.Count < 2)
+
+            if (request.GroupType != TypeChatRoom.SingleChat && request.GroupType != TypeChatRoom.GroupChat)
+            {
+                return "Group Type chi nhan hai gia tri 0: P-P, 1: Group";
+            }
+            if (request.Participants.Count < 3 && request.GroupType == TypeChatRoom.GroupChat)
+            {
                 return "Khong du nguoi";
             return null;
         }

@@ -21,17 +21,6 @@ namespace Notation_API.Src.Controllers
         {
             try
             {
-                if (request.Token.StartsWith("userId_"))
-                {
-                    string userId = request.Token[7..]; // Cắt bỏ "userId_" để lấy ID thực
-                    string? userFcm = await _userService.GetUserFCMFromId(userId);
-
-                    if (string.IsNullOrEmpty(userFcm))
-                        return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-
-                    // Cập nhật Token bằng FCM Token thực tế
-                    request.Token = userFcm;
-                }
                 await _fireBaseNotificationService.SendNotificationAsync(request);
                 return Ok(LocalValue.Get(KeyStore.NotificationSend));
             }
