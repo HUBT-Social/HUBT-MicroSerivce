@@ -117,7 +117,7 @@ namespace User_API.Src.Controllers
                         Major = subject.Manganh,
                         SubjectName = subject.TenMon,
                         SubjectCredit = (int)subject.Sotin,
-                        SubjectYear = khoas
+                        SubjectYear = khoas + 1
                     };
                     if (userCouresItem.SubjectYear <= 4)
                         userCoures.Add(userCouresItem);
