@@ -1,5 +1,4 @@
-﻿
-using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
+﻿using HUBT_Social_Core.Settings.@enum;
 using MongoDB.Bson.Serialization.Attributes;
 
 

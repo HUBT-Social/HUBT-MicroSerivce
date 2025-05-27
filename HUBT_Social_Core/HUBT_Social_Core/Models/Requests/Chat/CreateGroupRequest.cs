@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HUBT_Social_Core.Settings.@enum;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,5 +14,8 @@ namespace HUBT_Social_Core.Models.Requests.Chat
         public string GroupName { get; set; } = string.Empty;
         [Required]
         public string[] UserNames { get; set; } = [];
+
+        [Required]
+        public TypeChatRoom GroupType { get; set; } = TypeChatRoom.SingleChat;
     }
 }
