@@ -6,6 +6,7 @@ using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
+using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Net;
+using System.Runtime.InteropServices;
 using User_API.Src.Service;
 using User_API.Src.UpdateUserRequest;
 
@@ -20,11 +22,15 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService,INotationService notationService, IHttpCloudService cloudService) : ControllerBase
+    public class UserController(IUserService userService,
+        INotationService notationService,
+        IHttpCloudService cloudService,
+        IOutSourceService outSourceService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
         private readonly INotationService _notationService = notationService; 
         private readonly IHttpCloudService _cloudService = cloudService;
+        private readonly IOutSourceService _outSourceService = outSourceService;
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string? username)
         {
@@ -46,6 +52,9 @@ namespace User_API.Src.Controllers
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
             {
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+                AVGScoreDTO? scoreDTO = await _outSourceService.GetAVGScoreByMasv(userDTO.UserName);
+ 
                 return Ok(new
                 {
                     AvatarUrl = userDTO.AvataUrl,
@@ -55,7 +64,10 @@ namespace User_API.Src.Controllers
                     userDTO.Gender,
                     userDTO.Email,
                     BirthDay = userDTO.DateOfBirth,
-                    userDTO.PhoneNumber
+                    userDTO.PhoneNumber,
+                    ClassName = studentDTO?.TenLop ?? "",
+                    Score4 = scoreDTO?.DiemTB4 ?? 0,
+                    Score10 = scoreDTO?.DiemTB10 ?? 0,
                 });
             }
                 
