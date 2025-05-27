@@ -99,7 +99,7 @@ namespace Chat_Data_API.Src.Controllers
             return BadRequest(result.Item2);
         }
         // Phương thức kiểm tra đầu vào
-        private string? ValidateCreateGroupRequest(CreateGroupRequestData request)
+        private static string? ValidateCreateGroupRequest(CreateGroupRequestData request)
         {
             if (string.IsNullOrEmpty(request.GroupName))
                 return LocalValue.Get(KeyStore.GroupNameRequired);
@@ -121,7 +121,7 @@ namespace Chat_Data_API.Src.Controllers
         }
 
         // Phương thức tạo ChatRoomModel
-        private ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants, TypeChatRoom type = TypeChatRoom.GroupChat)
+        private static ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants, TypeChatRoom type = TypeChatRoom.GroupChat)
         {
             return new ChatGroupModel
             {

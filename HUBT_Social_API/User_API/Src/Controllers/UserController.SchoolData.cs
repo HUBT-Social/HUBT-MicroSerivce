@@ -119,11 +119,21 @@ namespace User_API.Src.Controllers
                         CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
                         if (couresDTO.Id != string.Empty)
                         {
+                            ResponseDTO response = await _userService.GetUserByRole("TEACHER",10);
+                            List<AUserDTO>? teacherDTOs = response.ConvertTo<List<AUserDTO>>();
+                            if (teacherDTOs != null)
+                            {
+                                int index = random.Next(0, teacherDTOs.Count);
+                                AUserDTO SelectTeacher = teacherDTOs[index];
+                                couresDTO.TeacherIDs = [SelectTeacher.UserName];
+                            }
+
+
                             couresDTOs.Add(couresDTO);
                             CreateGroupRequest createGroupRequest = new()
                             {
                                 GroupName = $"{couresDTO.TimeTableDTO.Session} Thứ {couresDTO.TimeTableDTO.Day} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
-                                UserNames = couresDTO.StudentIDs
+                                UserNames = [.. couresDTO.TeacherIDs, .. couresDTO.StudentIDs],
                             };
                             if (await _chatService.CreateChatRoom(createGroupRequest, accessToken))
                                 Console.WriteLine("Them nhom chat thanh cong");

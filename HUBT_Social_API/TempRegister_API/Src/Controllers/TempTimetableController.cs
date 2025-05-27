@@ -114,7 +114,9 @@ namespace TempRegister_API.Src.Controllers
                 {
                     CourseID = request.CourseId,
                     StudentIDs = request.StudentIDs,
-                    TimeTableDTO = request.TimeTableDTO
+                    TeacherIDs = request.TeacherIDs,
+                    TimeTableDTO = request.TimeTableDTO,
+                    RoomId = request.RoomId
                 };
                 if (await _tempCourse.Create(course))
                 {

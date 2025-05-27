@@ -11,6 +11,8 @@ namespace HUBT_Social_Core.Models.Requests.Temp
     {
         public string Id { get; set; } = string.Empty;
         public string[] StudentIDs { get; set; } = [];
+        public string[] TeacherIDs { get; set; } = [];
+        public string RoomId { get; set; } = string.Empty;
         public TimeTableDTO TimeTableDTO { get; set; } = new();
         public bool RoomCreated { set; get; } = false;
     }
