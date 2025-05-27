@@ -119,7 +119,7 @@ namespace User_API.Src.Controllers
                         SubjectCredit = (int)subject.Sotin,
                         SubjectYear = khoas
                     };
-                    if (userCouresItem.SubjectCredit <= 4)
+                    if (userCouresItem.SubjectYear <= 4)
                         userCoures.Add(userCouresItem);
                 }
                 
