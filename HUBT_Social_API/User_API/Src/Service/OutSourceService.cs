@@ -78,15 +78,15 @@ namespace User_API.Src.Service
         {
             string[] paths = className.Split(".");
             string major = new(paths[0].TakeWhile(char.IsLetter).ToArray());
-            string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
+            //string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
 
 
             string path = APIEndPoint.OutSourceUrls.GetSubject
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
-                        {"major",major },
-                        {"course",course }
+                        {"major",major }
+                        //{"course",course }
                     }
                 );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
