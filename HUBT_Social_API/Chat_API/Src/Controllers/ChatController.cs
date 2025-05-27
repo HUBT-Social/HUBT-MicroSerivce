@@ -37,7 +37,7 @@ namespace Chat_API.Src.Controllers
 
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            if (createGroupRequest.UserNames.Count() <= 1)
+            if (createGroupRequest.UserNames.Count <= 1)
             {
                 return BadRequest("Khong du so thanh vien.");
             }
@@ -82,7 +82,11 @@ namespace Chat_API.Src.Controllers
             };
             ResponseDTO? response = await _chatService.CreateGroupAsync(request, token);
             if (response != null && response.StatusCode == HttpStatusCode.OK)
-                return Ok(new { message = response.Message });
+                return Ok(new HUBT_Social_Core.Models.Requests.Chat.CreateChatResponse()
+                    {
+                        Id = response.Message
+                    }
+                );
 
 
             if (response?.StatusCode == HttpStatusCode.Unauthorized)
@@ -128,7 +132,11 @@ namespace Chat_API.Src.Controllers
             };
             ResponseDTO? response = await _chatService.CreateGroupAsync(request, token);
             if (response != null && response.StatusCode == HttpStatusCode.OK)
-                return Ok(new { message = response.Message });
+                return Ok(new HUBT_Social_Core.Models.Requests.Chat.CreateChatResponse()
+                    { 
+                        Id = response.Message 
+                    }
+                );
 
 
             if (response?.StatusCode == HttpStatusCode.Unauthorized)

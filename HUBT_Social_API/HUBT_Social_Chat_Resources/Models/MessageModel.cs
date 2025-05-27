@@ -21,7 +21,7 @@ namespace HUBT_Social_Chat_Resources.Models
         //public MessageActionStatus actionStatus { get; set; } = MessageActionStatus.Normal;
         public TimeSpan? voiceMessageDuration { get; set; }
         // Constructor private để ép buộc dùng factory method
-        private MessageModel(string sentBy, MessageType messageType, string itemId, string message = null, ReplyMessage? replyMessage = null)
+        private MessageModel(string sentBy, MessageType messageType, string itemId, string message = "", ReplyMessage? replyMessage = null)
         {
             this.sentBy = sentBy;
             this.message = message;

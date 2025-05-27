@@ -17,6 +17,7 @@ namespace User_API.Src.Service
         Task<List<TimetableOutputDTO>> GetList(string className);
         Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className);
         Task<List<CouresDTO>> GetCourses(string className);
+        Task<CouresDTO> GetCourses(string className, string id);
 
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(string className,DateTime expireTime);
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(ClassScheduleVersionDTO request);

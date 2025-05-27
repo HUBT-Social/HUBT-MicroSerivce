@@ -170,7 +170,7 @@ namespace TempRegister_API.Src.Controllers
             if (!string.IsNullOrEmpty(className))
             {
                 List<TempCourse> courses = await _tempCourse.Find(cs =>
-                            cs.TimeTableDTO.ClassName == className 
+                            cs.TimeTableDTO.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase)
                             ).ToListAsync();
 
                 if (courses.Count > 0)

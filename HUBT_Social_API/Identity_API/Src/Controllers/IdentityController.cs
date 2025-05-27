@@ -74,19 +74,17 @@ namespace Identity_API.Src.Controllers
                     }).ToList();
 
                 return Ok(
-                    new
+                    new GetUserByRoleResponses()
                     {
-                        users = userDTOs,
-                        hasMore = response.Item2,
-                        message = response.Item3
+                        AUserDTOs = userDTOs,
+                        HasMore = response.Item2,
+                        Message = response.Item3
                     });
             }
-            return Ok(
-                    new
+            return BadRequest(
+                    new GetUserByRoleResponses()
                     {
-                        users = new List<AUserDTO>(),
-                        hasMore = response.Item2,
-                        message = response.Item3
+                        Message = response.Item3
                     });
         }
 

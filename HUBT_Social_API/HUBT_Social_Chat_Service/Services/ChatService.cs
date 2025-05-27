@@ -148,107 +148,107 @@ namespace HUBT_Social_Chat_Service.Services
         }
 
 
-            private async Task<GroupLoadingResponse?> GetGroupByUserAsync(ChatGroupModel chatRoom)
+        private async Task<GroupLoadingResponse?> GetGroupByUserAsync(ChatGroupModel chatRoom)
+        {
+            var (LastInteraction,LastSender, LastTime) = GetRecentChatItemAsync(chatRoom);
+
+
+            // Trả về đối tượng RoomLoadingRespone với thông tin cần thiết
+            return new GroupLoadingResponse
             {
-                var (LastInteraction,LastSender, LastTime) = GetRecentChatItemAsync(chatRoom);
+                Id = chatRoom.Id,
+                GroupName = chatRoom.Name,
+                AvatarUrl = chatRoom.AvatarUrl,
+                LastMessage = LastInteraction,
+                LassSender = LastSender,
+                LastInteractionTime = LastTime
+            };
+        }
 
+        private (string LastInteraction,string LastSender, string LastTime) GetRecentChatItemAsync(ChatGroupModel chatRoom)
+        {
+            // Nếu không có danh sách ChatItems hoặc rỗng, trả về chuỗi rỗng
+            if (chatRoom.Content == null || !chatRoom.Content.Any())
+                return (string.Empty, string.Empty, string.Empty);
 
-                // Trả về đối tượng RoomLoadingRespone với thông tin cần thiết
-                return new GroupLoadingResponse
-                {
-                    Id = chatRoom.Id,
-                    GroupName = chatRoom.Name,
-                    AvatarUrl = chatRoom.AvatarUrl,
-                    LastMessage = LastInteraction,
-                    LassSender = LastSender,
-                    LastInteractionTime = LastTime
-                };
-            }
-
-            private (string LastInteraction,string LastSender, string LastTime) GetRecentChatItemAsync(ChatGroupModel chatRoom)
+        // Lấy tin nhắn mới nhất dựa vào Timestamp
+            MessageModel? recentMessage = chatRoom.Content.LastOrDefault();
+            if(recentMessage == null && recentMessage?.createdAt == null)
             {
-                // Nếu không có danh sách ChatItems hoặc rỗng, trả về chuỗi rỗng
-                if (chatRoom.Content == null || !chatRoom.Content.Any())
                     return (string.Empty, string.Empty, string.Empty);
-
-            // Lấy tin nhắn mới nhất dựa vào Timestamp
-               MessageModel? recentMessage = chatRoom.Content.LastOrDefault();
-                if(recentMessage == null && recentMessage?.createdAt == null)
-                {
-                     return (string.Empty, string.Empty, string.Empty);
-                }
-                string LastTime = FormatLastInteractionTime(recentMessage.createdAt);
-
-                // Lấy nickname bất đồng bộ
-                string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserNameToName(chatRoom)??"";
-
-                // Kiểm tra nếu tin nhắn là loại "Message"
-                if (recentMessage.messageType == MessageType.Text)
-                {
-                    string? recent = recentMessage.message ?? "";
-                    // Trả về chuỗi hiển thị
-                    return (recent, nickName, LastTime);
-                }
-                if (recentMessage.messageType == MessageType.Media)
-                {
-                    return ("[Photo/Media]", nickName, LastTime);
-                }
-                if (recentMessage.messageType == MessageType.File)
-                {
-                    return ($"[File]", nickName, LastTime);
-                }
-                if (recentMessage.messageType == MessageType.Voice)
-                {
-                    return ($"[Voice]", nickName, LastTime);
-                }
-
-                // Nếu không phải loại "Message", trả về chuỗi rỗng hoặc thông báo khác
-                return (string.Empty, nickName, string.Empty);
             }
+            string LastTime = FormatLastInteractionTime(recentMessage.createdAt);
 
-            private string FormatLastInteractionTime(DateTime timestamp)
+            // Lấy nickname bất đồng bộ
+            string? nickName = chatRoom.Content.LastOrDefault()?.sentBy.UserNameToName(chatRoom)??"";
+
+            // Kiểm tra nếu tin nhắn là loại "Message"
+            if (recentMessage.messageType == MessageType.Text)
             {
-                var now = DateTime.Now;
-
-                // Nếu trong cùng một ngày
-                if (timestamp.Date == now.Date)
-                {
-                    return timestamp.ToString("HH:mm"); // {giờ:phút}
-                }
-
-                // Nếu thuộc ngày trước (trong cùng năm và tháng)
-                if (timestamp.Year == now.Year && timestamp.Month == now.Month && timestamp.Day == now.Day - 1)
-                {
-                    return "Hôm qua";
-                }
-
-                // Kiểm tra nếu cùng tuần (trước ngày hôm qua)
-                if (timestamp.Year == now.Year && timestamp.DayOfYear >= now.DayOfYear - 7 && timestamp.DayOfYear < now.DayOfYear - 1)
-                {
-                    return timestamp.ToString("dddd"); // {thứ}
-                }
-
-                // Nếu cùng năm nhưng khác tháng
-                if (timestamp.Year == now.Year)
-                {
-                    return timestamp.ToString("dd/MM"); // {ngày+tháng}
-                }
-
-                // Nếu khác năm
-                return timestamp.ToString("MM/yyyy"); // {tháng+năm}
+                string? recent = recentMessage.message ?? "";
+                // Trả về chuỗi hiển thị
+                return (recent, nickName, LastTime);
             }
-
-            private string GetMessagePreview(string? content)
+            if (recentMessage.messageType == MessageType.Media)
             {
-                if(string.IsNullOrEmpty(content))
-                {
-                    return "";
-                }
-                // Nếu chuỗi dài hơn 30 ký tự, cắt và thêm dấu "..."
-                return content.Length > 30
-                    ? content.Substring(0, 30) + "..."
-                    : content;
+                return ("[Photo/Media]", nickName, LastTime);
             }
+            if (recentMessage.messageType == MessageType.File)
+            {
+                return ($"[File]", nickName, LastTime);
+            }
+            if (recentMessage.messageType == MessageType.Voice)
+            {
+                return ($"[Voice]", nickName, LastTime);
+            }
+
+            // Nếu không phải loại "Message", trả về chuỗi rỗng hoặc thông báo khác
+            return (string.Empty, nickName, string.Empty);
+        }
+
+        private string FormatLastInteractionTime(DateTime timestamp)
+        {
+            var now = DateTime.Now;
+
+            // Nếu trong cùng một ngày
+            if (timestamp.Date == now.Date)
+            {
+                return timestamp.ToString("HH:mm"); // {giờ:phút}
+            }
+
+            // Nếu thuộc ngày trước (trong cùng năm và tháng)
+            if (timestamp.Year == now.Year && timestamp.Month == now.Month && timestamp.Day == now.Day - 1)
+            {
+                return "Hôm qua";
+            }
+
+            // Kiểm tra nếu cùng tuần (trước ngày hôm qua)
+            if (timestamp.Year == now.Year && timestamp.DayOfYear >= now.DayOfYear - 7 && timestamp.DayOfYear < now.DayOfYear - 1)
+            {
+                return timestamp.ToString("dddd"); // {thứ}
+            }
+
+            // Nếu cùng năm nhưng khác tháng
+            if (timestamp.Year == now.Year)
+            {
+                return timestamp.ToString("dd/MM"); // {ngày+tháng}
+            }
+
+            // Nếu khác năm
+            return timestamp.ToString("MM/yyyy"); // {tháng+năm}
+        }
+
+        private string GetMessagePreview(string? content)
+        {
+            if(string.IsNullOrEmpty(content))
+            {
+                return "";
+            }
+            // Nếu chuỗi dài hơn 30 ký tự, cắt và thêm dấu "..."
+            return content.Length > 30
+                ? content.Substring(0, 30) + "..."
+                : content;
+        }
 
         public async Task<ChatGroupModel?> GetGroupById(string groupId)
         {

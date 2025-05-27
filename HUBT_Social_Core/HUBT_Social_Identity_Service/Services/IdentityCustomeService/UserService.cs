@@ -169,28 +169,42 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             var userlist  = _userManager.Users.ToList<TUser>();
             return userlist ?? null;
         }
-        public Task<(List<TUser>,bool,string?)> GetUserByRole(string RoleName,int page = 0)
+        public Task<(List<TUser>,bool,string)> GetUserByRole(string RoleName,int page = 0)
         {
+            RoleName = RoleName.ToUpper();
             bool hasMore = true;
             int pageSize = 100;
             var role = _roleManager.Roles
                 .Where(r => r.Name == RoleName)
                 .FirstOrDefault();
 
-            if (role == null) return Task.FromResult<(List<TUser>, bool, string?)>((new List<TUser>(),hasMore,"Role khong hop le."));
-            int quantityUser = _userManager.Users.Count();
+            if (role == null) return Task.FromResult<(List<TUser>, bool, string)>((new List<TUser>(),hasMore,"Role khong hop le."));
+            
+            int quantityUser = 0;
+            List<TUser> users = [];
+            if (role.Name != "USER")
+            {
+                users = [.. _userManager.Users.Where(u => u.Roles.Contains(role.Id))];
+                quantityUser = users.Count;
+            }
+            else
+            {
+                quantityUser = _userManager.Users.Count();
+                users = [.. _userManager.Users];
+            }
+
             if ((page+1)*pageSize - quantityUser >= pageSize) 
             {
-                return Task.FromResult<(List<TUser>, bool, string?)>(([], !hasMore,null));
+                return Task.FromResult<(List<TUser>, bool, string)>(([], !hasMore,""));
             }
-            var users = _userManager.Users
+            var returnUsers = _userManager.Users
                 .Skip(page * pageSize)
                 .Take(pageSize)
                 .Where(u => u.Roles.Contains(role.Id))
                 .ToList();
 
             
-            return Task.FromResult<(List<TUser>, bool, string?)>((users, hasMore, null));
+            return Task.FromResult<(List<TUser>, bool, string)>((users, hasMore, ""));
         }
 
         public async Task<bool> CheckRole(string userName, string roleName)

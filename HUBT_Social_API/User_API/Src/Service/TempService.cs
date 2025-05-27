@@ -66,6 +66,17 @@ namespace User_API.Src.Service
             return responseDTO.ConvertTo<ClassScheduleVersionDTO>() ?? new();
         }
 
+        public async Task<CouresDTO> GetCourses(string className, string id)
+        {
+            string path = APIEndPoint.TempUrls.TempTimetableGetCourse
+                .BuildUrl(
+                    new Dictionary<string, string> { { "className", className }, { "coursesId", id } }
+                );
+            ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
+            CouresDTO? couresDTO = responseDTO.ConvertTo<List<CouresDTO>>()?.FirstOrDefault();
+            return couresDTO ?? new();
+
+        }
         public async Task<List<CouresDTO>> GetCourses(string className)
         {
             string path = APIEndPoint.TempUrls.TempTimetableGetCourse
@@ -73,7 +84,7 @@ namespace User_API.Src.Service
                     new Dictionary<string, string> { { "className", className } }
                 );
             ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
-            
+
             return responseDTO.ConvertTo<List<CouresDTO>>() ?? [];
 
         }

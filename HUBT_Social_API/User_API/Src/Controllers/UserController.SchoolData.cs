@@ -117,31 +117,37 @@ namespace User_API.Src.Controllers
                         };
                         if (createTempCourseRequest.TimeTableDTO.Room != "baitap")
                             createTempCourseRequest.TimeTableDTO.Subject = subjectDTO.TenMon;
-                        CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
-                        if (couresDTO.Id != string.Empty)
+                        if (createTempCourseRequest.CourseId != string.Empty)
                         {
-                            ResponseDTO response = await _userService.GetUserByRole("TEACHER",10);
-                            List<AUserDTO>? teacherDTOs = response.ConvertTo<List<AUserDTO>>();
-                            if (teacherDTOs != null)
+                            ResponseDTO response = await _userService.GetUserByRole("TEACHER",0);
+                            GetUserByRoleResponses? getUserByRoles = response.ConvertTo<GetUserByRoleResponses>();
+                            if (getUserByRoles != null)
                             {
+                                List<AUserDTO> teacherDTOs = getUserByRoles.AUserDTOs;
                                 int index = random.Next(0, teacherDTOs.Count);
                                 AUserDTO SelectTeacher = teacherDTOs[index];
-                                couresDTO.TeacherIDs = [SelectTeacher.UserName];
+                                createTempCourseRequest.TeacherIDs = [SelectTeacher.UserName];
                             }
 
 
-                            couresDTOs.Add(couresDTO);
                             CreateGroupRequest createGroupRequest = new()
                             {
-                                GroupName = $"{couresDTO.TimeTableDTO.Session} Thứ {couresDTO.TimeTableDTO.Day} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
-                                UserNames = [.. couresDTO.TeacherIDs, .. couresDTO.StudentIDs],
+                                GroupName = $"{createTempCourseRequest.TimeTableDTO.Session} Thứ {createTempCourseRequest.TimeTableDTO.Day} - {createTempCourseRequest.TimeTableDTO.Subject} - {createTempCourseRequest.TimeTableDTO.ClassName}",
+                                UserNames = [.. createTempCourseRequest.TeacherIDs, .. createTempCourseRequest.StudentIDs],
                                 GroupType = TypeChatRoom.GroupChat
                             };
-                            if (await _chatService.CreateChatRoom(createGroupRequest, accessToken))
+                            
+                            CreateChatResponse chat = await _chatService.CreateChatRoom(createGroupRequest, accessToken);
+                            if (!string.IsNullOrEmpty(chat.Id))
+                            {
+                                createTempCourseRequest.RoomId = chat.Id;    
                                 Console.WriteLine("Them nhom chat thanh cong");
+                            }
                             else 
                                 Console.WriteLine("Khong them nhom chat duoc ");
                             
+                            CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
+                            couresDTOs.Add(couresDTO);
 
                         }
                     }
@@ -182,26 +188,39 @@ namespace User_API.Src.Controllers
                 return NotFound();
 
             TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId);
+            CouresDTO couresDTO = await _tempService.GetCourses(timeTableDTO.ClassName,timeTableDTO.CourseId);
 
-            if (timeTableDTO.Id == string.Empty)
+            if (timeTableDTO.Id == string.Empty || couresDTO.Id == string.Empty)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
 
-            List<StudentDTO> studentDTOs = await _outSourceService.GetStudentByClassName(studentDTO.TenLop);
-            if (studentDTOs.Count != 0)
+            
+            List<AUserDTO> aUserDTOs = [];
+            foreach (string studentId in couresDTO.StudentIDs)
             {
-                List<AUserDTO> aUserDTOs = [];
-                foreach (var student in studentDTOs)
+                ResponseDTO response = await _userService.FindUserByUserName(accessToken, studentId);
+                AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
+                if (aUserDTO != null)
                 {
-                    ResponseDTO response = await _userService.FindUserByUserName(accessToken, student.MaSV);
-                    AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
-                    if (aUserDTO != null)
-                    {
-                        aUserDTOs.Add(aUserDTO);
-                    }
+                    aUserDTOs.Add(aUserDTO);
                 }
-                TimetableInfo timetableInfo = new(timeTableDTO, aUserDTOs);
+            }
+            List<AUserDTO> teacherDTOs = [];
+            foreach (string teacherId in couresDTO.TeacherIDs)
+            {
+                ResponseDTO response = await _userService.FindUserByUserName(accessToken, teacherId);
+                AUserDTO? teacherDTO = response.ConvertTo<AUserDTO>();
+                if (teacherDTO != null)
+                {
+                    teacherDTOs.Add(teacherDTO);
+                }
+            }
+
+            if (aUserDTOs.Count != 0 && teacherDTOs.Count != 0)
+            {
+                TimetableInfo timetableInfo = new(timeTableDTO, aUserDTOs,teacherDTOs, couresDTO.RoomId);
                 return Ok(timetableInfo);
             }
+            
 
 
 
