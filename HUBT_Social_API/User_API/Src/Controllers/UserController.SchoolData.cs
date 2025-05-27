@@ -301,6 +301,20 @@ namespace User_API.Src.Controllers
             }
         return BadRequest("Cây hỏi không đổi được.");
         }
+        [HttpGet("questions")]
+        public async Task<IActionResult> GetQuestions([FromQuery] string major)
+        {
+            if (string.IsNullOrEmpty(major))
+                return BadRequest("Yêu cầu không hợp lệ.");
+
+            List<ExamDTO> questions = await _tempService.GetExam(major);
+
+            if (questions.Count > 0)
+            {
+                return Ok(questions);
+            }
+            return BadRequest("Cây hỏi không đổi được.");
+        }
         public class FileUploadModel
         {
             [Required]

@@ -25,6 +25,8 @@ namespace User_API.Src.Service
 
         Task<ExamDTO> StoreExam(ExamDTO request);
 
+        Task<List<ExamDTO>> GetExam(string major);
+
 
     }
 }

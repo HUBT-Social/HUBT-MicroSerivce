@@ -1,4 +1,5 @@
-﻿using HUBT_Social_Base;
+﻿using Amazon.Runtime.Internal;
+using HUBT_Social_Base;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core.ASP_Extensions;
@@ -113,6 +114,24 @@ namespace User_API.Src.Service
             
             return new();
             
+        }
+
+        public async Task<List<ExamDTO>> GetExam(string major)
+        {
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamMajor.
+                BuildUrl( new Dictionary<string, string>
+                {
+                      {"major", major }
+                })
+                , ApiType.GET);
+            if (responseDTO.StatusCode == HttpStatusCode.OK)
+            {
+                return responseDTO.ConvertTo<List<ExamDTO>>() ?? new();
+            }
+
+
+            return new();
+
         }
     }
 }
