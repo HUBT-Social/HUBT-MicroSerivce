@@ -157,11 +157,10 @@ namespace Notation_API.Src.Controllers
                 {
                     try
                     {
-                        var uploadResponse = await _httpCloudService.GetUrlFormFile(request.Image);
+                        var uploadResponse = await _httpCloudService.GetUrlFormBase6(request.Image);
                         if (string.IsNullOrEmpty(uploadResponse))
                         {
-                            //_logger.LogWarning("Image upload failed for notification with RequestId: {RequestId}", request.RequestId);
-                            // Continue without image if upload fails
+
                         }
                         else
                         {
@@ -170,8 +169,7 @@ namespace Notation_API.Src.Controllers
                     }
                     catch (Exception ex)
                     {
-                        //_logger.LogError(ex, "Error uploading image for notification with RequestId: {RequestId}", request.RequestId);
-                        // Continue without image
+
                     }
                 }
 
@@ -186,7 +184,6 @@ namespace Notation_API.Src.Controllers
                     }
                     catch (Exception ex)
                     {
-                        //_logger.LogError(ex, "Failed to send notification to FCM token: {Token}", fmc);
                         failedTokens.Add(fmc);
                     }
                 }
@@ -205,9 +202,8 @@ namespace Notation_API.Src.Controllers
 
                 return Ok("Đã gửi.");
             }
-            catch (Exception ex)
+            catch
             {
-                //_logger.LogError(ex, "Error processing notification request with RequestId: {RequestId}", request.RequestId);
                 return StatusCode(500, LocalValue.Get(KeyStore.NotificationSendError));
             }
         }

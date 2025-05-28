@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CloudServiceCenter.src.HelperFile;
+using CloudServiceCenter.src.Service;
 using HUBT_Social_Base;
+using HUBT_Social_Base.Models;
 using HUBT_Social_Core;
 using HUBT_Social_Core.Models.Requests.Cloud;
 using HUBT_Social_Core.Settings;
@@ -13,9 +15,9 @@ namespace CloudServiceCenter.src.Controller
 {
     [Route("api/cloudinary")]
     [ApiController]
-    public class UploadController(HUBT_Social_Base.Service.ICloudService clouldService) : CoreController
+    public class UploadController(ICloudService clouldService) : CoreController
     {
-        public readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
+        public readonly ICloudService _clouldService = clouldService;
 
 
 
