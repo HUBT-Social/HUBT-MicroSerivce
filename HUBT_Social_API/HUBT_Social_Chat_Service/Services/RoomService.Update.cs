@@ -1,4 +1,5 @@
-﻿using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
+﻿using HUBT_Social_Base.Service;
+using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
 using HUBT_Social_Chat_Resources.Dtos.Request.UpdateRequest;
 using HUBT_Social_Chat_Resources.Models;
 using HUBT_Social_Chat_Service.Interfaces;
@@ -16,10 +17,10 @@ using System.Threading.Tasks;
 
 namespace HUBT_Social_Chat_Service.Services
 {
-    public class RoomUpdateService(IMongoService<ChatGroupModel> chatGroups, HUBT_Social_Base.Service.ICloudService clouldService) : IRoomUpdateService
+    public class RoomUpdateService(IMongoService<ChatGroupModel> chatGroups, IHttpCloudService clouldService) : IRoomUpdateService
     {
         private readonly IMongoService<ChatGroupModel> _chatGroups = chatGroups;
-        public readonly HUBT_Social_Base.Service.ICloudService _clouldService = clouldService;
+        public readonly IHttpCloudService _clouldService = clouldService;
 
         public async Task<(bool, string)> UpdateGroupNameAsync(string groupId, string newName)
         {
@@ -66,8 +67,8 @@ namespace HUBT_Social_Chat_Service.Services
                 {
                     return (false, "The group dose not exist.");
                 }
-                var uploadResult = await _clouldService.UploadFileAsync(file);
-                if (uploadResult?.Url == null) 
+                var uploadResult = await _clouldService.GetUrlFormFile(new HUBT_Social_Base.Models.FileRequest { file = file });
+                if (uploadResult == null) 
                 {
                     return (false, "Update failed.");
                 }
@@ -76,7 +77,7 @@ namespace HUBT_Social_Chat_Service.Services
                 Expression<Func<ChatGroupModel, bool>> filter = c => c.Id == groupId;
 
                 // Định nghĩa update
-                var update = Builders<ChatGroupModel>.Update.Set(c => c.AvatarUrl, uploadResult.Url);
+                var update = Builders<ChatGroupModel>.Update.Set(c => c.AvatarUrl, uploadResult);
 
                 // Gọi phương thức UpdateAsync
                 bool success = await _chatGroups.UpdateByFilter(filter, update);
