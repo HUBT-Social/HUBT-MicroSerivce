@@ -9,7 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HUBT_Social_Base.Service
+namespace CloudServiceCenter.src.Service
 {
      public class CloudService : ICloudService
      {

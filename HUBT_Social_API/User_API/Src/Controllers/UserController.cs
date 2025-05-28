@@ -1,5 +1,6 @@
 ﻿using HUBT_Social_API.Src.Features.Auth.Dtos.Request.UpdateUserRequest;
 using HUBT_Social_Base.ASP_Extentions;
+using HUBT_Social_Base.Models;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core;
 using HUBT_Social_Core.Decode;
@@ -203,11 +204,11 @@ namespace User_API.Src.Controllers
         }
 
         [HttpPut("update-avatar")]
-        public async Task<IActionResult> UpdateAvatar([FromBody] UpdateAvatarRequest request)
+        public async Task<IActionResult> UpdateAvatar(FileRequest request)
         {
-            if (request.File == null) return BadRequest("File is null");
+            if (request.file == null) return BadRequest("File is null");
 
-            string? newUrl = await _cloudService.GetUrlFormFile(request.File);
+            string? newUrl = await _cloudService.GetUrlFormFile(request);
             if (string.IsNullOrEmpty(newUrl)) return BadRequest("Update failed");
 
             var token = Request.Headers.ExtractBearerToken();
