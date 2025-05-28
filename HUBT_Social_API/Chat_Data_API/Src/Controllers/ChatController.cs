@@ -62,7 +62,14 @@ namespace Chat_Data_API.Src.Controllers
                 return BadRequest("Token is not valid");
 
             // Tạo ChatRoomModel
-            var newChatRoom = CreateChatRoom(createGroupRequest.GroupName, createGroupRequest.Participants);
+            var newChatRoom = new ChatGroupModel
+            {
+                Name = createGroupRequest.GroupName,
+                AvatarUrl = createGroupRequest.GroupType == TypeChatRoom.GroupChat ? LocalValue.Get(KeyStore.DefaultGroupImage) : string.Empty,
+                Participant = createGroupRequest.Participants,
+                TypeChatGroup = createGroupRequest.GroupType,
+                CreatedAt = DateTime.UtcNow
+            }; ;
 
             // Lưu ChatRoom vào database
             // Gửi yêu cầu tạo một group mới, kết quả nhận về sẽ gômf một tuple ( status, message) 
@@ -98,32 +105,26 @@ namespace Chat_Data_API.Src.Controllers
 
             return BadRequest(result.Item2);
         }
-        // Phương thức kiểm tra đầu vào
-        private static string? ValidateCreateGroupRequest(CreateGroupRequestData request)
+        /// <summary>
+        /// Kiểm tra điều kiện đầu vào
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private string? ValidateCreateGroupRequest(CreateGroupRequestData request)
         {
-            if (string.IsNullOrEmpty(request.GroupName))
+            if (string.IsNullOrWhiteSpace(request.GroupName))
                 return LocalValue.Get(KeyStore.GroupNameRequired);
+            bool isValidGroupType = request.GroupType == TypeChatRoom.SingleChat || request.GroupType == TypeChatRoom.GroupChat;
+            if (!isValidGroupType)
+                return "GroupType chỉ nhận hai giá trị: 0 - P-P, 1 - Group";
+            if (request.Participants == null)
+                return "Danh sách thành viên không được để trống";
+            if (request.GroupType == TypeChatRoom.GroupChat && request.Participants.Count < 3)
+                return "GroupChat cần ít nhất 3 người tham gia";
+            if (request.GroupType == TypeChatRoom.SingleChat && request.Participants.Count != 2)
+                return "SingleChat chỉ được phép có đúng 2 người tham gia";
 
-            if (request.GroupType != TypeChatRoom.SingleChat && request.GroupType != TypeChatRoom.GroupChat)
-            {
-                return "Group Type chi nhan hai gia tri 0: P-P, 1: Group";
-            }
-            if (request.Participants.Count < 3 && request.GroupType == TypeChatRoom.GroupChat)
-            {
-                return "Khong du nguoi";
-            return null;
-        }
-
-        // Phương thức tạo ChatRoomModel
-        private static ChatGroupModel CreateChatRoom(string groupName, List<Participant> participants, TypeChatRoom type = TypeChatRoom.GroupChat)
-        {
-            return new ChatGroupModel
-            {
-                Name = groupName,
-                AvatarUrl = LocalValue.Get(KeyStore.DefaultUserImage),
-                Participant = participants,
-                CreatedAt = DateTime.UtcNow
-            };
+            return null; 
         }
 
         [HttpDelete("delete-group")]
@@ -180,4 +181,5 @@ namespace Chat_Data_API.Src.Controllers
         }
 
     }
-}
+    }
+
