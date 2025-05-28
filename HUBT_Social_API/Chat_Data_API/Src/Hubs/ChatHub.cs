@@ -110,8 +110,9 @@ namespace Chat_Data_API.Src.Hubs
         public async Task SendItemChat(SendChatRequest inputRequest)
         {
             var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
-            string? token = Context.GetHttpContext()?.Request.Headers.ExtractBearerToken();
-            if (userInfo == null && userInfo?.Username == null && token == null)
+            string? token = Context.GetHttpContext()?.Request.Query["access_token"].FirstOrDefault();
+            Console.WriteLine("Token", token);
+            if (userInfo == null || userInfo?.Username == null || token == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
@@ -199,12 +200,14 @@ namespace Chat_Data_API.Src.Hubs
             }
             if (sendSuccessful)
             {
+                Console.WriteLine("Co the gui thong bao");
                 try
                 {
                     string body = inputRequest.Content != null
                         ? inputRequest.Content
                         : "You have unread message!";
                     List<string> UserNames = chatGroupModel.Participant.Select(p => p.UserName).Where(u => u!= userInfo.Username).ToList();
+                    
                     SendNotationToGroupChatRequest request = new SendNotationToGroupChatRequest
                     {
                         UserNames = UserNames,
