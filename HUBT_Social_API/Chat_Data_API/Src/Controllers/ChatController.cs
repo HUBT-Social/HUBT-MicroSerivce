@@ -65,7 +65,7 @@ namespace Chat_Data_API.Src.Controllers
             var newChatRoom = new ChatGroupModel
             {
                 Name = createGroupRequest.GroupName,
-                AvatarUrl = createGroupRequest.GroupType == TypeChatRoom.GroupChat ? LocalValue.Get(KeyStore.DefaultGroupImage) : string.Empty,
+                AvatarUrl = createGroupRequest.GroupType == TypeChatRoom.GroupChat ? KeyStore.DefaultGroupImage : string.Empty,
                 Participant = createGroupRequest.Participants,
                 TypeChatGroup = createGroupRequest.GroupType,
                 CreatedAt = DateTime.UtcNow
