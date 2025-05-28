@@ -25,12 +25,12 @@ namespace Chat_API.Src.Services
 
         public async Task<ResponseDTO> CreateGroupAsync(CreateGroupRequestData createGroupRequest,string token)
         {
-            return  await SendRequestAsync(APIEndPoint.ChatDataUrls.Post_Create_Group, ApiType.POST, createGroupRequest, token);
+            return  await SendRequestAsync(APIEndPoint.ChatDataUrls.PostCreateGroup, ApiType.POST, createGroupRequest, token);
         }
 
         public async Task<ResponseDTO> DeleteGroupAsync(string groupId, string token)
         {
-            string path = APIEndPoint.ChatDataUrls.Delete_Group
+            string path = APIEndPoint.ChatDataUrls.DeleteGroup
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -42,7 +42,7 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupSearchResponse>> SearchGroupsAsync(string keyword, int page, int limit, string token)
         {
-            string path = APIEndPoint.ChatDataUrls.Get_Search_Group
+            string path = APIEndPoint.ChatDataUrls.GetSearchGroup
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -61,7 +61,7 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupSearchResponse>> GetAllRoomsAsync(int page, int limit, string token)
         {
-            string path = APIEndPoint.ChatDataUrls.Get_All_Group
+            string path = APIEndPoint.ChatDataUrls.GetAllGroup
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -84,7 +84,7 @@ namespace Chat_API.Src.Services
 
         public async Task<List<GroupLoadingResponse>> GetRoomsOfUserAsync(int page, int limit,string token)
         {
-            string path = APIEndPoint.ChatDataUrls.Get_User_Group
+            string path = APIEndPoint.ChatDataUrls.GetUserGroup
                 .BuildUrl(
                     new Dictionary<string, string>
                     {

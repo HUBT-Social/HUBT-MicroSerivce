@@ -12,6 +12,10 @@ using User_API.Src.Models;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Models.Requests.Chat;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Headers;
+using HUBT_Social_Core.Settings.@enum;
 
 namespace User_API.Src.Controllers
 {
@@ -20,11 +24,13 @@ namespace User_API.Src.Controllers
     public class UserShoolDataController(IUserService userService,
         IOutSourceService outSourceService,
         ITempService tempService,
+        IHelperService helperService,
         IChatService chatService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
         private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly ITempService _tempService = tempService;
+        private readonly IHelperService _helperService = helperService;
         private readonly IChatService _chatService = chatService;
         [HttpGet("timetable")]
         public async Task<IActionResult> GetUserTimeTable()
@@ -111,20 +117,37 @@ namespace User_API.Src.Controllers
                         };
                         if (createTempCourseRequest.TimeTableDTO.Room != "baitap")
                             createTempCourseRequest.TimeTableDTO.Subject = subjectDTO.TenMon;
-                        CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
-                        if (couresDTO.Id != string.Empty)
+                        if (createTempCourseRequest.CourseId != string.Empty)
                         {
-                            couresDTOs.Add(couresDTO);
+                            ResponseDTO response = await _userService.GetUserByRole("TEACHER",0);
+                            GetUserByRoleResponses? getUserByRoles = response.ConvertTo<GetUserByRoleResponses>();
+                            if (getUserByRoles != null)
+                            {
+                                List<AUserDTO> teacherDTOs = getUserByRoles.AUserDTOs;
+                                int index = random.Next(0, teacherDTOs.Count);
+                                AUserDTO SelectTeacher = teacherDTOs[index];
+                                createTempCourseRequest.TeacherIDs = [SelectTeacher.UserName];
+                            }
+
+
                             CreateGroupRequest createGroupRequest = new()
                             {
-                                GroupName = $"{couresDTO.TimeTableDTO.Session} Thứ {couresDTO.TimeTableDTO.Day} - {couresDTO.TimeTableDTO.Subject} - {couresDTO.TimeTableDTO.ClassName}",
-                                UserNames = couresDTO.StudentIDs
+                                GroupName = $"{createTempCourseRequest.TimeTableDTO.Session} Thứ {createTempCourseRequest.TimeTableDTO.Day} - {createTempCourseRequest.TimeTableDTO.Subject} - {createTempCourseRequest.TimeTableDTO.ClassName}",
+                                UserNames = [.. createTempCourseRequest.TeacherIDs, .. createTempCourseRequest.StudentIDs],
+                                GroupType = TypeChatRoom.GroupChat
                             };
-                            if (await _chatService.CreateChatRoom(createGroupRequest, accessToken))
+                            
+                            CreateChatResponse chat = await _chatService.CreateChatRoom(createGroupRequest, accessToken);
+                            if (!string.IsNullOrEmpty(chat.Id))
+                            {
+                                createTempCourseRequest.RoomId = chat.Id;    
                                 Console.WriteLine("Them nhom chat thanh cong");
+                            }
                             else 
                                 Console.WriteLine("Khong them nhom chat duoc ");
                             
+                            CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
+                            couresDTOs.Add(couresDTO);
 
                         }
                     }
@@ -134,6 +157,7 @@ namespace User_API.Src.Controllers
                 {
                     userTimetableOutput.ReformTimetables = timetableOutputDTOs;
                 }
+                userTimetableOutput.Starttime = DateTime.UtcNow.AddMonths(-2);
                 userTimetableOutput.VersionKey = classScheduleVersionDTO.VersionKey;
                 return Ok(userTimetableOutput);
                 
@@ -164,26 +188,39 @@ namespace User_API.Src.Controllers
                 return NotFound();
 
             TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId);
+            CouresDTO couresDTO = await _tempService.GetCourses(timeTableDTO.ClassName,timeTableDTO.CourseId);
 
-            if (timeTableDTO.Id == string.Empty)
+            if (timeTableDTO.Id == string.Empty || couresDTO.Id == string.Empty)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
 
-            List<StudentDTO> studentDTOs = await _outSourceService.GetStudentByClassName(studentDTO.TenLop);
-            if (studentDTOs.Count != 0)
+            
+            List<AUserDTO> aUserDTOs = [];
+            foreach (string studentId in couresDTO.StudentIDs)
             {
-                List<AUserDTO> aUserDTOs = [];
-                foreach (var student in studentDTOs)
+                ResponseDTO response = await _userService.FindUserByUserName(accessToken, studentId);
+                AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
+                if (aUserDTO != null)
                 {
-                    ResponseDTO response = await _userService.FindUserByUserName(accessToken, student.MaSV);
-                    AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
-                    if (aUserDTO != null)
-                    {
-                        aUserDTOs.Add(aUserDTO);
-                    }
+                    aUserDTOs.Add(aUserDTO);
                 }
-                TimetableInfo timetableInfo = new(timeTableDTO, aUserDTOs);
+            }
+            List<AUserDTO> teacherDTOs = [];
+            foreach (string teacherId in couresDTO.TeacherIDs)
+            {
+                ResponseDTO response = await _userService.FindUserByUserName(accessToken, teacherId);
+                AUserDTO? teacherDTO = response.ConvertTo<AUserDTO>();
+                if (teacherDTO != null)
+                {
+                    teacherDTOs.Add(teacherDTO);
+                }
+            }
+
+            if (aUserDTOs.Count != 0 && teacherDTOs.Count != 0)
+            {
+                TimetableInfo timetableInfo = new(timeTableDTO, aUserDTOs,teacherDTOs, couresDTO.RoomId);
                 return Ok(timetableInfo);
             }
+            
 
 
 
@@ -238,6 +275,57 @@ namespace User_API.Src.Controllers
 
 
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
+        }
+        [HttpPost("extract-questions")]
+        public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Đầu vào không Hợp lệ");
+
+            if (request == null || request.File.Length == 0)
+                return BadRequest("File không hợp lệ.");
+            Question[] questions = await _helperService.ExtractQuestions(request.File);
+            if (questions.Length > 0)
+            {
+                ExamDTO examDTO = new()
+                    {
+                        Title = request.Title,
+                        Description = request.Description,
+                        Image = request.ImageUrl,
+                        Major = request.Major,
+                        Credits = request.Credits,
+                        Questions = questions
+                    };
+                examDTO = await _tempService.StoreExam(examDTO);
+                return Ok(examDTO);
+            }
+        return BadRequest("Cây hỏi không đổi được.");
+        }
+        [HttpGet("questions")]
+        public async Task<IActionResult> GetQuestions([FromQuery] string major)
+        {
+            if (string.IsNullOrEmpty(major))
+                return BadRequest("Yêu cầu không hợp lệ.");
+
+            List<ExamDTO> questions = await _tempService.GetExam(major);
+
+            if (questions.Count > 0)
+            {
+                return Ok(questions);
+            }
+            return BadRequest("Cây hỏi không đổi được.");
+        }
+        public class FileUploadModel
+        {
+            [Required]
+            public string Title { get; set; } = string.Empty;
+            public string Description { get; set; } = "Môn học giúp bạn có thể cải thiện kỹ năng";
+            public string ImageUrl { get; set; } = "https://cdn.pixabay.com/photo/2016/10/25/12/28/chemistry-1762804_1280.png";
+            [Required]
+            public string Major { get; set; } = string.Empty;
+            public int Credits { get; set; } = 2;
+            [Required]
+            public IFormFile File { get; set; } = null!;
         }
     }
 }

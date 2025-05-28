@@ -114,7 +114,9 @@ namespace TempRegister_API.Src.Controllers
                 {
                     CourseID = request.CourseId,
                     StudentIDs = request.StudentIDs,
-                    TimeTableDTO = request.TimeTableDTO
+                    TeacherIDs = request.TeacherIDs,
+                    TimeTableDTO = request.TimeTableDTO,
+                    RoomId = request.RoomId
                 };
                 if (await _tempCourse.Create(course))
                 {
@@ -168,7 +170,7 @@ namespace TempRegister_API.Src.Controllers
             if (!string.IsNullOrEmpty(className))
             {
                 List<TempCourse> courses = await _tempCourse.Find(cs =>
-                            cs.TimeTableDTO.ClassName == className 
+                            cs.TimeTableDTO.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase)
                             ).ToListAsync();
 
                 if (courses.Count > 0)

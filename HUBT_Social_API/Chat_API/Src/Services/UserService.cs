@@ -17,19 +17,19 @@ namespace Chat_API.Src.Services
     {
         public async Task<ResponseDTO> GetUserRequest(string accessToken)
         {
-            string path = APIEndPoint.IdentityUrls.Get_Current_User;
+            string path = APIEndPoint.IdentityUrls.GetCurrentUser;
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
         public async Task<ResponseDTO> GetAllUser(string accessToken)
         {
-            string path = APIEndPoint.IdentityUrls.Get_All_User;
+            string path = APIEndPoint.IdentityUrls.GetAllUser;
             return await SendRequestAsync(path, ApiType.GET, null, accessToken);
         }
         public async Task<List<AUserDTO>?> GetUsersByUserNames(List<string> request, string accessToken)
         {
             string queryString = string.Join("&", request.Select(u => $"userNames={Uri.EscapeDataString(u)}"));
             Console.WriteLine(queryString);
-            string path = APIEndPoint.IdentityUrls.Get_User_In_List_User_Name + "?"+ queryString;
+            string path = APIEndPoint.IdentityUrls.GetUserInListUserName + "?"+ queryString;
             ResponseDTO response = await SendRequestAsync(path,ApiType.GET, null, accessToken);
             if(response.StatusCode == HttpStatusCode.OK)
             {
@@ -40,7 +40,7 @@ namespace Chat_API.Src.Services
 
         public async Task<AUserDTO?> GetUserByUserName(string userName, string accessToken)
         {
-            string path = APIEndPoint.IdentityUrls.Get_User_From_EUI
+            string path = APIEndPoint.IdentityUrls.GetUserFromEUI
                 .BuildUrl(
                     new Dictionary<string, string>
                     {

@@ -18,7 +18,7 @@ namespace Chat_API.Src.Services
     {
         public async Task<List<CreateGroupByCourse>?> GetCourse(int page)
         {
-            string path = APIEndPoint.TempUrls.TempCourse_Get
+            string path = APIEndPoint.TempUrls.TempCourseGet
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -34,7 +34,7 @@ namespace Chat_API.Src.Services
         }
         public async Task<bool> PutStatus(string courseId)
         {
-            string path = APIEndPoint.TempUrls.TempCourse_UpdateStatus
+            string path = APIEndPoint.TempUrls.TempCourseUpdateStatus
                 .BuildUrl(
                     new Dictionary<string, string>
                     {

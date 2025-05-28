@@ -6,6 +6,7 @@ using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
+using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Net;
+using System.Runtime.InteropServices;
+using User_API.Src.Models;
 using User_API.Src.Service;
 using User_API.Src.UpdateUserRequest;
 
@@ -20,11 +23,15 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService,INotationService notationService, IHttpCloudService cloudService) : ControllerBase
+    public class UserController(IUserService userService,
+        INotationService notationService,
+        IHttpCloudService cloudService,
+        IOutSourceService outSourceService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
         private readonly INotationService _notationService = notationService; 
         private readonly IHttpCloudService _cloudService = cloudService;
+        private readonly IOutSourceService _outSourceService = outSourceService;
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string? username)
         {
@@ -46,6 +53,9 @@ namespace User_API.Src.Controllers
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
             {
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+                AVGScoreDTO? scoreDTO = await _outSourceService.GetAVGScoreByMasv(userDTO.UserName);
+ 
                 return Ok(new
                 {
                     AvatarUrl = userDTO.AvataUrl,
@@ -55,12 +65,67 @@ namespace User_API.Src.Controllers
                     userDTO.Gender,
                     userDTO.Email,
                     BirthDay = userDTO.DateOfBirth,
-                    userDTO.PhoneNumber
+                    userDTO.PhoneNumber,
+                    ClassName = studentDTO?.TenLop ?? "",
+                    Score4 = scoreDTO?.DiemTB4 ?? 0,
+                    Score10 = scoreDTO?.DiemTB10 ?? 0,
                 });
             }
                 
 
             
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+
+        }
+        [HttpGet("get-user-courese")]
+        public async Task<IActionResult> GetUserCourese()
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+            
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+
+                List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "");
+                List<UserCoures>? userCoures = [];
+                if (subjectDTOs == null || subjectDTOs.Count == 0)
+                    return BadRequest(LocalValue.Get(KeyStore.NoMessagesFound));
+                foreach (SubjectDTO subject in subjectDTOs)
+                {
+                    int khoas;
+                    if (DateTime.Now.Month < 8)
+                    {
+                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas;
+                    }
+                    else
+                    {
+                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas + 1;
+                    }
+                    UserCoures userCouresItem = new ()
+                    {
+                        Major = subject.Manganh,
+                        SubjectName = subject.TenMon,
+                        SubjectCredit = (int)subject.Sotin,
+                        SubjectYear = khoas + 1
+                    };
+                    if (userCouresItem.SubjectYear <= 4)
+                        userCoures.Add(userCouresItem);
+                }
+                
+                return Ok(userCoures);
+            }
+
             if (result.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return Unauthorized(result.Message);

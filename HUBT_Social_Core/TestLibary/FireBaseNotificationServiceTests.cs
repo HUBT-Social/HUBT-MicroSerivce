@@ -50,7 +50,7 @@ namespace TestLibary
             Assert.NotNull(firebaseService);
             Assert.IsType<FireBaseNotificationService>(firebaseService);
             // Act & Assert dadad
-            var exception = await Record.ExceptionAsync(async () => await firebaseService.SendPushNotificationAsync(sendMessageRequest));
+            var exception = await Record.ExceptionAsync(async () => await firebaseService.SendNotificationAsync(sendMessageRequest));
             Assert.Null(exception);
         }
 

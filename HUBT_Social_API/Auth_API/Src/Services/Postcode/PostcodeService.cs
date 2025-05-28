@@ -18,11 +18,11 @@ namespace Auth_API.Src.Services.Postcode
         
         private async Task<ResponseDTO> CreatePostcodeAsync(CreatePostcodeRequest request)
         {
-            return await SendRequestAsync(APIEndPoint.PostCodeUrls.Post_CreatePostCode, ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.PostCodeUrls.PostCreatePostCode, ApiType.POST, request);
         }
         public async Task<PostCodeDTO?> GetCurrentPostCode(PostcodeRequest request)
         {
-            string path = APIEndPoint.PostCodeUrls.Get_CurrentPostCode
+            string path = APIEndPoint.PostCodeUrls.GetCurrentPostCode
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -40,7 +40,7 @@ namespace Auth_API.Src.Services.Postcode
         }
         private async Task<ResponseDTO> SendPostcodeAsync(EmailRequest request)
         {
-            return await SendRequestAsync(APIEndPoint.PostCodeUrls.Post_SendPostCode, ApiType.POST, request);
+            return await SendRequestAsync(APIEndPoint.PostCodeUrls.PostSendPostCode, ApiType.POST, request);
         }
         public async Task<ResponseDTO> SendVerificationEmail(string email, string userName, string userAgent, string ipAddress)
         {

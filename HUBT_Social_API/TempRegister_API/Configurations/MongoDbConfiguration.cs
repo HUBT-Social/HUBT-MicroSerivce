@@ -18,7 +18,8 @@ public static class MongoDbConfiguration
             services.RegisterMongoCollections(connectionstring, typeof(TempUserRegister),
                 typeof(TempTimetable),
                 typeof(TempClassScheduleVersion),
-                typeof(TempCourse));
+                typeof(TempCourse),
+                typeof(TempExam));
             return services;
         }
         throw new Exception("Unable to genarate Mongodb");

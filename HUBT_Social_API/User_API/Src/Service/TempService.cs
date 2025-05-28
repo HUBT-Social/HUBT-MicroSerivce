@@ -1,8 +1,10 @@
-﻿using HUBT_Social_Base;
+﻿using Amazon.Runtime.Internal;
+using HUBT_Social_Base;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core.ASP_Extensions;
 using HUBT_Social_Core.Models.DTOs;
+using HUBT_Social_Core.Models.DTOs.ExamDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.Requests.Temp;
@@ -16,7 +18,7 @@ namespace User_API.Src.Service
     {
         public async Task<TimetableOutputDTO> Get(string id)
         {
-            string path = APIEndPoint.TempUrls.TempTimetable_GetTimetable
+            string path = APIEndPoint.TempUrls.TempTimetableGetTimetable
                 .BuildUrl(
                     new Dictionary<string, string> { { "id", id } }
                 );
@@ -25,7 +27,7 @@ namespace User_API.Src.Service
         }
         public async Task<List<TimetableOutputDTO>> GetList(string className)
         {
-            string path = APIEndPoint.TempUrls.TempTimetable_GetTimetable
+            string path = APIEndPoint.TempUrls.TempTimetableGetTimetable
                 .BuildUrl(
                     new Dictionary<string, string> { { "className", className } }
                 );
@@ -35,13 +37,13 @@ namespace User_API.Src.Service
 
         public async Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request)
         {
-            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetable_GetTimetable, ApiType.POST, request);
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableGetTimetable, ApiType.POST, request);
             return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
         }
 
         public async Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className)
         {
-            string path = APIEndPoint.TempUrls.TempTimetable_GetClassScheduleVersion
+            string path = APIEndPoint.TempUrls.TempTimetableGetClassScheduleVersion
                 .BuildUrl(
                     new Dictionary<string, string> { { "className", className } }
                 );
@@ -56,38 +58,80 @@ namespace User_API.Src.Service
                 ClassName = className,
                 ExpireTime = expireTime
             };
-            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetable_CreateClassScheduleVersion, ApiType.POST, request);
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableCreateClassScheduleVersion, ApiType.POST, request);
             return responseDTO.ConvertTo<ClassScheduleVersionDTO>() ?? new();
         }
         public async Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(ClassScheduleVersionDTO request)
         {   
-            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetable_CreateClassScheduleVersion, ApiType.POST, request);
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableCreateClassScheduleVersion, ApiType.POST, request);
             return responseDTO.ConvertTo<ClassScheduleVersionDTO>() ?? new();
         }
 
+        public async Task<CouresDTO> GetCourses(string className, string id)
+        {
+            string path = APIEndPoint.TempUrls.TempTimetableGetCourse
+                .BuildUrl(
+                    new Dictionary<string, string> { { "className", className }, { "coursesId", id } }
+                );
+            ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
+            CouresDTO? couresDTO = responseDTO.ConvertTo<List<CouresDTO>>()?.FirstOrDefault();
+            return couresDTO ?? new();
+
+        }
         public async Task<List<CouresDTO>> GetCourses(string className)
         {
-            string path = APIEndPoint.TempUrls.TempTimetable_GetCourse
+            string path = APIEndPoint.TempUrls.TempTimetableGetCourse
                 .BuildUrl(
                     new Dictionary<string, string> { { "className", className } }
                 );
             ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
-            
+
             return responseDTO.ConvertTo<List<CouresDTO>>() ?? [];
 
         }
 
         public async Task<CouresDTO> StoreCourses(CreateTempCourseRequest request)
         {
-            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetable_CreateCourse, ApiType.POST, request);
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableCreateCourse, ApiType.POST, request);
             if (responseDTO.StatusCode == HttpStatusCode.OK)
             {
                 return responseDTO.ConvertTo<CouresDTO>() ?? new();
             }
-            else
+            
+            
+            return new();
+            
+        }
+
+        public async Task<ExamDTO> StoreExam(ExamDTO request)
+        {
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExam, ApiType.POST, request);
+            if (responseDTO.StatusCode == HttpStatusCode.OK)
             {
-                throw new Exception($"Error: {responseDTO.Message}");
+                return responseDTO.ConvertTo<ExamDTO>() ?? new();
             }
+            
+            
+            return new();
+            
+        }
+
+        public async Task<List<ExamDTO>> GetExam(string major)
+        {
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamMajor.
+                BuildUrl( new Dictionary<string, string>
+                {
+                      {"major", major }
+                })
+                , ApiType.GET);
+            if (responseDTO.StatusCode == HttpStatusCode.OK)
+            {
+                return responseDTO.ConvertTo<List<ExamDTO>>() ?? new();
+            }
+
+
+            return new();
+
         }
     }
 }
