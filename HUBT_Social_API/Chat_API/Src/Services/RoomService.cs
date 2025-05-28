@@ -75,10 +75,10 @@ namespace Chat_API.Src.Services
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
-                        { "ChatRoomId", Uri.EscapeDataString(request.ChatRoomId ?? string.Empty) },
+                        { "ChatRoomId", request.ChatRoomId ?? string.Empty },
                         { "CurrentQuantity", request.CurrentQuantity.ToString()??"0" },
                         { "Limit", request.Limit.ToString()??"20" },
-                        { "Type", request.Type.ToString()??"-1" }
+                        { "Type", ((int)request.Type).ToString()??"-1" }
                     }
                 );
 
