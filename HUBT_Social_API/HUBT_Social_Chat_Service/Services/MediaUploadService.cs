@@ -11,13 +11,14 @@ using HUBT_Social_MongoDb_Service.Services;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Channels;
+using FileRequest = HUBT_Social_Base.Models.FileRequest;
 
 namespace HUBT_Social_Chat_Service.Services
 {
     public class MediaUploadService : IMediaUploadService 
     {
-        private readonly ICloudService _cloudService;
-        public MediaUploadService(ICloudService cloudService) 
+        private readonly IHttpCloudService _cloudService;
+        public MediaUploadService(IHttpCloudService cloudService) 
         {
             _cloudService = cloudService;
         }
@@ -36,19 +37,13 @@ namespace HUBT_Social_Chat_Service.Services
             }
 
             // Upload file lên cloud
-            var fileResult = await _cloudService.UploadFileAsync(media.file);
+            var fileResult = await _cloudService.GetUrlFormFile(new FileRequest { file = media.file });
             if (fileResult == null)
             {
                 return (false, null);
             }
 
-            var filePath = new FilePaths
-            {
-                Url = fileResult.Url,
-                Type = fileResult.ResourceType
-            };
-
-            var message = await MessageModel.CreateMediaMessageAsync(mediaRequest.UserId, filePath , mediaRequest.Medias.Id, mediaRequest.ReplyToMessage);
+            var message =  MessageModel.CreateMediaMessage(mediaRequest.UserId, fileResult, mediaRequest.Medias.Id, mediaRequest.ReplyToMessage);
             var updateResult = await _chatRooms.SaveChatItemAsync(chatRoom.Id, message);
 
             return (updateResult, message);
