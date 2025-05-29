@@ -31,6 +31,20 @@ namespace HUBT_Social_MongoDb_Service.Services
                 return false;
             }
         }
+        public async Task<bool> CreateMany(List<Collection> collections)
+        {
+            try
+            {
+                await _mongoCollection.InsertManyAsync(collections);
+                Console.WriteLine("InsertMany thành công vào MongoDB.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"InsertMany failed: {ex.Message}");
+                return false;
+            }
+        }
 
         public async Task<bool> Delete(Collection collection)
         {

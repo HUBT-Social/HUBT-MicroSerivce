@@ -80,20 +80,23 @@ namespace TempRegister_API.Src.Controllers
                 TempExam exam = _mapper.Map<TempExam>(request);
                 exam.QuestionCount = request.QuestionCount;
                 bool isCreated = await _tempExam.Create(exam);
-                TempQuestion tempQuestion = new();
+                List<TempQuestion> tempQuestions = [];
                 foreach (Question question in request.Questions)
                 {
-                    tempQuestion.Id = string.Empty;
-                    tempQuestion.ExamId = exam.Id;
-                    tempQuestion.Title = question.Title;
-                    tempQuestion.Answers = question.Answers;
-                    tempQuestion.CorrectAnswer = question.CorrectAnswer;
-                    bool isQuestionCreated = await _tempQuestion.Create(tempQuestion);
-                    if (!isQuestionCreated)
+                    TempQuestion tempQuestion = new()
                     {
-                        Console.WriteLine($"Failed to create question in database. {tempQuestion}");
-                    }
+                        ExamId = exam.Id,
+                        Title = question.Title,
+                        Answers = question.Answers,
+                        CorrectAnswer = question.CorrectAnswer
+                    };
+                    tempQuestions.Add(tempQuestion);
                     // Ensure each question has a new ID
+                }
+                bool isQuestionCreated = await _tempQuestion.CreateMany(tempQuestions);
+                if (!isQuestionCreated)
+                {
+                    Console.WriteLine($"Failed to create question in database. {tempQuestion}");
                 }
                 ExamDTO examDTO = _mapper.Map<ExamDTO>(exam);
                 return isCreated ? 
