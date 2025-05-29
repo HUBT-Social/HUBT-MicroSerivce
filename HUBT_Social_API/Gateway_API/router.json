@@ -31,6 +31,35 @@
       "SwaggerKey": "user-service"
     },
     {
+      "UpstreamPathTemplate": "/api/user/get-school-data",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/user/get-school-data",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{User__Host}",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "SwaggerKey": "user-service"
+    },
+    {
+      "UpstreamPathTemplate": "/api/user/get-user-courese",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/user/get-user-courese",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{User__Host}",
+          "Port": 443
+        }
+      ],
+      "SwaggerKey": "user-service"
+    },
+    {
       "UpstreamPathTemplate": "/api/user/get-user-by-role",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/user/get-user-by-role",
