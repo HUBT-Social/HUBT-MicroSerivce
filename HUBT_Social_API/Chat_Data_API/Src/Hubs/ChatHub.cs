@@ -51,46 +51,24 @@ namespace Chat_Data_API.Src.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            try
-            {
-                Console.WriteLine("Client connected with ConnectionId: " + Context.ConnectionId);
-                var httpContext = Context.GetHttpContext();
+            var httpContext = Context.GetHttpContext();
+            var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
+            if (userInfo == null)
+                throw new HubException("Token không hợp lệ.");
 
-                // Log header và query string để debug
-                var authHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var queryToken = httpContext.Request.Query["access_token"].FirstOrDefault();
-                Console.WriteLine($"Authorization Header: {authHeader}");
-                Console.WriteLine($"Query Token: {queryToken}");
-                //////////////////////////////////////////
+            var groupIds = await _chatGroups.GetUserGroupConnectedAsync(userInfo.Username);
 
-                var userInfo = httpContext.Request.ExtractTokenInfo(_jwtSettings);
-                if (userInfo == null)
-                {
-                    Console.WriteLine("Invalid or missing token.");
-                    throw new HubException("Token không hợp lệ.");
-                }
+            _userConnectionManager.AddConnection(userInfo.Username, Context.ConnectionId);
+            await Task.WhenAll(groupIds.Select(groupId => Groups.AddToGroupAsync(Context.ConnectionId, groupId)));
 
-                Console.WriteLine($"User connected: UserId = {userInfo.UserId}, Username = {userInfo.Username}");
-                var groupIds = await _chatGroups.GetUserGroupConnectedAsync(userInfo.Username);
-                Console.WriteLine($"Group IDs: {string.Join(", ", groupIds)}");
+            // Gửi danh sách người dùng online cho client mới kết nối
+            var onlineUsers = _userConnectionManager.GetAllOnlineUsers();
+            await Clients.Caller.SendAsync("OnlineUsersList", onlineUsers);
 
-                _userConnectionManager.AddConnection(userInfo.Username, Context.ConnectionId);
-                await Task.WhenAll(groupIds.Select(groupId => Groups.AddToGroupAsync(Context.ConnectionId, groupId)));
+            // Thông báo tới các client khác rằng người dùng đã online
+            await Clients.Others.SendAsync("UserStatusChanged", new { Username = userInfo.Username, isOnline = true });
 
-                // Gửi danh sách người dùng online cho client mới kết nối
-                var onlineUsers = _userConnectionManager.GetAllOnlineUsers();
-                await Clients.Caller.SendAsync("OnlineUsersList", onlineUsers);
-
-                // Thông báo tới các client khác rằng người dùng đã online
-                await Clients.Others.SendAsync("UserStatusChanged", new { Username = userInfo.Username, isOnline = true });
-
-                await base.OnConnectedAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Connection error: {ex.Message}");
-                throw;
-            }
+            await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -109,19 +87,26 @@ namespace Chat_Data_API.Src.Hubs
 
         public async Task SendItemChat(SendChatRequest inputRequest)
         {
-            var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
-            string? token = Context.GetHttpContext()?.Request.Query["access_token"].FirstOrDefault();
-            if (userInfo == null && userInfo?.Username == null && token == null)
+            var httpContext = Context.GetHttpContext();
+            var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
+            var token = httpContext?.Request.Query["access_token"].FirstOrDefault();
+
+            // Kiểm tra token
+            if (userInfo?.Username == null || token == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
             }
-            ChatGroupModel? chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
+
+            // Kiểm tra GroupId
+            var chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
             if (chatGroupModel == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Group id sai");
                 return;
             }
+
+            // Tạo yêu cầu chat
             var chatRequest = new ChatRequest
             {
                 UserName = userInfo.Username,
@@ -131,36 +116,38 @@ namespace Chat_Data_API.Src.Hubs
                 Files = inputRequest.Files
             };
 
-            // Gửi trạng thái "Pending" cho tất cả item
-            if (inputRequest.Medias is not null && inputRequest.Medias.Any())
+            // Gửi trạng thái "Pending" cho media
+            if (inputRequest.Medias?.Any() == true)
             {
                 foreach (var media in inputRequest.Medias)
                 {
                     await Clients.Caller.SendAsync("ReceiveProcess", new
                     {
                         requestId = inputRequest.RequestId,
-                        itemId = media.Id, // Giữ nguyên itemId do frontend gửi lên
+                        itemId = media.Id,
                         type = "media",
                         status = MessageStatus.Pending
                     });
                 }
             }
 
-            if (inputRequest.Files is not null && inputRequest.Files.Any())
+            // Gửi trạng thái "Pending" cho file
+            if (inputRequest.Files?.Any() == true)
             {
                 foreach (var file in inputRequest.Files)
                 {
                     await Clients.Caller.SendAsync("ReceiveProcess", new
                     {
                         requestId = inputRequest.RequestId,
-                        itemId = file.Id, // Giữ nguyên itemId do frontend gửi lên
+                        itemId = file.Id,
                         type = "file",
                         status = MessageStatus.Pending
                     });
                 }
             }
 
-            if (string.IsNullOrEmpty(inputRequest.Content))
+            // Nếu chỉ gửi nội dung văn bản
+            if (!string.IsNullOrWhiteSpace(inputRequest.Content))
             {
                 await Clients.Caller.SendAsync("ReceiveProcess", new
                 {
@@ -170,30 +157,34 @@ namespace Chat_Data_API.Src.Hubs
                 });
             }
 
-            // Sử dụng Channel để xử lý từng phần
+            // Dùng channel để xử lý message bất đồng bộ
             var channel = Channel.CreateUnbounded<(bool, MessageModel?, string)>();
             _ = _uploadService.SendChatAsync(chatRequest, _chatGroups, channel);
 
             bool sendSuccessful = false;
 
-            // Đọc kết quả từ channel và gửi về client ngay khi có
+            // Đọc dữ liệu trả về từ channel và gửi phản hồi ngay cho client
             await foreach (var (success, message, itemId) in channel.Reader.ReadAllAsync())
             {
                 var status = success ? MessageStatus.Sent : MessageStatus.Failed;
-                if (status == MessageStatus.Sent && sendSuccessful == false)
+
+                if (!sendSuccessful && status == MessageStatus.Sent)
                 {
-                    sendSuccessful = !sendSuccessful;
+                    sendSuccessful = true;
                 }
-                if (message is not null)
+
+                if (message != null)
                 {
+                    // Gửi trạng thái xử lý
                     await Clients.Caller.SendAsync("ReceiveProcess", new
                     {
                         requestId = inputRequest.RequestId,
-                        itemId, // Giữ nguyên itemId của frontend
+                        itemId,
                         type = message.messageType,
                         status
                     });
 
+                    // Gửi message cho nhóm
                     var messageResponse = new MessageResponse<MessageDTO>
                     {
                         groupId = inputRequest.GroupId,
@@ -202,33 +193,40 @@ namespace Chat_Data_API.Src.Hubs
                     await Clients.Group(inputRequest.GroupId).SendAsync("ReceiveChat", messageResponse);
                 }
             }
+
+            // Gửi thông báo (notification) nếu gửi thành công
             if (sendSuccessful)
             {
                 try
                 {
-                    string body = inputRequest.Content != null
-                        ? inputRequest.Content
-                        : "You have unread message!";
-                    List<string> UserNames = chatGroupModel.Participant.Select(p => p.UserName).Where(u => u != userInfo.Username).ToList();
-                    SendNotationToGroupChatRequest request = new SendNotationToGroupChatRequest
+                    string body = string.IsNullOrEmpty(inputRequest.Content)
+                        ? "You have unread message!"
+                        : inputRequest.Content;
+
+                    var receiverUsernames = chatGroupModel.Participant
+                        .Select(p => p.UserName)
+                        .Where(u => u != userInfo.Username)
+                        .ToList();
+
+                    var notifyRequest = new SendNotationToGroupChatRequest
                     {
-                        UserNames = UserNames,
+                        UserNames = receiverUsernames,
                         RequestId = inputRequest.RequestId,
                         Type = "chat",
                         ImageUrl = chatGroupModel.AvatarUrl,
                         Title = chatGroupModel.Name,
                         Body = body
                     };
-                    if (token != null)
-                    {
-                        await _notition.SendNotationToGroupChat(request, token);
-                    }
+
+                    await _notition.SendNotationToGroupChat(notifyRequest, token);
                 }
-                catch { }
-
+                catch
+                {
+                    // Ignore exceptions from notification sending
+                }
             }
-
         }
+
 
 
         public async Task TypingText(string groupId)
