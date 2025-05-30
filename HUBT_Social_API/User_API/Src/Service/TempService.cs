@@ -116,13 +116,13 @@ namespace User_API.Src.Service
             
         }
 
-        public async Task<List<ExamDTO>> GetExams(string major, int limit = 0)
+        public async Task<List<ExamDTO>> GetExams(string major, int page = 0)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamMajor.
                 BuildUrl( new Dictionary<string, string>
                 {
                       {"major", major },
-                    {"limit", limit.ToString() }
+                    {"page", page.ToString() }
                 })
                 , ApiType.GET);
             if (responseDTO.StatusCode == HttpStatusCode.OK)
