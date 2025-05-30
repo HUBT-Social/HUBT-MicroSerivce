@@ -54,15 +54,15 @@ namespace TempRegister_API.Src.Controllers
             return BadRequest("Either id or className must be provided");
         }
         [HttpGet("major")]
-        public async Task<IActionResult> GetList([FromQuery] string major, [FromQuery] int limit = 0)
+        public async Task<IActionResult> GetList([FromQuery] string major, [FromQuery] int page = 0)
         {
             if (!string.IsNullOrEmpty(major))
             {
                 List<TempExam> exams = [];
-                if (limit == 0)
+                if (page == 0)
                     exams = await _tempExam.Find(e => e.Major.Equals(major,StringComparison.OrdinalIgnoreCase)).ToListAsync();
                 else
-                    exams = await _tempExam.Find(e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase),limit).ToListAsync();
+                    exams = await _tempExam.Find(e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase), page).ToListAsync();
                 if (exams != null)
                 {
                     List<ExamDTO> examDTOs = _mapper.Map<List<ExamDTO>>(exams);

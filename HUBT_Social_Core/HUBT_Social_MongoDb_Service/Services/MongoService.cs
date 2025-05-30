@@ -187,19 +187,24 @@ namespace HUBT_Social_MongoDb_Service.Services
             }
             catch (Exception)
             {
-                return []; // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
+                return [];
             }
         }
-        public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate,int limit)
+        public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate,int page, int pageSize = 10)
         {
+
             try
             {
+                if (page < 1) page = 1;
+                int skip = (page - 1) * pageSize;
                 var filter = Builders<Collection>.Filter.Where(predicate);
-                return await _mongoCollection.Find(filter).Limit(limit).ToListAsync();
+                return await _mongoCollection.Find(filter)
+                    .Skip(skip)
+                    .Limit(pageSize).ToListAsync();
             }
             catch (Exception)
             {
-                return []; // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
+                return [];
             }
         }
 
@@ -290,6 +295,7 @@ namespace HUBT_Social_MongoDb_Service.Services
 
             return Builders<T>.Filter.Eq("_id", idString);
         }
+
     }
 
 }
