@@ -16,6 +16,7 @@ using HUBT_Social_Core.Models.DTOs.ExamDTO;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using HUBT_Social_Core.Settings.@enum;
+using System.Runtime.InteropServices;
 
 namespace User_API.Src.Controllers
 {
@@ -287,7 +288,7 @@ namespace User_API.Src.Controllers
             Question[] questions = await _helperService.ExtractQuestions(request.File);
             if (questions.Length > 0)
             {
-                ExamDTO examDTO = new()
+                QuizDetail examDTO = new()
                     {
                         Title = request.Title,
                         Description = request.Description,
@@ -296,22 +297,41 @@ namespace User_API.Src.Controllers
                         Credits = request.Credits,
                         Questions = questions
                     };
-                examDTO = await _tempService.StoreExam(examDTO);
+                ExamDTO result = await _tempService.StoreExam(examDTO);
+                Console.Write(result);
                 return Ok(examDTO);
             }
-        return BadRequest("Cây hỏi không đổi được.");
+        return BadRequest("Khong tim thay cau hoi.");
         }
         [HttpGet("questions")]
-        public async Task<IActionResult> GetQuestions([FromQuery] string major)
+        public async Task<IActionResult> GetQuestions([FromQuery] string major, [FromQuery] int limit = 0)
         {
             if (string.IsNullOrEmpty(major))
                 return BadRequest("Yêu cầu không hợp lệ.");
-
-            List<ExamDTO> questions = await _tempService.GetExam(major);
-
+            List<ExamDTO> questions = await _tempService.GetExams(major,limit);
+            
             if (questions.Count > 0)
             {
                 return Ok(questions);
+            }
+            return BadRequest("Cây hỏi không đổi được.");
+        }
+        [HttpGet("questions-detail")]
+        public async Task<IActionResult> GetQuestionsDetail([FromQuery] string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest("Yêu cầu không hợp lệ.");
+
+            ExamDTO? ExamDTO = await _tempService.GetExam(id);
+
+            if (ExamDTO != null)
+            {
+                Question[] questions = await _tempService.GetExamQuestions(id);
+                QuizDetail createQuizRequest = new(ExamDTO)
+                {
+                    Questions = questions
+                };
+                return Ok(createQuizRequest);
             }
             return BadRequest("Cây hỏi không đổi được.");
         }
