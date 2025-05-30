@@ -16,7 +16,6 @@ namespace TempRegister_API.Src.Models
         public int Credits { get; set; } = 0;
         public int QuestionCount { get; set; } = 0;
 
-        public Question[] Questions { get; set; } = [];
     }
 
 }

@@ -17,6 +17,7 @@ namespace TempRegister_API.Configurations
             services.MongoMapperConfiguration<TempCourse, CouresDTO>();
             services.MongoMapperConfiguration<TempUserRegister,TempUserDTO>();
             services.MongoMapperConfiguration<TempExam, ExamDTO>();
+            services.MongoMapperConfiguration<TempQuestion, Question>();
             return services;
         }
     }

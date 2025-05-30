@@ -12,13 +12,15 @@ namespace HUBT_Social_MongoDb_Service.Services
         where Collection : class
     {
         Task<Collection?> GetById(string id);
-        Task<bool> Create(Collection collection);   
+        Task<bool> Create(Collection collection);
+        Task<bool> CreateMany(List<Collection> collections);
         Task<bool> Delete(Collection collection);
         Task<bool> Update(Collection collection);
         Task<bool> UpdateByFilter(Expression<Func<Collection, bool>> filterExpression,UpdateDefinition<Collection> update);
         Task<IEnumerable<Collection>> GetAll(int? limit = null);
         Task<IEnumerable<Collection>> GetSlide(int page, int pageSize = 10, FilterDefinition<Collection>? filter = null);
         Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate);
+        Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate, int limit);
         Task<bool> Exists(string id);
         Task<long> Count();
         Task<List<TField>> GetSlide<TField>(string id,Expression<Func<Collection, IEnumerable<TField>>> fieldSelector,int startIndex,int count);

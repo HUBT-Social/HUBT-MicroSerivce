@@ -19,7 +19,8 @@ public static class MongoDbConfiguration
                 typeof(TempTimetable),
                 typeof(TempClassScheduleVersion),
                 typeof(TempCourse),
-                typeof(TempExam));
+                typeof(TempExam),
+                typeof(TempQuestion));
             return services;
         }
         throw new Exception("Unable to genarate Mongodb");
