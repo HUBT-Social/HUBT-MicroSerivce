@@ -143,6 +143,7 @@ namespace HUBT_Social_MongoDb_Service.Services
                 if (limit.HasValue)
                 {
                     query = query.Limit(limit.Value);
+
                 }
                 return await query.ToListAsync();
             }
@@ -183,6 +184,18 @@ namespace HUBT_Social_MongoDb_Service.Services
             {
                 var filter = Builders<Collection>.Filter.Where(predicate);
                 return await _mongoCollection.Find(filter).ToListAsync();
+            }
+            catch (Exception)
+            {
+                return []; // Tránh dùng `[]`, dùng List<Collection>() để tránh lỗi
+            }
+        }
+        public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate,int limit)
+        {
+            try
+            {
+                var filter = Builders<Collection>.Filter.Where(predicate);
+                return await _mongoCollection.Find(filter).Limit(limit).ToListAsync();
             }
             catch (Exception)
             {

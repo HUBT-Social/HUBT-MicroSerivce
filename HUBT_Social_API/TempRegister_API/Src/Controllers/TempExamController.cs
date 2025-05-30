@@ -54,11 +54,15 @@ namespace TempRegister_API.Src.Controllers
             return BadRequest("Either id or className must be provided");
         }
         [HttpGet("major")]
-        public async Task<IActionResult> GetList([FromQuery] string? major)
+        public async Task<IActionResult> GetList([FromQuery] string major, [FromQuery] int limit = 0)
         {
             if (!string.IsNullOrEmpty(major))
             {
-                List<TempExam> exams = await _tempExam.Find(e => e.Major.Equals(major,StringComparison.OrdinalIgnoreCase)).ToListAsync();
+                List<TempExam> exams = [];
+                if (limit == 0)
+                    exams = await _tempExam.Find(e => e.Major.Equals(major,StringComparison.OrdinalIgnoreCase)).ToListAsync();
+                else
+                    exams = await _tempExam.Find(e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase),limit).ToListAsync();
                 if (exams != null)
                 {
                     List<ExamDTO> examDTOs = _mapper.Map<List<ExamDTO>>(exams);
@@ -96,7 +100,7 @@ namespace TempRegister_API.Src.Controllers
                 bool isQuestionCreated = await _tempQuestion.CreateMany(tempQuestions);
                 if (!isQuestionCreated)
                 {
-                    Console.WriteLine($"Failed to create question in database. {tempQuestion}");
+                    Console.WriteLine($"Failed to create question in database. {tempQuestions}");
                 }
                 ExamDTO examDTO = _mapper.Map<ExamDTO>(exam);
                 return isCreated ? 

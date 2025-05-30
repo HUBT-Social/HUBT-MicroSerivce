@@ -304,13 +304,12 @@ namespace User_API.Src.Controllers
         return BadRequest("Khong tim thay cau hoi.");
         }
         [HttpGet("questions")]
-        public async Task<IActionResult> GetQuestions([FromQuery] string major)
+        public async Task<IActionResult> GetQuestions([FromQuery] string major, [FromQuery] int limit = 0)
         {
             if (string.IsNullOrEmpty(major))
                 return BadRequest("Yêu cầu không hợp lệ.");
-
-            List<ExamDTO> questions = await _tempService.GetExams(major);
-
+            List<ExamDTO> questions = await _tempService.GetExams(major,limit);
+            
             if (questions.Count > 0)
             {
                 return Ok(questions);

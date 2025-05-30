@@ -25,7 +25,8 @@ namespace User_API.Src.Service
 
         Task<ExamDTO> StoreExam(QuizDetail request);
 
-        Task<List<ExamDTO>> GetExams(string major);
+        Task<List<ExamDTO>> GetExams(string major,int limit = 0);
+
         Task<ExamDTO?> GetExam(string id);
         Task<Question[]> GetExamQuestions(string id);
 
