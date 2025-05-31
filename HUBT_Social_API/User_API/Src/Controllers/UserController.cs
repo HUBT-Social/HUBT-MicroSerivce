@@ -166,16 +166,19 @@ namespace User_API.Src.Controllers
         public async Task<IActionResult> GetUserByRole([FromQuery] string roleName, [FromQuery] int page = 0)
         {
             ResponseDTO result = await _identityService.GetUserByRole(roleName, page);
-            ResponseUserRoleDTO? responseUserRoleDTO = result.ConvertTo<ResponseUserRoleDTO>();
-
-            if (responseUserRoleDTO != null)
+            if (result.StatusCode == HttpStatusCode.OK)
             {
-                return Ok(new
+                GetUserByRoleResponses? responseUserRoleDTO = result.ConvertTo<GetUserByRoleResponses>();
+
+                if (responseUserRoleDTO != null)
                 {
-                    responseUserRoleDTO.users,
-                    responseUserRoleDTO.hasMore,
-                    responseUserRoleDTO.message
-                });
+                    return Ok(new
+                    {
+                        users = responseUserRoleDTO.AUserDTOs,
+                        hasMore = responseUserRoleDTO.HasMore,
+                        message = responseUserRoleDTO.Message
+                    });
+                }
             }
             return BadRequest(result.Message);
         }

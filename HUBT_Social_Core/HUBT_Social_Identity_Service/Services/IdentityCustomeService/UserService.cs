@@ -169,42 +169,70 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             var userlist  = _userManager.Users.ToList<TUser>();
             return userlist ?? null;
         }
-        public Task<(List<TUser>,bool,string)> GetUserByRole(string RoleName,int page = 0)
+        public async Task<(List<TUser>, bool, string)> GetUserByRole(string roleName, int page = 0)
         {
-            RoleName = RoleName.ToUpper();
-            bool hasMore = true;
-            int pageSize = 100;
+            const int pageSize = 100;
+            roleName = roleName.ToUpper();
+
+            // Nếu dùng EF Core, có thể dùng FirstOrDefaultAsync
             var role = _roleManager.Roles
-                .Where(r => r.Name == RoleName)
+                .Where(r => r.Name == roleName)
                 .FirstOrDefault();
 
-            if (role == null) return Task.FromResult<(List<TUser>, bool, string)>((new List<TUser>(),hasMore,"Role khong hop le."));
-            
-            int quantityUser = 0;
-            List<TUser> users = [];
+            if (role == null)
+                return (new List<TUser>(), false, "Role không hợp lệ.");
+
+            List<TUser> users;
+            int totalCount;
+            bool hasMore;
+
             if (role.Name != "USER")
             {
-                users = [.. _userManager.Users.Where(u => u.Roles.Contains(role.Id))];
-                quantityUser = users.Count;
+                // Với role cụ thể: Lấy tất cả users có role đó, rồi phân trang trong memory
+                // Nếu TUser không có property Roles, dùng cách này:
+                var allUsersWithRole = new List<TUser>();
+                foreach (var user in _userManager.Users.ToList())
+                {
+                    var userRoles = await _userManager.GetRolesAsync(user);
+                    if (userRoles.Contains(role.Name))
+                    {
+                        allUsersWithRole.Add(user);
+                    }
+                }
+
+                totalCount = allUsersWithRole.Count;
+
+                // Kiểm tra page có hợp lệ không
+                if (page * pageSize >= totalCount)
+                {
+                    return (new List<TUser>(), false, "");
+                }
+
+                users = allUsersWithRole
+                    .Skip(page * pageSize)
+                    .Take(pageSize)
+                    .ToList();
             }
             else
             {
-                quantityUser = _userManager.Users.Count();
-                users = [.. _userManager.Users];
+                // Với role USER: Đếm trước, rồi phân trang trực tiếp
+                totalCount = _userManager.Users.Count();
+
+                // Kiểm tra page có hợp lệ không
+                if (page * pageSize >= totalCount)
+                {
+                    return (new List<TUser>(), false, "");
+                }
+
+                users = _userManager.Users
+                    .Skip(page * pageSize)
+                    .Take(pageSize)
+                    .ToList();
             }
 
-            if ((page+1)*pageSize - quantityUser >= pageSize) 
-            {
-                return Task.FromResult<(List<TUser>, bool, string)>(([], !hasMore,""));
-            }
-            var returnUsers = _userManager.Users
-                .Skip(page * pageSize)
-                .Take(pageSize)
-                .Where(u => u.Roles.Contains(role.Id))
-                .ToList();
+            hasMore = (page + 1) * pageSize < totalCount;
 
-            
-            return Task.FromResult<(List<TUser>, bool, string)>((users, hasMore, ""));
+            return (users, hasMore, "");
         }
 
         public async Task<bool> CheckRole(string userName, string roleName)
