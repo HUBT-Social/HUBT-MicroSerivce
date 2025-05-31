@@ -220,9 +220,9 @@ namespace Chat_Data_API.Src.Hubs
 
                     await _notition.SendNotationToGroupChat(notifyRequest, userInfo.Token);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    // Ignore exceptions from notification sending
+                    Console.WriteLine("Loi giui thong bao", ex.Message);
                 }
             }
         }
