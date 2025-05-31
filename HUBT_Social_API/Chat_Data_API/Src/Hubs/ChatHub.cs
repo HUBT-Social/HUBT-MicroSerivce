@@ -89,10 +89,10 @@ namespace Chat_Data_API.Src.Hubs
         {
             var httpContext = Context.GetHttpContext();
             var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
-            var token = httpContext?.Request.Query["access_token"].FirstOrDefault();
+            if (userInfo == null || userInfo?.Username == null) { Console.WriteLine("Khong tim dc nguoi dung voi token da gui!"); }
 
             // Kiểm tra token
-            if (userInfo?.Username == null || token == null)
+            if (userInfo?.Username == null || userInfo.Token == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
@@ -218,7 +218,7 @@ namespace Chat_Data_API.Src.Hubs
                         Body = body
                     };
 
-                    await _notition.SendNotationToGroupChat(notifyRequest, token);
+                    await _notition.SendNotationToGroupChat(notifyRequest, userInfo.Token);
                 }
                 catch
                 {
@@ -247,6 +247,8 @@ namespace Chat_Data_API.Src.Hubs
                 Console.WriteLine($"Lỗi khi thông báo đang gõ: {ex.Message}");
             }
         }
+
+
     }
 
 }

@@ -12,6 +12,7 @@ namespace HUBT_Social_Core.Models.DTOs.IdentityDTO
         public string UserId { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string TokenId { get; set; } = string.Empty;
+        public string? Token {  get; set; } = string.Empty;
         public string[]? Roles { get; set; }
     }
 }
