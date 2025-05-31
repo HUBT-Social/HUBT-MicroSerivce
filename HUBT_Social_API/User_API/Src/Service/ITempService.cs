@@ -23,9 +23,12 @@ namespace User_API.Src.Service
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(ClassScheduleVersionDTO request);
         Task<CouresDTO> StoreCourses(CreateTempCourseRequest request);
 
-        Task<ExamDTO> StoreExam(ExamDTO request);
+        Task<ExamDTO> StoreExam(QuizDetail request);
 
-        Task<List<ExamDTO>> GetExam(string major);
+        Task<List<ExamDTO>> GetExams(string major,int limit = 0);
+
+        Task<ExamDTO?> GetExam(string id);
+        Task<Question[]> GetExamQuestions(string id);
 
 
     }

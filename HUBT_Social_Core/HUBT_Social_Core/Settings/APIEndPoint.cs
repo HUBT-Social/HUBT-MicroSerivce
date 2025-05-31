@@ -82,6 +82,7 @@ namespace HUBT_Social_Core.Settings
 
             // TempExamController
             public const string TempExam = "api/tempexam";
+            public const string TempExamQuestions = "api/tempexam/questions";
             public const string TempExamMajor = "api/tempexam/major";
         }
         public static class OutSourceUrls

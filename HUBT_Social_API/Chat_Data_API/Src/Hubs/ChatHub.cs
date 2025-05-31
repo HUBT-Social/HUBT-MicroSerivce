@@ -87,10 +87,12 @@ namespace Chat_Data_API.Src.Hubs
 
         public async Task SendItemChat(SendChatRequest inputRequest)
         {
+            Console.WriteLine("SendItemChat 1");
             var httpContext = Context.GetHttpContext();
             var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
             var token = httpContext?.Request.Query["access_token"].FirstOrDefault();
 
+            Console.WriteLine("SendItemChat 2");
             // Kiểm tra token
             if (userInfo?.Username == null || token == null)
             {
@@ -98,6 +100,7 @@ namespace Chat_Data_API.Src.Hubs
                 return;
             }
 
+            Console.WriteLine("SendItemChat 3");
             // Kiểm tra GroupId
             var chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
             if (chatGroupModel == null)
@@ -106,6 +109,7 @@ namespace Chat_Data_API.Src.Hubs
                 return;
             }
 
+            Console.WriteLine("SendItemChat 4");
             // Tạo yêu cầu chat
             var chatRequest = new ChatRequest
             {
@@ -116,6 +120,7 @@ namespace Chat_Data_API.Src.Hubs
                 Files = inputRequest.Files
             };
 
+            Console.WriteLine("SendItemChat 5");
             // Gửi trạng thái "Pending" cho media
             if (inputRequest.Medias?.Any() == true)
             {
@@ -131,6 +136,7 @@ namespace Chat_Data_API.Src.Hubs
                 }
             }
 
+            Console.WriteLine("SendItemChat 6");
             // Gửi trạng thái "Pending" cho file
             if (inputRequest.Files?.Any() == true)
             {
@@ -146,6 +152,7 @@ namespace Chat_Data_API.Src.Hubs
                 }
             }
 
+            Console.WriteLine("SendItemChat 7");
             // Nếu chỉ gửi nội dung văn bản
             if (!string.IsNullOrWhiteSpace(inputRequest.Content))
             {
@@ -157,12 +164,14 @@ namespace Chat_Data_API.Src.Hubs
                 });
             }
 
+            Console.WriteLine("SendItemChat 8");
             // Dùng channel để xử lý message bất đồng bộ
             var channel = Channel.CreateUnbounded<(bool, MessageModel?, string)>();
             _ = _uploadService.SendChatAsync(chatRequest, _chatGroups, channel);
 
             bool sendSuccessful = false;
 
+            Console.WriteLine("SendItemChat 9");
             // Đọc dữ liệu trả về từ channel và gửi phản hồi ngay cho client
             await foreach (var (success, message, itemId) in channel.Reader.ReadAllAsync())
             {
@@ -175,6 +184,8 @@ namespace Chat_Data_API.Src.Hubs
 
                 if (message != null)
                 {
+                    Console.WriteLine("SendItemChat check 1");
+
                     // Gửi trạng thái xử lý
                     await Clients.Caller.SendAsync("ReceiveProcess", new
                     {
@@ -184,21 +195,25 @@ namespace Chat_Data_API.Src.Hubs
                         status
                     });
 
+                    Console.WriteLine("SendItemChat check 2");
                     // Gửi message cho nhóm
                     var messageResponse = new MessageResponse<MessageDTO>
                     {
                         groupId = inputRequest.GroupId,
                         message = _mapper.Map<MessageDTO>(message)
                     };
+                    Console.WriteLine("SendItemChat check 3");
                     await Clients.Group(inputRequest.GroupId).SendAsync("ReceiveChat", messageResponse);
                 }
             }
 
+            Console.WriteLine("SendItemChat 10");
             // Gửi thông báo (notification) nếu gửi thành công
             if (sendSuccessful)
             {
                 try
                 {
+            Console.WriteLine("SendItemChat 11");
                     string body = string.IsNullOrEmpty(inputRequest.Content)
                         ? "You have unread message!"
                         : inputRequest.Content;
@@ -208,6 +223,7 @@ namespace Chat_Data_API.Src.Hubs
                         .Where(u => u != userInfo.Username)
                         .ToList();
 
+            Console.WriteLine("SendItemChat 12");
                     var notifyRequest = new SendNotationToGroupChatRequest
                     {
                         UserNames = receiverUsernames,

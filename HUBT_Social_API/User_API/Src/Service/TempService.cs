@@ -103,7 +103,7 @@ namespace User_API.Src.Service
             
         }
 
-        public async Task<ExamDTO> StoreExam(ExamDTO request)
+        public async Task<ExamDTO> StoreExam(QuizDetail request)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExam, ApiType.POST, request);
             if (responseDTO.StatusCode == HttpStatusCode.OK)
@@ -116,21 +116,57 @@ namespace User_API.Src.Service
             
         }
 
-        public async Task<List<ExamDTO>> GetExam(string major)
+        public async Task<List<ExamDTO>> GetExams(string major, int page = 0)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamMajor.
                 BuildUrl( new Dictionary<string, string>
                 {
-                      {"major", major }
+                      {"major", major },
+                    {"page", page.ToString() }
                 })
                 , ApiType.GET);
             if (responseDTO.StatusCode == HttpStatusCode.OK)
             {
-                return responseDTO.ConvertTo<List<ExamDTO>>() ?? new();
+                return responseDTO.ConvertTo<List<ExamDTO>>() ?? [];
             }
 
 
-            return new();
+            return [];
+
+        }
+   
+        public async Task<ExamDTO?> GetExam(string id)
+        {
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExam.
+                BuildUrl(new Dictionary<string, string>
+                {
+                      {"id", id }
+                })
+                , ApiType.GET);
+            if (responseDTO.StatusCode == HttpStatusCode.OK)
+            {
+                return responseDTO.ConvertTo<ExamDTO>() ?? null;
+            }
+
+
+            return null;
+
+        }
+        public async Task<Question[]> GetExamQuestions(string id)
+        {
+            ResponseDTO detailResponseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamQuestions.
+                BuildUrl(new Dictionary<string, string>
+                {
+                        {"id", id }
+                })
+                , ApiType.GET);
+            if (detailResponseDTO.StatusCode == HttpStatusCode.OK)
+            {
+                Question[] questions = detailResponseDTO.ConvertTo<Question[]>() ?? [];
+                return questions;
+            }
+                    
+            return [];
 
         }
     }

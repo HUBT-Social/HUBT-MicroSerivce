@@ -54,10 +54,7 @@ namespace User_API.Src.Controllers
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
             {
-                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
-                AVGScoreDTO? scoreDTO = await _outSourceService.GetAVGScoreByMasv(userDTO.UserName);
- 
-                return Ok(new
+                 return Ok(new
                 {
                     AvatarUrl = userDTO.AvataUrl,
                     userDTO.UserName,
@@ -66,15 +63,46 @@ namespace User_API.Src.Controllers
                     userDTO.Gender,
                     userDTO.Email,
                     BirthDay = userDTO.DateOfBirth,
-                    userDTO.PhoneNumber,
-                    ClassName = studentDTO?.TenLop ?? "",
-                    Score4 = scoreDTO?.DiemTB4 ?? 0,
-                    Score10 = scoreDTO?.DiemTB10 ?? 0,
+                    userDTO.PhoneNumber
                 });
             }
                 
 
             
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+
+        }
+        [HttpGet("get-school-data")]
+        public async Task<IActionResult> GetInfo()
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+            
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+                AVGScoreDTO? scoreDTO = await _outSourceService.GetAVGScoreByMasv(userDTO.UserName);
+
+                return Ok(new
+                {
+                    ClassName = studentDTO?.TenLop ?? "",
+                    Score4 = scoreDTO?.DiemTB4 ?? 0,
+                    Score10 = scoreDTO?.DiemTB10 ?? 0,
+                });
+            }
+
+
+
             if (result.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return Unauthorized(result.Message);
