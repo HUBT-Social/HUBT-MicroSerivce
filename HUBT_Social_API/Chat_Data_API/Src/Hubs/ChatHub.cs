@@ -90,8 +90,11 @@ namespace Chat_Data_API.Src.Hubs
             Console.WriteLine("SendItemChat 1");
             var httpContext = Context.GetHttpContext();
             var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
+            if (userInfo == null || userInfo?.Username == null) { Console.WriteLine("Khong tim dc nguoi dung voi token da gui!"); }
+            
             var token = httpContext?.Request.Query["access_token"].FirstOrDefault();
-
+            if (token == null) { Console.WriteLine("Deo co token"); }
+             
             Console.WriteLine("SendItemChat 2");
             // Kiểm tra token
             if (userInfo?.Username == null || token == null)
