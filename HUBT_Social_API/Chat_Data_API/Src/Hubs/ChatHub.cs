@@ -92,7 +92,8 @@ namespace Chat_Data_API.Src.Hubs
             var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
             if (userInfo == null || userInfo?.Username == null) { Console.WriteLine("Khong tim dc nguoi dung voi token da gui!"); }
             
-            var token = httpContext?.Request.Query["access_token"].FirstOrDefault();
+            var token = httpContext?.Request.Headers.ExtractBearerToken();
+            if(string.IsNullOrEmpty(token)) { token = httpContext?.Request.Query["access_token"].FirstOrDefault(); } // Nay cho web
             if (token == null) { Console.WriteLine("Deo co token"); }
              
             Console.WriteLine("SendItemChat 2");
