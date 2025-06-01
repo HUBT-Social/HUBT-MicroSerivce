@@ -109,44 +109,32 @@ namespace Chat_Data_API.Src.Hubs
 
         public async Task SendItemChat(SendChatRequest inputRequest)
         {
-<<<<<<< Updated upstream
-            var httpContext = Context.GetHttpContext();
-            var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
-
-            // Kiểm tra token
-            if (userInfo == null && userInfo?.Username == null && userInfo?.Token == null)
-=======
             Console.WriteLine("SendItemChat 1");
             var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
             string? token = Context.GetHttpContext()?.Request.Headers.ExtractBearerToken();
             Console.WriteLine("userToken: ", " userName: ", userInfo?.Username, "Token: ", userInfo?.Token);
 
             if (userInfo == null && userInfo?.UserId == null && token == null)
->>>>>>> Stashed changes
+
             {
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
             }
 
-<<<<<<< Updated upstream
-            // Kiểm tra GroupId
-            var chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
-=======
             Console.WriteLine("SendItemChat 3");
 
             ChatGroupModel? chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
->>>>>>> Stashed changes
+
             if (chatGroupModel == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Group id sai");
                 return;
             }
 
-<<<<<<< Updated upstream
-=======
+
 
             Console.WriteLine("SendItemChat 4");
->>>>>>> Stashed changes
+
             // Tạo yêu cầu chat
             var chatRequest = new ChatRequest
             {
