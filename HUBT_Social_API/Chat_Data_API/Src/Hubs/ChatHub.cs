@@ -51,24 +51,46 @@ namespace Chat_Data_API.Src.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var httpContext = Context.GetHttpContext();
-            var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
-            if (userInfo == null)
-                throw new HubException("Token không hợp lệ.");
+            try
+            {
+                Console.WriteLine("Client connected with ConnectionId: " + Context.ConnectionId);
+                var httpContext = Context.GetHttpContext();
 
-            var groupIds = await _chatGroups.GetUserGroupConnectedAsync(userInfo.Username);
+                // Log header và query string để debug
+                var authHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var queryToken = httpContext.Request.Query["access_token"].FirstOrDefault();
+                Console.WriteLine($"Authorization Header: {authHeader}");
+                Console.WriteLine($"Query Token: {queryToken}");
+                //////////////////////////////////////////
 
-            _userConnectionManager.AddConnection(userInfo.Username, Context.ConnectionId);
-            await Task.WhenAll(groupIds.Select(groupId => Groups.AddToGroupAsync(Context.ConnectionId, groupId)));
+                var userInfo = httpContext.Request.ExtractTokenInfo(_jwtSettings);
+                if (userInfo == null)
+                {
+                    Console.WriteLine("Invalid or missing token.");
+                    throw new HubException("Token không hợp lệ.");
+                }
 
-            // Gửi danh sách người dùng online cho client mới kết nối
-            var onlineUsers = _userConnectionManager.GetAllOnlineUsers();
-            await Clients.Caller.SendAsync("OnlineUsersList", onlineUsers);
+                Console.WriteLine($"User connected: UserId = {userInfo.UserId}, Username = {userInfo.Username}");
+                var groupIds = await _chatGroups.GetUserGroupConnectedAsync(userInfo.UserId);
+                Console.WriteLine($"Group IDs: {string.Join(", ", groupIds)}");
 
-            // Thông báo tới các client khác rằng người dùng đã online
-            await Clients.Others.SendAsync("UserStatusChanged", new { Username = userInfo.Username, isOnline = true });
+                _userConnectionManager.AddConnection(userInfo.UserId, Context.ConnectionId);
+                await Task.WhenAll(groupIds.Select(groupId => Groups.AddToGroupAsync(Context.ConnectionId, groupId)));
 
-            await base.OnConnectedAsync();
+                // Gửi danh sách người dùng online cho client mới kết nối
+                var onlineUsers = _userConnectionManager.GetAllOnlineUsers();
+                await Clients.Caller.SendAsync("OnlineUsersList", onlineUsers);
+
+                // Thông báo tới các client khác rằng người dùng đã online
+                await Clients.Others.SendAsync("UserStatusChanged", new { userId = userInfo.UserId, isOnline = true });
+
+                await base.OnConnectedAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Connection error: {ex.Message}");
+                throw;
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -76,8 +98,8 @@ namespace Chat_Data_API.Src.Hubs
             var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
             if (userInfo != null)
             {
-                await Clients.Others.SendAsync("UserStatusChanged", new { userId = userInfo.Username, isOnline = false });
-                _userConnectionManager.RemoveConnection(userInfo.Username);
+                await Clients.Others.SendAsync("UserStatusChanged", new { userId = userInfo.UserId, isOnline = false });
+                _userConnectionManager.RemoveConnection(userInfo.UserId);
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -88,28 +110,31 @@ namespace Chat_Data_API.Src.Hubs
         public async Task SendItemChat(SendChatRequest inputRequest)
         {
             Console.WriteLine("SendItemChat 1");
-            var httpContext = Context.GetHttpContext();
-            var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
+            var userInfo = Context.GetHttpContext()?.Request.ExtractTokenInfo(_jwtSettings);
+            string? token = Context.GetHttpContext()?.Request.Headers.ExtractBearerToken();
+            Console.WriteLine("userToken: ", " userName: ", userInfo?.Username, "Token: ", userInfo?.Token);
 
-            Console.WriteLine("SendItemChat 2");
-            // Kiểm tra token
-            if (userInfo == null && userInfo?.Username == null && userInfo?.Token == null)
+            if (userInfo == null && userInfo?.UserId == null && token == null)
+
             {
-                Console.WriteLine("Khong tim dc nguoi dung voi token da gui!");
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
             }
 
             Console.WriteLine("SendItemChat 3");
-            // Kiểm tra GroupId
-            var chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
+
+            ChatGroupModel? chatGroupModel = await _chatGroups.GroupIdToInfo(inputRequest.GroupId);
+
             if (chatGroupModel == null)
             {
                 await Clients.Caller.SendAsync("SendErr", "Group id sai");
                 return;
             }
 
+
+
             Console.WriteLine("SendItemChat 4");
+
             // Tạo yêu cầu chat
             var chatRequest = new ChatRequest
             {
