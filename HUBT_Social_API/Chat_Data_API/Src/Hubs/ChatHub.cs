@@ -90,12 +90,12 @@ namespace Chat_Data_API.Src.Hubs
             Console.WriteLine("SendItemChat 1");
             var httpContext = Context.GetHttpContext();
             var userInfo = httpContext?.Request.ExtractTokenInfo(_jwtSettings);
-            if (userInfo == null || userInfo?.Username == null) { Console.WriteLine("Khong tim dc nguoi dung voi token da gui!"); }
 
             Console.WriteLine("SendItemChat 2");
             // Kiểm tra token
-            if (userInfo?.Username == null || userInfo.Token == null)
+            if (userInfo == null && userInfo?.Username == null && userInfo?.Token == null)
             {
+                Console.WriteLine("Khong tim dc nguoi dung voi token da gui!");
                 await Clients.Caller.SendAsync("SendErr", "Token không hợp lệ");
                 return;
             }
