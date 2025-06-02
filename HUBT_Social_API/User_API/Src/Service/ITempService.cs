@@ -13,6 +13,8 @@ namespace User_API.Src.Service
     public interface ITempService : IBaseService
     {
         Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request);
+        Task<List<TimetableOutputDTO>> StoreIn(List<TimetableOutputDTO> request);
+
         Task<TimetableOutputDTO> Get(string id);
         Task<List<TimetableOutputDTO>> GetList(string className);
         Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className);

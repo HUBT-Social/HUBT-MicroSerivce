@@ -71,8 +71,8 @@ namespace HUBT_Social_Core.Settings
             public const string TempRegisterGetTempUser = "api/tempRegister";
 
             // TempTimetableController
-            public const string TempTimetableGetTimetable = "api/temptimetable";
-            public const string TempTimetableCreateTimetable = "api/temptimetable";
+            public const string TempTimetableTimetable = "api/temptimetable";
+            public const string TempTimetableCreateTimetable = "api/temptimetable/create-many";
 
             public const string TempTimetableGetClassScheduleVersion = "api/temptimetable/classscheduleversion";
             public const string TempTimetableCreateClassScheduleVersion = "api/temptimetable/classscheduleversion";

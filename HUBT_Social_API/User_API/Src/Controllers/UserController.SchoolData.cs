@@ -55,14 +55,13 @@ namespace User_API.Src.Controllers
             {
                 ClassScheduleVersionDTO? classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
 
-                UserTimetableOutput userTimetableOutput = new(_tempService)
+                UserTimetableOutput userTimetableOutput = new()
                 {
                     Starttime = DateTime.UtcNow.Date,
                     Endtime = DateTime.UtcNow.Date.AddMonths(2),
                 };
 
-                List<TimetableOutputDTO> timetableOutputDTOs;
-                timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
+                List<TimetableOutputDTO> timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
 
                 //if (classScheduleVersionDTO.ClassName == string.Empty && timetableOutputDTOs.Count == 0)
                 //{
@@ -152,7 +151,8 @@ namespace User_API.Src.Controllers
 
                         }
                     }
-                    await userTimetableOutput.GenerateReformTimetables(couresDTOs);
+                    userTimetableOutput.GenerateReformTimetables(couresDTOs);
+                    userTimetableOutput.ReformTimetables = await _tempService.StoreIn(userTimetableOutput.ReformTimetables);
                 }
                 else
                 {

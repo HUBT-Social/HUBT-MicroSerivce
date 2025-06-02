@@ -70,6 +70,17 @@ namespace TempRegister_API.Src.Controllers
             }
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
         }
+        [HttpPost("create-many")]
+        public async Task<IActionResult> CreateMany([FromBody] List<TimetableOutputDTO> timetableOutDTO)
+        {
+            List<TempTimetable> timetable = _mapper.Map<List<TempTimetable>>(timetableOutDTO);
+
+            if (await _tempTimeTable.CreateMany(timetable))
+            {
+                return Ok(timetable);
+            }
+            return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
+        }
         [HttpGet("classscheduleversion")]
         public async Task<IActionResult> GetClassScheduleVersion([FromQuery] string className)
         {
