@@ -1,5 +1,6 @@
 ﻿using HUBT_Social_Core.Models.Requests.Cloud;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace HUBT_Social_Core.Models.Requests.Firebase;
 
@@ -21,27 +22,39 @@ public class SendNotationToGroupChatRequest : MessageRequest
 public class SendByConditionRequest
 {
     [Required]
-    public string Title { get; set; } = string.Empty;
+    [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
 
     [Required]
-    public string Body { get; set; } = string.Empty;
+    [JsonPropertyName("body")] public string Body { get; set; } = string.Empty;
 
-    public UploadBase64Request? Image { get; set; } = null;
-
-    public string? RequestId { get; set; }
+    [JsonPropertyName("requestId")] public string? RequestId { get; set; }
 
     [Required]
-    public string Type { get; set; } = string.Empty;
+    [JsonPropertyName("type")] public string Type { get; set; } = string.Empty;
 
-    public List<string>? FacultyCodes { get; set; }
+    [JsonPropertyName("priority")] public string? Priority { get; set; }  /* Not used yet  */
 
-    public List<string>? CourseCodes { get; set; }
+    [JsonPropertyName("deliveryChannels")] public List<string>? DeliveryChannels { get; set; }  /* Not used yet */
 
-    public List<string>? ClassCodes { get; set; }
+    [JsonPropertyName("scheduleEnabled")] public bool ScheduleEnabled { get; set; } = false;  /*Not used yet  */
 
-    public List<string>? UserNames { get; set; }
+    [JsonPropertyName("scheduledTime")] public DateTime? ScheduledTime { get; set; }  /*Not used yet  */
 
-    public bool SendAll { get; set; }
+    [JsonPropertyName("imageFile")] public UploadBase64Request? ImageFile { get; set; } = null;  /*Not used yet  */
+
+    [JsonPropertyName("timestamp")] public DateTime? Timestamp { get; set; }  /*Not used yet  */
+
+    [JsonPropertyName("createdBy")] public string? CreatedBy { get; set; }  /*Not used yet  */
+
+    [JsonPropertyName("facultyCodes")] public List<string>? FacultyCodes { get; set; }
+
+    [JsonPropertyName("courseCodes")] public List<string>? CourseCodes { get; set; }
+
+    [JsonPropertyName("classCodes")] public List<string>? ClassCodes { get; set; }
+
+    [JsonPropertyName("userNames")] public List<string>? UserNames { get; set; }
+
+    [JsonPropertyName("sendAll")] public bool SendAll { get; set; } = false;
 }
 public class ConditionRequest
 {

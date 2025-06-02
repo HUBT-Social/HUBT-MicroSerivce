@@ -38,6 +38,7 @@ namespace Notation_API
                 });
             });
 
+
             var app = builder.Build();
 
             app.UseCors("AllowReactApp");

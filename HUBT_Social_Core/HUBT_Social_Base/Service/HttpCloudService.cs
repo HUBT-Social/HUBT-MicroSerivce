@@ -28,5 +28,30 @@ namespace HUBT_Social_Base.Service
             }
             return null;
         }
+<<<<<<< Updated upstream
+=======
+
+        public async Task<string?> GetUrlFormFile(FileRequest request)
+        {
+            if (request.file == null) return null;
+
+            using var memoryStream = new MemoryStream();
+            await request.file.CopyToAsync(memoryStream);
+            byte[] fileBytes = memoryStream.ToArray();
+
+            string base64Data = Convert.ToBase64String(fileBytes);
+            string contentType = request.file.ContentType;
+
+            string base64StringWithPrefix = $"data:{contentType};base64,{base64Data}";
+
+            UploadBase64Request base64Resquest = new()
+            {
+                FileData = base64StringWithPrefix,
+                FileName = request.file.FileName
+            };
+
+           return await GetUrlFormBase6(base64Resquest);
+        }
+>>>>>>> Stashed changes
     }
 }

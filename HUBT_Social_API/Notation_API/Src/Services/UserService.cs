@@ -5,7 +5,6 @@ using HUBT_Social_Core.Settings.@enum;
 using Microsoft.AspNetCore.Mvc;
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
-using Amazon.Runtime.Internal;
 using HUBT_Social_Base.ASP_Extentions;
 using System.Collections.Generic;
 using System.Net;
