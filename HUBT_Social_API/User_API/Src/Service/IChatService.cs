@@ -5,7 +5,7 @@ namespace User_API.Src.Service
 {
     public interface IChatService : IBaseService
     {
-        Task<bool> CreateChatRoom(CreateGroupRequest request, string accessToken);
+        Task<CreateChatResponse> CreateChatRoom(CreateGroupRequest request, string accessToken);
 
     }
 }

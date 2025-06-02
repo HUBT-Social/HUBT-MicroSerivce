@@ -21,7 +21,7 @@ namespace User_API.Src.Service
             {
                 Title = LocalValue.Get(KeyStore.NotationSomeOneLoginYouAccountTitle),
                 Body = $"{KeyStore.NotationSomeOneLoginYouAccountBody} {DateTime.UtcNow:HH:mm}",
-                Token = userDTO.FCMToken,
+                Token = userDTO.FCMToken ?? "",
                 Type = "Warring",
             };
             try

@@ -1,10 +1,8 @@
 
 using AutoMapper;
+using CloudServiceCenter.src.Service;
 using HUBT_Social_Base.ASP_Extentions;
-using HUBT_Social_Base.Service;
 using HUBT_Social_Core.ASP_Extensions;
-using HUBT_Social_Core.Settings;
-using Microsoft.Extensions.Configuration;
 
 namespace Identity_API
 {

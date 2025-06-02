@@ -17,7 +17,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
     {
 
         List<TUser>? GetAll();
-        Task<(List<TUser>, bool, string?)> GetUserByRole(string RoleName, int page = 0);
+        Task<(List<TUser>, bool, string)> GetUserByRole(string RoleName, int page = 0);
         
         Task<TUser?> FindUserByUserNameAsync(string userName);
         Task<TUser?> FindUserByIdAsync(string id);

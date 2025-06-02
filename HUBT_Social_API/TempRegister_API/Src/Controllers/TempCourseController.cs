@@ -29,7 +29,7 @@ namespace TempRegister_API.Src.Controllers
         {
             if (page>=0)
             {
-                Console.WriteLine("So ban gi: ", _tempCourse.Count());
+                Console.WriteLine($"So ban gi: {_tempCourse.Count()}");
                 var filter = Builders<TempCourse>.Filter.Eq(c => c.RoomCreated, false);
                 var tempListCourse = await _tempCourse.GetSlide(page, 10, filter);
                 if (!tempListCourse.Any()) { return BadRequest(); };

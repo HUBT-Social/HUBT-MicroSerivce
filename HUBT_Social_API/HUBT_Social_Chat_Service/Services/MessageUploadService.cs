@@ -45,7 +45,7 @@ namespace HUBT_Social_Chat_Service.Services
             }
 
             // Tạo tin nhắn
-            MessageModel message = await MessageModel.CreateTextMessageAsync(
+            MessageModel message = MessageModel.CreateTextMessage(
                 chatRequest.UserId, MessageContent.Content, chatRequest.RequestId, chatRequest.ReplyToMessage);
 
             bool updateResult = await _chatRooms.SaveChatItemAsync(chatRoom.Id, message);

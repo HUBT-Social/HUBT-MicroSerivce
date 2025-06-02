@@ -1,11 +1,13 @@
 ﻿using HUBT_Social_API.Src.Features.Auth.Dtos.Request.UpdateUserRequest;
 using HUBT_Social_Base.ASP_Extentions;
+using HUBT_Social_Base.Models;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
+using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Net;
+using System.Runtime.InteropServices;
+using User_API.Src.Models;
 using User_API.Src.Service;
 using User_API.Src.UpdateUserRequest;
 
@@ -20,11 +24,15 @@ namespace User_API.Src.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService,INotationService notationService, IHttpCloudService cloudService) : ControllerBase
+    public class UserController(IUserService userService,
+        INotationService notationService,
+        IHttpCloudService cloudService,
+        IOutSourceService outSourceService) : ControllerBase
     {
         private readonly IUserService _identityService = userService;
         private readonly INotationService _notationService = notationService; 
         private readonly IHttpCloudService _cloudService = cloudService;
+        private readonly IOutSourceService _outSourceService = outSourceService;
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string? username)
         {
@@ -46,7 +54,7 @@ namespace User_API.Src.Controllers
             AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
             if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
             {
-                return Ok(new
+                 return Ok(new
                 {
                     AvatarUrl = userDTO.AvataUrl,
                     userDTO.UserName,
@@ -68,20 +76,109 @@ namespace User_API.Src.Controllers
             return BadRequest(result.Message);
 
         }
+        [HttpGet("get-school-data")]
+        public async Task<IActionResult> GetInfo()
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+            
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+                AVGScoreDTO? scoreDTO = await _outSourceService.GetAVGScoreByMasv(userDTO.UserName);
+
+                return Ok(new
+                {
+                    ClassName = studentDTO?.TenLop ?? "",
+                    Score4 = scoreDTO?.DiemTB4 ?? 0,
+                    Score10 = scoreDTO?.DiemTB10 ?? 0,
+                });
+            }
+
+
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+
+        }
+        [HttpGet("get-user-courese")]
+        public async Task<IActionResult> GetUserCourese()
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+            
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+
+                List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "");
+                List<UserCoures>? userCoures = [];
+                if (subjectDTOs == null || subjectDTOs.Count == 0)
+                    return BadRequest(LocalValue.Get(KeyStore.NoMessagesFound));
+                foreach (SubjectDTO subject in subjectDTOs)
+                {
+                    int khoas;
+                    if (DateTime.Now.Month < 8)
+                    {
+                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas;
+                    }
+                    else
+                    {
+                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas + 1;
+                    }
+                    UserCoures userCouresItem = new ()
+                    {
+                        Major = subject.Manganh,
+                        SubjectName = subject.TenMon,
+                        SubjectCredit = (int)subject.Sotin,
+                        SubjectYear = khoas + 1
+                    };
+                    if (userCouresItem.SubjectYear <= 4)
+                        userCoures.Add(userCouresItem);
+                }
+                
+                return Ok(userCoures);
+            }
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+
+        }
         [HttpGet("get-user-by-role")]
         public async Task<IActionResult> GetUserByRole([FromQuery] string roleName, [FromQuery] int page = 0)
         {
             ResponseDTO result = await _identityService.GetUserByRole(roleName, page);
-            ResponseUserRoleDTO? responseUserRoleDTO = result.ConvertTo<ResponseUserRoleDTO>();
-
-            if (responseUserRoleDTO != null)
+            if (result.StatusCode == HttpStatusCode.OK)
             {
-                return Ok(new
+                GetUserByRoleResponses? responseUserRoleDTO = result.ConvertTo<GetUserByRoleResponses>();
+
+                if (responseUserRoleDTO != null)
                 {
-                    responseUserRoleDTO.users,
-                    responseUserRoleDTO.hasMore,
-                    responseUserRoleDTO.message
-                });
+                    return Ok(new
+                    {
+                        users = responseUserRoleDTO.AUserDTOs,
+                        hasMore = responseUserRoleDTO.HasMore,
+                        message = responseUserRoleDTO.Message
+                    });
+                }
             }
             return BadRequest(result.Message);
         }
@@ -138,11 +235,11 @@ namespace User_API.Src.Controllers
         }
 
         [HttpPut("update-avatar")]
-        public async Task<IActionResult> UpdateAvatar([FromBody] UpdateAvatarRequest request)
+        public async Task<IActionResult> UpdateAvatar(FileRequest request)
         {
-            if (request.File == null) return BadRequest("File is null");
+            if (request.file == null) return BadRequest("File is null");
 
-            string? newUrl = await _cloudService.GetUrlFormFile(request.File);
+            string? newUrl = await _cloudService.GetUrlFormFile(request);
             if (string.IsNullOrEmpty(newUrl)) return BadRequest("Update failed");
 
             var token = Request.Headers.ExtractBearerToken();

@@ -8,7 +8,6 @@ namespace HUBT_Social_Core.Models.Requests
 
         [Required]
         [DataType(DataType.Password)]
-        [MinLength(8), RegularExpression(@"^(?=.*[A-Z])(?=.*\d).{8,}$")]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]

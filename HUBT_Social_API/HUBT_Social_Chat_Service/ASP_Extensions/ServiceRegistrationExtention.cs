@@ -20,7 +20,6 @@ namespace HUBT_Social_Chat_Service.ASP_Extensions
             service.AddScoped<IChatService, ChatService>();
             service.AddScoped<IRoomUpdateService, RoomUpdateService>();
             service.AddScoped<IRoomGetService, RoomGetService>();
-            service.AddScoped<ICloudService, CloudService>();
 
 
             return service;

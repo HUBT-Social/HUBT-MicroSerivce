@@ -12,6 +12,9 @@ namespace TempRegister_API.Src.Models
         public string Id { get; set; } = string.Empty;
         public string CourseID { get; set; } = string.Empty;
         public string[] StudentIDs { get; set; } = [];
+        public string[] TeacherIDs { get; set; } = [];
+        public string RoomId { get; set; } = string.Empty;
+
         public TimeTableDTO TimeTableDTO { get; set; } = new();
         public bool RoomCreated {  get; set; } = false;
     }

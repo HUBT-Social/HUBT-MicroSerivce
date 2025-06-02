@@ -20,7 +20,7 @@ namespace User_API.Src.Service
     {
         public async Task<AVGScoreDTO?> GetAVGScoreByMasv(string masv)
         {
-            string path = APIEndPoint.OutSourceUrls.Get_StudentAvgScore
+            string path = APIEndPoint.OutSourceUrls.GetStudentAvgScore
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -34,7 +34,7 @@ namespace User_API.Src.Service
         public async Task<StudentDTO?> GetStudentByMasv(string masv)
         {
 
-            string path = APIEndPoint.OutSourceUrls.Get_StudentData
+            string path = APIEndPoint.OutSourceUrls.GetStudentData
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -46,7 +46,7 @@ namespace User_API.Src.Service
         }
         public async Task<List<StudentDTO>> GetStudentByClassName(string className)
         {
-            string path = APIEndPoint.OutSourceUrls.Get_StudentList
+            string path = APIEndPoint.OutSourceUrls.GetStudentList
                 .Replace("{className}", className);
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<StudentDTO>>() ?? [];
@@ -54,7 +54,7 @@ namespace User_API.Src.Service
 
         public async Task<List<ScoreDTO>?> GetStudentScoreByMasv(string masv)
         {
-            string path = APIEndPoint.OutSourceUrls.Get_StudentScoreByRoute
+            string path = APIEndPoint.OutSourceUrls.GetStudentScoreByRoute
                 .Replace("{masv}", masv);
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
             return response.ConvertTo<List<ScoreDTO>>();
@@ -63,7 +63,7 @@ namespace User_API.Src.Service
         public async Task<List<TimeTableDTO>?> GetTimeTableByClassName(string className)
         {
 
-            string path = APIEndPoint.OutSourceUrls.Get_StudentTimeTable
+            string path = APIEndPoint.OutSourceUrls.GetStudentTimeTable
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -78,15 +78,15 @@ namespace User_API.Src.Service
         {
             string[] paths = className.Split(".");
             string major = new(paths[0].TakeWhile(char.IsLetter).ToArray());
-            string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
+            //string course = new(paths[0].SkipWhile(char.IsLetter).TakeWhile(char.IsDigit).ToArray());
 
 
-            string path = APIEndPoint.OutSourceUrls.Get_Subject
+            string path = APIEndPoint.OutSourceUrls.GetSubject
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
-                        {"major",major },
-                        {"course",course }
+                        {"major",major }
+                        //{"course",course }
                     }
                 );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);
@@ -101,7 +101,7 @@ namespace User_API.Src.Service
         public async Task<TimeTableDTO?> GetTimeTableById(string id)
         {
 
-            string path = APIEndPoint.OutSourceUrls.Get_StudentTimeTable
+            string path = APIEndPoint.OutSourceUrls.GetStudentTimeTable
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
@@ -114,7 +114,7 @@ namespace User_API.Src.Service
         }
         public async Task<List<StudentClassName>> GetSlideStudentClassName(int page)
         {
-            string path = APIEndPoint.OutSourceUrls.Get_Slice_Students
+            string path = APIEndPoint.OutSourceUrls.GetSliceStudents
                 .BuildUrl(
                     new Dictionary<string, string>
                     {

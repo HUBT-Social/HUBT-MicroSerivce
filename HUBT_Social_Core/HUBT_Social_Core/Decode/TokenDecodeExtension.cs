@@ -97,6 +97,7 @@ namespace HUBT_Social_Core.Decode
                 UserId = userId,
                 Email = email ?? string.Empty,
                 TokenId = tokenId,
+                Token = token,
                 Roles = roles
             };
         }

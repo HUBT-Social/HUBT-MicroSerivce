@@ -74,19 +74,17 @@ namespace Identity_API.Src.Controllers
                     }).ToList();
 
                 return Ok(
-                    new
+                    new GetUserByRoleResponses()
                     {
-                        users = userDTOs,
-                        hasMore = response.Item2,
-                        message = response.Item3
+                        AUserDTOs = userDTOs,
+                        HasMore = response.Item2,
+                        Message = response.Item3
                     });
             }
-            return Ok(
-                    new
+            return BadRequest(
+                    new GetUserByRoleResponses()
                     {
-                        users = new List<AUserDTO>(),
-                        hasMore = response.Item2,
-                        message = response.Item3
+                        Message = response.Item3
                     });
         }
 
@@ -109,8 +107,6 @@ namespace Identity_API.Src.Controllers
             return Ok(userDTOs);
         }
         [HttpGet("user")]
-        [AllowAnonymous]
-
         public async Task<IActionResult> GetUser()
         {
             var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
@@ -127,7 +123,6 @@ namespace Identity_API.Src.Controllers
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
         }
-
         [HttpGet("user/get")]
         [AllowAnonymous]
         public async Task<IActionResult> CheckUser([FromQuery] string? email, [FromQuery] string? userName, [FromQuery] string? userId)

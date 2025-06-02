@@ -14,7 +14,7 @@ namespace Chat_Data_API
     public class Program
     {
 
-        private static void InitConfigures(WebApplicationBuilder builder)
+        private static void RegisterThirdPartyServices(WebApplicationBuilder builder)
         {
             builder.Services.AddAuthorization();
             builder.Services.AddEndpointsApiExplorer();
@@ -26,58 +26,60 @@ namespace Chat_Data_API
             builder.Services.ConfigureCloudinary(builder.Configuration);
             builder.Services.HttpClientRegisterConfiguration(builder.Configuration);
             builder.Services.AddMongoMapper();
-
-
-
         }
-        private static void InitServices(WebApplicationBuilder builder)
+
+        private static void RegisterApplicationServices(WebApplicationBuilder builder)
         {
             builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("JwtSettings"));
-            TokenHelper.Configure(builder.Services.BuildServiceProvider().GetRequiredService<IOptions<JwtSetting>>());
             builder.Services.RegistChatService();
             builder.Services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
+
+            // Cách khác nếu bạn cần cấu hình static TokenHelper
+            // builder.Services.AddSingleton<TokenHelper>();
         }
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            InitConfigures(builder);
-            InitServices(builder);
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            RegisterThirdPartyServices(builder);
+            RegisterApplicationServices(builder);
+
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowReactApp", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.WithOrigins("https://chatuitest.onrender.com", "http://localhost:3000")  // Chỉ cho phép origin này
-                        .AllowAnyMethod()   // Cho phép bất kỳ phương thức HTTP nào
-                        .AllowAnyHeader()   // Cho phép bất kỳ header nào
-                        .AllowCredentials(); // Cho phép gửi credentials như cookies, authorization headers
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetIsOriginAllowed(_ => true); // hoặc cụ thể domain mobile
                 });
             });
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            // Nếu cần gọi TokenHelper.Configure
+            var jwtOptions = app.Services.GetRequiredService<IOptions<JwtSetting>>();
+            TokenHelper.Configure(jwtOptions);
 
             app.UseHttpsRedirection();
-            app.UseCors("AllowReactApp");
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseLocalization();
-            
+
             app.MapControllers();
             app.MapHub<ChatHub>("/chathub");
-            
+
             app.Run();
         }
     }

@@ -21,7 +21,7 @@ namespace HUBT_Social_Chat_Resources.Models
         //public MessageActionStatus actionStatus { get; set; } = MessageActionStatus.Normal;
         public TimeSpan? voiceMessageDuration { get; set; }
         // Constructor private để ép buộc dùng factory method
-        private MessageModel(string sentBy, MessageType messageType, string itemId, string message = null, ReplyMessage? replyMessage = null)
+        private MessageModel(string sentBy, MessageType messageType, string itemId, string message = "", ReplyMessage? replyMessage = null)
         {
             this.sentBy = sentBy;
             this.message = message;
@@ -31,7 +31,7 @@ namespace HUBT_Social_Chat_Resources.Models
         }
 
         // Factory method cho tin nhắn văn bản
-        public static async Task<MessageModel> CreateTextMessageAsync
+        public static MessageModel CreateTextMessage
         (
             string sentBy,
             string content,
@@ -44,19 +44,21 @@ namespace HUBT_Social_Chat_Resources.Models
         }
 
         // Factory method cho tin nhắn có file
-        public static async Task<MessageModel> CreateMediaMessageAsync
+        public static MessageModel CreateMediaMessage
         (
             string sentBy,
-            FilePaths filePaths,
+            string filePaths,
             string itemId,
             ReplyMessage? replyMessage = null
         )
         {
-            string mess = JsonConvert.SerializeObject(filePaths);
-            var message = new MessageModel(sentBy, MessageType.Media, itemId, mess, replyMessage);
+            var message = new MessageModel(sentBy, MessageType.Media, itemId, filePaths, replyMessage);
             return message;
         }
 
-
+        public static MessageModel CreateMediaMessageAsync(string? userId, string fileResult, string id, ReplyMessage? replyToMessage)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

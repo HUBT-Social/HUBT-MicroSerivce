@@ -151,12 +151,15 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
                     {
                         return await GenerateTokenAsync(user);
                     }
-                    Console.WriteLine($"Refresh token not user's refresh token: {user.UserName}");
+                    else
+                        Console.WriteLine($"user's refresh token is not in database: {user.UserName}");
                 }
-                Console.WriteLine($"User not found with id : {refreshUserId}");
+                else
+                    Console.WriteLine($"User not found with id : {refreshUserId}");
 
             }
-            Console.WriteLine($"accessUserID and RefreshUserId doesnot match. access : {accessUserId} Refresh :{refreshUserId}");
+            else
+                Console.WriteLine($"accessUserID and RefreshUserId doesnot match. access : {accessUserId} Refresh :{refreshUserId}");
             return null;
         }
 

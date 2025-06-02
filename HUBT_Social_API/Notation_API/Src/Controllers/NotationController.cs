@@ -2,7 +2,6 @@
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs.NotationDTO;
-using HUBT_Social_Core.Models.DTOs.NotationDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_Firebase.Services;
@@ -45,17 +44,6 @@ using Notation_API.Src.Services;
         {
             try
             {
-                //if (request.Token.StartsWith("userId_"))
-                //{
-                //    string userId = request.Token[7..]; // Cắt bỏ "userId_" để lấy ID thực
-                //    string? userFcm = await _userService.GetUserFCMFromId(userId);
-
-                //    if (string.IsNullOrEmpty(userFcm))
-                //        return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-
-                //    // Cập nhật Token bằng FCM Token thực tế
-                //    request.Token = userFcm;
-                //}
                 await _fireBaseNotificationService.SendNotificationAsync(request);
                 return Ok(LocalValue.Get(KeyStore.NotificationSend));
             }
@@ -207,11 +195,10 @@ using Notation_API.Src.Services;
                 {
                     try
                     {
-                        var uploadResponse = await _httpCloudService.GetUrlFormFile(request.Image);
+                        var uploadResponse = await _httpCloudService.GetUrlFormBase6(request.Image);
                         if (string.IsNullOrEmpty(uploadResponse))
                         {
-                            //_logger.LogWarning("Image upload failed for notification with RequestId: {RequestId}", request.RequestId);
-                            // Continue without image if upload fails
+
                         }
                         else
                         {
@@ -220,8 +207,7 @@ using Notation_API.Src.Services;
                     }
                     catch (Exception ex)
                     {
-                        //_logger.LogError(ex, "Error uploading image for notification with RequestId: {RequestId}", request.RequestId);
-                        // Continue without image
+
                     }
                 }
 
@@ -236,7 +222,6 @@ using Notation_API.Src.Services;
                     }
                     catch (Exception ex)
                     {
-                        //_logger.LogError(ex, "Failed to send notification to FCM token: {Token}", fmc);
                         failedTokens.Add(fmc);
                     }
                 }
@@ -292,9 +277,8 @@ using Notation_API.Src.Services;
 <<<<<<< Updated upstream
                 return Ok("Đã gửi.");
             }
-            catch (Exception ex)
+            catch
             {
-                //_logger.LogError(ex, "Error processing notification request with RequestId: {RequestId}", request.RequestId);
                 return StatusCode(500, LocalValue.Get(KeyStore.NotificationSendError));
             }
         }

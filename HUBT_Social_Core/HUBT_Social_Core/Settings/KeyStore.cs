@@ -131,6 +131,7 @@ namespace HUBT_Social_Core.Settings
         public const string AvatarDefaultMale3 = "https://res.cloudinary.com/dnx8aew1t/image/upload/v1731812010/fjt3fwuqk53lnb910qvu.jpg";
         public const string AvatarDefaultMale4 = "https://res.cloudinary.com/dnx8aew1t/image/upload/v1731812037/txbbmvgtpyhnleij7g1s.jpg";
         public const string DefaultUserImage = "https://res.cloudinary.com/dnx8aew1t/image/upload/v1732549977/jgldr2myysd7u6vx6sfy.jpg";
+        public const string DefaultGroupImage = "https://cdn-icons-png.flaticon.com/512/166/166258.png";
 
         // Các Key cho Email Template
         public const string EmailContentHeaderContent1 = "EmailContentHeaderContent1";

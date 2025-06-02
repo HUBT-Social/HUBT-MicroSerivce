@@ -1,8 +1,10 @@
-﻿using HUBT_Social_Base.ASP_Extentions;
+﻿using Amazon.Runtime.Internal;
+using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Base.Models;
 using HUBT_Social_Core.Models.DTOs;
 using HUBT_Social_Core.Models.Requests.Cloud;
 using HUBT_Social_Core.Settings.@enum;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ namespace HUBT_Social_Base.Service
 {
     public class HttpCloudService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), IHttpCloudService
     {
-        public async Task<string?> GetUrlFormFile(UploadBase64Request request)
+        public async Task<string?> GetUrlFormBase6(UploadBase64Request request)
         {
             string path = $"api/cloudinary/upload-base64-file";
             ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.POST, request, null);
@@ -28,8 +30,6 @@ namespace HUBT_Social_Base.Service
             }
             return null;
         }
-<<<<<<< Updated upstream
-=======
 
         public async Task<string?> GetUrlFormFile(FileRequest request)
         {
@@ -50,8 +50,7 @@ namespace HUBT_Social_Base.Service
                 FileName = request.file.FileName
             };
 
-           return await GetUrlFormBase6(base64Resquest);
+            return await GetUrlFormBase6(base64Resquest);
         }
->>>>>>> Stashed changes
     }
 }
