@@ -45,10 +45,10 @@ namespace Notation_API.Src.Services
             }
             return null;
         }
-        public async Task<List<string>> GetListFMCFromCondition(ConditionRequest request)
+        public async Task<NotificationRecipients> GetNotificationRecipientsFromCondition(ConditionRequest request)
         {
 
-            string path = "get-fmcs-by-condition-admin";
+            string path = "get-notification-recipient";
             if (request.SendAll)
             {
                 path += "?SendAll=true";
@@ -77,6 +77,9 @@ namespace Notation_API.Src.Services
                     path += $"?{string.Join("&", queryParams)}";
                 }
             }
+            if (request.IncludeEmails) { path += "&IncludeEmails=true"; }
+            if (request.IncludePhoneNumbers) { path += "&IncludePhoneNumbers=true"; }
+            if (request.IncludeFcmTokens) { path += "&IncludeFcmTokens=true"; }
 
             ResponseDTO? response = null;
             try
@@ -85,23 +88,23 @@ namespace Notation_API.Src.Services
             }
             catch
             {
-                return new List<string>();
+                return new NotificationRecipients();
             }
 
             if (response?.StatusCode == HttpStatusCode.OK)
             {
                 try
                 {
-                    List<string>? fcmTokens = response.ConvertTo<List<string>>();
-                    return fcmTokens?.Where(token => !string.IsNullOrEmpty(token)).ToList() ?? new List<string>();
+                    NotificationRecipients? recipients = response.ConvertTo<NotificationRecipients>();
+                    return recipients ?? new NotificationRecipients();
                 }
                 catch
                 {
-                    return new List<string>();
+                    return new NotificationRecipients();
                 }
             }
 
-            return new List<string>();
+            return new NotificationRecipients();
 
         }
     }

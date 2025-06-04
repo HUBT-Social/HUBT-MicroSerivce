@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace HUBT_Social_Email_Service.Services
 {
-    public interface IEmailService
+    public interface IEmailPostCodeService
     {
-        Task<bool> SendEmailAsync(EmailRequest request);
-
+        Task<bool> SendPostCodeAsync(SendPostCodeRequest request);
+        
     }
 }

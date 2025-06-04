@@ -21,18 +21,18 @@ namespace Postcode_API.Src.Controllers
     public class PostcodeController(
         IMongoService<Postcode> postcode,
         IOptions<JwtSetting> option,
-        IEmailService emailService,
+        IEmailPostCodeService emailService,
         IMapper mapper) : DataLayerController(mapper, option)
     {
         private readonly IMongoService<Postcode> _postcodeService = postcode;
-        private readonly IEmailService _emailService = emailService;
+        private readonly IEmailPostCodeService _emailService = emailService;
         [HttpPost("send-postcode")]
-        public async Task<IActionResult> SendPostcodeAsync(EmailRequest request)
+        public async Task<IActionResult> SendPostcodeAsync(SendPostCodeRequest request)
         {
             if (!ModelState.IsValid) 
                 return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
 
-            if(await _emailService.SendEmailAsync(request))
+            if(await _emailService.SendPostCodeAsync(request))
                 return Ok(LocalValue.Get(KeyStore.OtpSent));
 
             return BadRequest(LocalValue.Get(KeyStore.UnableToSendOTP));

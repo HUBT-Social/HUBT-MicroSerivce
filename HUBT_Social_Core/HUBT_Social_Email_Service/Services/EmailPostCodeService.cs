@@ -5,43 +5,20 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;
 using System.Reflection;
+using Org.BouncyCastle.Asn1.Ocsp;
+using HUBT_Social_Email_Service.ASP_Extentions;
+using Microsoft.Extensions.Options;
 
 
 namespace HUBT_Social_Email_Service.Services
 {
-    internal class EmailService(SMPTSetting setting) : IEmailService 
+    internal class EmailPostCodeService(IOptions<SMPTSetting> setting) : IEmailPostCodeService 
     {
-        private readonly SMPTSetting _emailSetting = setting;
+        private readonly SMPTSetting _emailSetting = setting.Value;
 
-
-        public async Task<bool> SendEmailAsync(EmailRequest request)
-        {
-            // Lấy thông tin SMTP từ môi trường hoặc cấu hình
-            var smtpHost = _emailSetting.Host;
-            var smtpPort = int.Parse(_emailSetting.Port);
-            var smtpEmail = _emailSetting.Email;
-            var smtpPassword = _emailSetting.Password;
-
-            try
-            {
-                var email = CreateEmailMessage(request);
-                using var smtpClient = new SmtpClient();
-
-                await smtpClient.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
-                await smtpClient.AuthenticateAsync(smtpEmail, smtpPassword);
-                await smtpClient.SendAsync(email);
-                await smtpClient.DisconnectAsync(true);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // Ghi log lỗi ở đây
-                Console.WriteLine($"Error sending email: {ex.Message}");
-                return false;
-            }
-        }
-        private MimeMessage CreateEmailMessage(EmailRequest emailRequest)
+        public async Task<bool> SendPostCodeAsync(SendPostCodeRequest request) => await CreatePostCodeEmailMessage(request).SendEmailAsync(_emailSetting);
+        
+        private MimeMessage CreatePostCodeEmailMessage(SendPostCodeRequest emailRequest)
         {
 
             var emailMessage = new MimeMessage();
@@ -58,6 +35,27 @@ namespace HUBT_Social_Email_Service.Services
                     ?? throw new FileNotFoundException("Template resource not found");
                 using StreamReader reader = new(stream);
                 emailHtmlContent = reader.ReadToEnd();
+
+                // Thay thế thông tin trong template
+                emailHtmlContent = emailHtmlContent
+                    .Replace("{{name}}", emailRequest.FullName.Length != 0 ? emailRequest.FullName : emailRequest.ToEmail)
+                    .Replace("{{device}}", emailRequest.Device)
+                    .Replace("{{location}}", emailRequest.Location)
+                    .Replace("{{time}}", emailRequest.DateTime)
+                    .Replace("{{text0}}", LocalValue.Get(KeyStore.Email2Text0))
+                    .Replace("{{text1}}", LocalValue.Get(KeyStore.Email2Text1))
+                    .Replace("{{text2}}", LocalValue.Get(KeyStore.Email2Text2))
+                    .Replace("{{text3}}", LocalValue.Get(KeyStore.Email2Text3))
+                    .Replace("{{text4}}", LocalValue.Get(KeyStore.Email2Text4))
+                    .Replace("{{text5}}", LocalValue.Get(KeyStore.Email2Text5))
+                    .Replace("{{text6}}", LocalValue.Get(KeyStore.Email2Text6))
+                    .Replace("{{text7}}", LocalValue.Get(KeyStore.Email2Text7))
+                    .Replace("{{text8}}", LocalValue.Get(KeyStore.Email2Text8))
+                    .Replace("{{text9}}", LocalValue.Get(KeyStore.Email2Text9))
+                    .Replace("{{text10}}", LocalValue.Get(KeyStore.Email2Text10))
+                    .Replace("{{text11}}", LocalValue.Get(KeyStore.Email2Text11))
+                    .Replace("{{text12}}", LocalValue.Get(KeyStore.Email2Text12))
+                    .Replace("{{text13}}", LocalValue.Get(KeyStore.Email2Text13));
             }
             catch
             {
@@ -78,27 +76,6 @@ namespace HUBT_Social_Email_Service.Services
             }
 
 
-            // Thay thế thông tin trong template
-            emailHtmlContent = emailHtmlContent
-                .Replace("{{name}}", emailRequest.FullName.Length != 0 ? emailRequest.FullName : emailRequest.ToEmail)
-                .Replace("{{device}}", emailRequest.Device)
-                .Replace("{{location}}", emailRequest.Location)
-                .Replace("{{time}}", emailRequest.DateTime)
-                .Replace("{{text0}}", LocalValue.Get(KeyStore.Email2Text0))
-                .Replace("{{text1}}", LocalValue.Get(KeyStore.Email2Text1))
-                .Replace("{{text2}}", LocalValue.Get(KeyStore.Email2Text2))
-                .Replace("{{text3}}", LocalValue.Get(KeyStore.Email2Text3))
-                .Replace("{{text4}}", LocalValue.Get(KeyStore.Email2Text4))
-                .Replace("{{text5}}", LocalValue.Get(KeyStore.Email2Text5))
-                .Replace("{{text6}}", LocalValue.Get(KeyStore.Email2Text6))
-                .Replace("{{text7}}", LocalValue.Get(KeyStore.Email2Text7))
-                .Replace("{{text8}}", LocalValue.Get(KeyStore.Email2Text8))
-                .Replace("{{text9}}", LocalValue.Get(KeyStore.Email2Text9))
-                .Replace("{{text10}}", LocalValue.Get(KeyStore.Email2Text10))
-                .Replace("{{text11}}", LocalValue.Get(KeyStore.Email2Text11))
-                .Replace("{{text12}}", LocalValue.Get(KeyStore.Email2Text12))
-                .Replace("{{text13}}", LocalValue.Get(KeyStore.Email2Text13));
-
             for (int i = 0; i < 6; i++)
             {
                 string placeholder = $"{{{{value-{i}}}}}";
@@ -117,5 +94,8 @@ namespace HUBT_Social_Email_Service.Services
             emailMessage.Body = bodyBuilder.ToMessageBody();
             return emailMessage;
         }
+
+
+
     }
 }
