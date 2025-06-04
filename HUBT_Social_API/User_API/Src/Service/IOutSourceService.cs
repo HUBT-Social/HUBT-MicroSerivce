@@ -15,7 +15,7 @@ namespace User_API.Src.Service
         Task<TimeTableDTO?> GetTimeTableById(string id);
         Task<AVGScoreDTO?> GetAVGScoreByMasv(string masv);
         Task<List<ScoreDTO>?> GetStudentScoreByMasv(string masv);
-        Task<List<SubjectDTO>?> GetCouresAsync(string className,int page = 0,int limit = 10);
+        Task<List<SubjectDTO>?> GetCouresAsync(string className);
         Task<List<StudentDTO>> GetStudentByClassName(string className);
         Task<List<StudentClassName>> GetSlideStudentClassName(int page);
     }

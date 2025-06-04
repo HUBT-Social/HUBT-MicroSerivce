@@ -74,7 +74,7 @@ namespace User_API.Src.Service
             
             return response.ConvertTo<List<TimeTableDTO>>();
         }
-        public async Task<List<SubjectDTO>?> GetCouresAsync(string className, int page = 0, int limit = 10)
+        public async Task<List<SubjectDTO>?> GetCouresAsync(string className)
         {
             string[] paths = className.Split(".");
             string major = new(paths[0].TakeWhile(char.IsLetter).ToArray());
@@ -85,9 +85,7 @@ namespace User_API.Src.Service
                 .BuildUrl(
                     new Dictionary<string, string>
                     {
-                        {"major",major },
-                        {"page",page.ToString() },
-                        {"limit",limit.ToString() }
+                        {"major",major }
                     }
                 );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);

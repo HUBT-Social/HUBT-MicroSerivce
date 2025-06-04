@@ -110,7 +110,7 @@ namespace User_API.Src.Controllers
 
         }
         [HttpGet("get-user-courese")]
-        public async Task<IActionResult> GetUserCourese([FromQuery] int page = 0, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetUserCourese()
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
@@ -125,30 +125,27 @@ namespace User_API.Src.Controllers
             {
                 StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
 
-                List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "",page,limit);
+                List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "");
                 List<UserCourse>? userCoures = [];
                 if (subjectDTOs == null || subjectDTOs.Count == 0)
                     return BadRequest(LocalValue.Get(KeyStore.NoMessagesFound));
+                int currentKhoa = DateTime.UtcNow.Year - 1996;
+                int studentStartyear = 1996 + int.Parse(userDTO.UserName[..2]);
                 foreach (SubjectDTO subject in subjectDTOs)
                 {
-                    int khoas;
-                    if (DateTime.Now.Month < 8)
-                    {
-                        khoas = 1996 + (int)subject.Khoas -1;
-                    }
-                    else
-                    {
-                        khoas = 1996 + (int)subject.Khoas;
-                        
-                    }
-                    if (DateTime.UtcNow.Year - khoas + 1 > 4)
+                    int khoas = currentKhoa - (int)subject.Khoas;
+                    if (khoas + 1 > 4)
                         continue;
+
+                    int startYear = studentStartyear + khoas - 1;
+
+
                     UserCourse userCouresItem = new ()
                     {
                         Major = subject.Manganh,
                         SubjectName = subject.TenMon,
                         SubjectCredit = (int)subject.Sotin,
-                        SubjectYear = khoas
+                        SubjectYear = startYear
                     };
                     userCoures.Add(userCouresItem);
                 }

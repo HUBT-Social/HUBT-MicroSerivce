@@ -134,11 +134,11 @@ namespace Out_Source_Data.Src.Controllers
         }
        
         [HttpGet("monhoc")]
-        public async Task<IActionResult> GetSubject([FromQuery] string major, [FromQuery] int? course = null, [FromQuery] int page = 0, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetSubject([FromQuery] string major, [FromQuery] int? course = null)
         {
 
             List<MonHoc> hocPhans = [];
-            hocPhans = await _subject.Find(hp => hp.MaNganh.Equals(major, StringComparison.CurrentCultureIgnoreCase),page,limit).ToListAsync();
+            hocPhans = await _subject.Find(hp => hp.MaNganh.Equals(major, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
             
 
             if (hocPhans.Count <= 0)
