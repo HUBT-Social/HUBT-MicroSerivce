@@ -13,6 +13,8 @@ namespace User_API.Src.Service
     public interface ITempService : IBaseService
     {
         Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request);
+        Task<List<TimetableOutputDTO>> StoreIn(List<TimetableOutputDTO> request);
+
         Task<TimetableOutputDTO> Get(string id);
         Task<List<TimetableOutputDTO>> GetList(string className);
         Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className);
@@ -25,7 +27,7 @@ namespace User_API.Src.Service
 
         Task<ExamDTO> StoreExam(QuizDetail request);
 
-        Task<List<ExamDTO>> GetExams(string major,int limit = 0);
+        Task<List<ExamDTO>> GetExams(string major,int page = 0,int limit = 10);
 
         Task<ExamDTO?> GetExam(string id);
         Task<Question[]> GetExamQuestions(string id);

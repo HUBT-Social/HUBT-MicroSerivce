@@ -86,7 +86,6 @@ namespace User_API.Src.Service
                     new Dictionary<string, string>
                     {
                         {"major",major }
-                        //{"course",course }
                     }
                 );
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET);

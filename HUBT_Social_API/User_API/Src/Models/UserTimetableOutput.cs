@@ -9,9 +9,8 @@ using User_API.Src.Service;
 
 namespace User_API.Src.Models
 {
-    public class UserTimetableOutput(ITempService tempService)
+    public class UserTimetableOutput()
     {
-        private readonly ITempService _tempService = tempService;
         private DateTime _starttime;
         private DateTime _endtime;
         public string VersionKey { get; set; } = string.Empty;
@@ -38,7 +37,7 @@ namespace User_API.Src.Models
 
         public List<TimetableOutputDTO> ReformTimetables { get; set; } = [];
 
-        public async Task<List<TimetableOutputDTO>> GenerateReformTimetables(List<CouresDTO> couresDTOs)
+        public List<TimetableOutputDTO> GenerateReformTimetables(List<CouresDTO> couresDTOs)
         {
             DateTime currentDate = Starttime;
             while (currentDate <= Endtime)
@@ -49,17 +48,10 @@ namespace User_API.Src.Models
              
                     if (IsMatchingDay(couresDTO.TimeTableDTO.Day, currentDate))
                     {
-                                                
                         ReformTimetable reformTimetable = new(couresDTO.TimeTableDTO, currentDate);
                         TimetableOutputDTO timetableOutputDTO = reformTimetable;
                         timetableOutputDTO.CourseId = couresDTO.Id;
-                        TimetableOutputDTO result = await _tempService.StoreIn(timetableOutputDTO);
-                        if (result.Id != string.Empty)
-                        {
-                            reformTimetable.Id = result.Id;
-                            ReformTimetables.Add(reformTimetable);
-                        }
-                        
+                        ReformTimetables.Add(reformTimetable);    
                     }
                 }
                 currentDate = currentDate.AddDays(1);
@@ -88,7 +80,6 @@ namespace User_API.Src.Models
 
         public ReformTimetable(TimeTableDTO timetable, DateTime startDay)
         {
-            this.Id = timetable.Id;
             this.ClassName = timetable.ClassName;
             this.StartTime = SetStartTime(timetable.Session, startDay);
             this.EndTime = Type == TimeTableType.Study ? StartTime.AddHours(4) :null;

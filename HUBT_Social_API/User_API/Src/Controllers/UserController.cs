@@ -127,32 +127,31 @@ namespace User_API.Src.Controllers
                 StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
 
                 List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "");
-                List<UserCoures>? userCoures = [];
+                List<UserCourse>? userCoures = [];
                 if (subjectDTOs == null || subjectDTOs.Count == 0)
                     return BadRequest(LocalValue.Get(KeyStore.NoMessagesFound));
+                int currentKhoa = DateTime.UtcNow.Year - 1996;
+                int studentStartyear = 1996 + int.Parse(userDTO.UserName[..2]);
                 foreach (SubjectDTO subject in subjectDTOs)
                 {
-                    int khoas;
-                    if (DateTime.Now.Month < 8)
-                    {
-                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas;
-                    }
-                    else
-                    {
-                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas + 1;
-                    }
-                    UserCoures userCouresItem = new ()
+                    int khoas = currentKhoa - (int)subject.Khoas;
+                    if (khoas + 1 > 4)
+                        continue;
+
+                    int startYear = studentStartyear + khoas - 1;
+
+
+                    UserCourse userCouresItem = new ()
                     {
                         Major = subject.Manganh,
                         SubjectName = subject.TenMon,
                         SubjectCredit = (int)subject.Sotin,
-                        SubjectYear = khoas + 1
+                        SubjectYear = startYear
                     };
-                    if (userCouresItem.SubjectYear <= 4)
-                        userCoures.Add(userCouresItem);
+                    userCoures.Add(userCouresItem);
                 }
-                
-                return Ok(userCoures);
+                List<OutPutCourse> outPutCourse = userCoures.FormatOutput();
+                return Ok(outPutCourse);
             }
 
             if (result.StatusCode == HttpStatusCode.Unauthorized)

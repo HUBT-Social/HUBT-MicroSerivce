@@ -18,7 +18,7 @@ namespace User_API.Src.Service
     {
         public async Task<TimetableOutputDTO> Get(string id)
         {
-            string path = APIEndPoint.TempUrls.TempTimetableGetTimetable
+            string path = APIEndPoint.TempUrls.TempTimetableTimetable
                 .BuildUrl(
                     new Dictionary<string, string> { { "id", id } }
                 );
@@ -27,7 +27,7 @@ namespace User_API.Src.Service
         }
         public async Task<List<TimetableOutputDTO>> GetList(string className)
         {
-            string path = APIEndPoint.TempUrls.TempTimetableGetTimetable
+            string path = APIEndPoint.TempUrls.TempTimetableTimetable
                 .BuildUrl(
                     new Dictionary<string, string> { { "className", className } }
                 );
@@ -37,10 +37,14 @@ namespace User_API.Src.Service
 
         public async Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request)
         {
-            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableGetTimetable, ApiType.POST, request);
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableTimetable, ApiType.POST, request);
             return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
         }
-
+        public async Task<List<TimetableOutputDTO>> StoreIn(List<TimetableOutputDTO >request)
+        {
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableCreateTimetable, ApiType.POST, request);
+            return responseDTO.ConvertTo<List<TimetableOutputDTO>>() ?? [];
+        }
         public async Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className)
         {
             string path = APIEndPoint.TempUrls.TempTimetableGetClassScheduleVersion
@@ -116,13 +120,14 @@ namespace User_API.Src.Service
             
         }
 
-        public async Task<List<ExamDTO>> GetExams(string major, int page = 0)
+        public async Task<List<ExamDTO>> GetExams(string major, int page = 0, int limit = 10)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamMajor.
                 BuildUrl( new Dictionary<string, string>
                 {
                       {"major", major },
-                    {"page", page.ToString() }
+                    {"page", page.ToString() },
+                    {"limit", limit.ToString() }
                 })
                 , ApiType.GET);
             if (responseDTO.StatusCode == HttpStatusCode.OK)

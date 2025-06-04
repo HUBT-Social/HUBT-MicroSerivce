@@ -20,7 +20,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         Task<IEnumerable<Collection>> GetAll(int? limit = null);
         Task<IEnumerable<Collection>> GetSlide(int page, int pageSize = 10, FilterDefinition<Collection>? filter = null);
         Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate);
-        Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate, int limit, int pageSize = 10);
+        Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate, int page, int pageSize = 10);
         Task<bool> Exists(string id);
         Task<long> Count();
         Task<List<TField>> GetSlide<TField>(string id,Expression<Func<Collection, IEnumerable<TField>>> fieldSelector,int startIndex,int count);

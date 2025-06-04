@@ -137,7 +137,10 @@ namespace Out_Source_Data.Src.Controllers
         public async Task<IActionResult> GetSubject([FromQuery] string major, [FromQuery] int? course = null)
         {
 
-            List<MonHoc> hocPhans = await _subject.Find(hp => hp.MaNganh.Equals(major, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
+            List<MonHoc> hocPhans = [];
+            hocPhans = await _subject.Find(hp => hp.MaNganh.Equals(major, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
+            
+
             if (hocPhans.Count <= 0)
                 return BadRequest();
             try
