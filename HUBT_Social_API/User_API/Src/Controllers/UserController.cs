@@ -110,7 +110,7 @@ namespace User_API.Src.Controllers
 
         }
         [HttpGet("get-user-courese")]
-        public async Task<IActionResult> GetUserCourese()
+        public async Task<IActionResult> GetUserCourese([FromQuery] int page = 0, [FromQuery] int limit = 10)
         {
             string? accessToken = Request.Headers.ExtractBearerToken();
             if (accessToken == null)
@@ -125,8 +125,8 @@ namespace User_API.Src.Controllers
             {
                 StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
 
-                List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "");
-                List<UserCoures>? userCoures = [];
+                List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO?.TenLop ?? "",page,limit);
+                List<UserCourse>? userCoures = [];
                 if (subjectDTOs == null || subjectDTOs.Count == 0)
                     return BadRequest(LocalValue.Get(KeyStore.NoMessagesFound));
                 foreach (SubjectDTO subject in subjectDTOs)
@@ -134,24 +134,26 @@ namespace User_API.Src.Controllers
                     int khoas;
                     if (DateTime.Now.Month < 8)
                     {
-                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas;
+                        khoas = 1996 + (int)subject.Khoas -1;
                     }
                     else
                     {
-                        khoas = DateTime.UtcNow.Year - 1996 - (int)subject.Khoas + 1;
+                        khoas = 1996 + (int)subject.Khoas;
+                        
                     }
-                    UserCoures userCouresItem = new ()
+                    if (DateTime.UtcNow.Year - khoas + 1 > 4)
+                        continue;
+                    UserCourse userCouresItem = new ()
                     {
                         Major = subject.Manganh,
                         SubjectName = subject.TenMon,
                         SubjectCredit = (int)subject.Sotin,
                         SubjectYear = khoas
                     };
-                    if (userCouresItem.SubjectCredit <= 4)
-                        userCoures.Add(userCouresItem);
+                    userCoures.Add(userCouresItem);
                 }
-                
-                return Ok(userCoures);
+                List<OutPutCourse> outPutCourse = userCoures.FormatOutput();
+                return Ok(outPutCourse);
             }
 
             if (result.StatusCode == HttpStatusCode.Unauthorized)
