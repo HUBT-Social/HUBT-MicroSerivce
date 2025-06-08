@@ -304,13 +304,12 @@ namespace User_API.Src.Controllers
         return BadRequest("Khong tim thay cau hoi.");
         }
         [HttpGet("questions")]
-        public async Task<IActionResult> GetQuestions([FromQuery] string major, [FromQuery] int page = 0, [FromQuery] int limit = 0)
+        public async Task<IActionResult> GetQuestions([FromQuery] string? major, [FromQuery] int page = 0, [FromQuery] int limit = 0)
         {
-            if (!string.IsNullOrEmpty(major))
-            {
-                List<ExamDTO> questions = await _tempService.GetExams(major,page,limit);
-                return Ok(questions);
-            }
+            
+            List<ExamDTO> questions = await _tempService.GetExams(major,page,limit);
+            return Ok(questions);
+            
             return BadRequest("Yêu cầu không hợp lệ.");
         }
         [HttpGet("questions-detail")]

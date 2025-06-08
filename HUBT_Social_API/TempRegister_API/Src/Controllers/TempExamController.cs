@@ -8,6 +8,7 @@ using HUBT_Social_MongoDb_Service.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Linq.Expressions;
 using TempRegister_API.Src.Models;
 
 namespace TempRegister_API.Src.Controllers
@@ -54,27 +55,29 @@ namespace TempRegister_API.Src.Controllers
             return BadRequest("Either id or className must be provided");
         }
         [HttpGet("major")]
-        public async Task<IActionResult> GetList([FromQuery] string major, [FromQuery] int page = 0, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetList([FromQuery] string? major, [FromQuery] int page = 0, [FromQuery] int limit = 10)
         {
-            if (!string.IsNullOrEmpty(major))
+            // Nếu major null hoặc rỗng, không dùng filter (tức là lấy tất cả)
+            Expression<Func<TempExam, bool>>? predicate = null;
+
+            if (!string.IsNullOrWhiteSpace(major))
             {
-                List<TempExam> exams = [];
-                if (page == 0 && limit == 0){
-                    exams = await _tempExam.Find(e => e.Major.Equals(major,StringComparison.OrdinalIgnoreCase)).ToListAsync();}
-                else if (page == 0)
-                    exams = await _tempExam.Find(e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase),0, limit).ToListAsync();
-                else if (limit == 0)
-                    exams = await _tempExam.Find(e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase), page).ToListAsync();
-                else
-                    exams = await _tempExam.Find(e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase), page,limit).ToListAsync();
-                if (exams != null)
-                {
-                    List<ExamDTO> examDTOs = _mapper.Map<List<ExamDTO>>(exams);
-                    return Ok(examDTOs);
-                }
-                return NotFound(new { message = "Exams not found" });
+                predicate = e => e.Major.Equals(major, StringComparison.OrdinalIgnoreCase);
             }
-            return BadRequest("Either id or className must be provided");
+
+            // Nếu page/limit = 0 thì không phân trang
+            int? pageArg = page > 0 ? page : null;
+            int? limitArg = limit > 0 ? limit : null;
+
+            var exams = await _tempExam.Find(predicate, pageArg, limitArg);
+
+            if (exams.Any())
+            {
+                var examDTOs = _mapper.Map<List<ExamDTO>>(exams);
+                return Ok(examDTOs);
+            }
+
+            return NotFound(new { message = "Exams not found" });
         }
 
         [HttpPost]

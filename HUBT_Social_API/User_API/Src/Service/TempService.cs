@@ -120,12 +120,12 @@ namespace User_API.Src.Service
             
         }
 
-        public async Task<List<ExamDTO>> GetExams(string major, int page = 0, int limit = 10)
+        public async Task<List<ExamDTO>> GetExams(string? major, int page = 0, int limit = 10)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempExamMajor.
                 BuildUrl( new Dictionary<string, string>
                 {
-                      {"major", major },
+                      {"major", major ?? "" },
                     {"page", page.ToString() },
                     {"limit", limit.ToString() }
                 })

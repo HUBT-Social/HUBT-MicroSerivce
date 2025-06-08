@@ -178,36 +178,29 @@ namespace HUBT_Social_MongoDb_Service.Services
 
 
 
-        public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate)
+        public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>>? predicate = null, int? page = null, int? pageSize = null)
         {
             try
             {
-                var filter = Builders<Collection>.Filter.Where(predicate);
-                return await _mongoCollection.Find(filter).ToListAsync();
+                var filter = predicate != null
+                    ? Builders<Collection>.Filter.Where(predicate)
+                    : Builders<Collection>.Filter.Empty;
+
+                var query = _mongoCollection.Find(filter);
+
+                if (page.HasValue && pageSize.HasValue && page > 0 && pageSize > 0)
+                {
+                    int skip = (page.Value - 1) * pageSize.Value;
+                    query = query.Skip(skip).Limit(pageSize.Value);
+                }
+
+                return await query.ToListAsync();
             }
             catch (Exception)
             {
                 return [];
             }
         }
-        public async Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>> predicate,int page, int pageSize = 10)
-        {
-
-            try
-            {
-                if (page < 1) page = 1;
-                int skip = (page - 1) * pageSize;
-                var filter = Builders<Collection>.Filter.Where(predicate);
-                return await _mongoCollection.Find(filter)
-                    .Skip(skip)
-                    .Limit(pageSize).ToListAsync();
-            }
-            catch (Exception)
-            {
-                return [];
-            }
-        }
-
         public async Task<bool> Exists(string id)
         {
             try

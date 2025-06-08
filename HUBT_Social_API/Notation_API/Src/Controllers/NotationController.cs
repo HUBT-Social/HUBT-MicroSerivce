@@ -172,6 +172,7 @@ namespace Notation_API.Src.Controllers
                     }
                     catch (Exception ex)
                     {
+
                         failedTokens.Add(fmc);
                     }
                 }
