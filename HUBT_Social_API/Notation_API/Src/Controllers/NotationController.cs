@@ -75,7 +75,7 @@ namespace Notation_API.Src.Controllers
                 {
                     return BadRequest(LocalValue.Get(KeyStore.NotificationSendError));
                 }
-                SendMessageRequest sendRequest = new SendMessageRequest
+                SendMessageRequest sendRequest = new ()
                 {
                     Body = request.Body,
                     ImageUrl = request.ImageUrl,
@@ -105,14 +105,14 @@ namespace Notation_API.Src.Controllers
             try
             {
                 if (request == null) { return BadRequest(); }
-                if ((request.UserNames == null || !request.UserNames.Any()) &&
-                    (request.ClassCodes == null || !request.ClassCodes.Any()) &&
-                    (request.FacultyCodes == null || !request.FacultyCodes.Any()) &&
-                    (request.CourseCodes == null || !request.CourseCodes.Any()))
+                if ((request.UserNames == null || request.UserNames.Count == 0) &&
+                    (request.ClassCodes == null || request.ClassCodes.Count == 0) &&
+                    (request.FacultyCodes == null || request.FacultyCodes.Count == 0) &&
+                    (request.CourseCodes == null || request.CourseCodes.Count == 0))
                 {
                     return BadRequest("Cần ít nhất một điều kiện để gửi thông báo.");
                 }
-                ConditionRequest condition = new ConditionRequest
+                ConditionRequest condition = new ()
                 {
                     ClassCodes = request.ClassCodes,
                     CourseCodes = request.FacultyCodes,
@@ -123,7 +123,7 @@ namespace Notation_API.Src.Controllers
                 if (FMCs == null) { return BadRequest(); }
                 if (FMCs.Count == 0) { return BadRequest(); }
 
-                SendMessageRequest sendRequest = new SendMessageRequest
+                SendMessageRequest sendRequest = new ()
                 {
                     Body = request.Body,
                     RequestId = request.RequestId,

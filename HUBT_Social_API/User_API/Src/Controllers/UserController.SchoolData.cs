@@ -31,7 +31,6 @@ namespace User_API.Src.Controllers
         private readonly IUserService _userService = userService;
         private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly ITempService _tempService = tempService;
-        private readonly IHelperService _helperService = helperService;
         private readonly IChatService _chatService = chatService;
         [HttpGet("timetable")]
         public async Task<IActionResult> GetUserTimeTable()
@@ -251,58 +250,6 @@ namespace User_API.Src.Controllers
 
             return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));
         }
-        [HttpPost("timetable")]
-        public async Task<IActionResult> CreateClassSchedule([FromBody] TimetableOutputDTO request)
-        {
-            
-            try
-            {
-                ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(request.ClassName);
-                if (classScheduleVersionDTO.ClassName == string.Empty)
-                    return BadRequest(LocalValue.Get(KeyStore.TimetableNotSetYet));
-                TimetableOutputDTO response = await _tempService.StoreIn(request);
-                
-                await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
-
-                if (response.Id != string.Empty)
-                    return Ok(response);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
-            }
-
-
-            return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
-        }
-        [HttpPost("extract-questions")]
-        public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Đầu vào không Hợp lệ");
-
-            if (request == null || request.File.Length == 0)
-                return BadRequest("File không hợp lệ.");
-            Question[] questions = await _helperService.ExtractQuestions(request.File);
-            if (questions.Length > 0)
-            {
-                QuizDetail examDTO = new()
-                    {
-                        Title = request.Title,
-                        Description = request.Description,
-                        Image = request.ImageUrl,
-                        Major = request.Major,
-                        Credits = request.Credits,
-                        Questions = questions
-                    };
-                ExamDTO result = await _tempService.StoreExam(examDTO);
-                Console.Write(result);
-                return Ok(examDTO);
-            }
-        return BadRequest("Khong tim thay cau hoi.");
-        }
         [HttpGet("questions")]
         public async Task<IActionResult> GetQuestions([FromQuery] string major, [FromQuery] int page = 0, [FromQuery] int limit = 0)
         {
@@ -332,17 +279,6 @@ namespace User_API.Src.Controllers
             }
             return BadRequest("Cây hỏi không đổi được.");
         }
-        public class FileUploadModel
-        {
-            [Required]
-            public string Title { get; set; } = string.Empty;
-            public string Description { get; set; } = "Môn học giúp bạn có thể cải thiện kỹ năng";
-            public string ImageUrl { get; set; } = "https://cdn.pixabay.com/photo/2016/10/25/12/28/chemistry-1762804_1280.png";
-            [Required]
-            public string Major { get; set; } = string.Empty;
-            public int Credits { get; set; } = 2;
-            [Required]
-            public IFormFile File { get; set; } = null!;
-        }
+        
     }
 }

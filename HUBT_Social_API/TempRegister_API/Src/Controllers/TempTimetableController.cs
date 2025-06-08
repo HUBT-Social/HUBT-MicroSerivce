@@ -26,9 +26,9 @@ namespace TempRegister_API.Src.Controllers
         IMapper mapper) : DataLayerController(mapper, option)
     {
         private readonly IMongoService<TempTimetable> _tempTimeTable = tempTimeTable;
-        private readonly IMongoService<TempClassScheduleVersion> _tempClassScheduleVersion = tempClassScheduleVersion;
         private readonly IMongoService<TempCourse> _tempCourse = tempCourse;
 
+        private readonly IMongoService<TempClassScheduleVersion> _tempClassScheduleVersion = tempClassScheduleVersion;
         [HttpGet]
         public async Task<IActionResult> GetTimetable([FromQuery] string? id, [FromQuery] string? className)
         {
@@ -56,7 +56,6 @@ namespace TempRegister_API.Src.Controllers
             }
             return BadRequest("Either id or className must be provided");
         }
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TimetableOutputDTO timetableOutDTO)
         {
@@ -69,6 +68,23 @@ namespace TempRegister_API.Src.Controllers
                 return Ok(timetableOutDTO);
             }
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
+        }
+        [HttpPut]
+        public async Task<IActionResult> UpdateTimetbale([FromBody] UpdateTimetableRequest request)
+        {
+            if (!request.Id.IsNullOrEmpty())
+            {
+                TempTimetable? tempTimetable = await _tempTimeTable.GetById(request.Id);
+                if (tempTimetable == null)
+                {
+                    return NotFound("Timetable not found");
+                }
+                tempTimetable.StartTime = request.NewStartTime;
+                tempTimetable.EndTime = request.NewEndTime;
+                return await _tempTimeTable.Update(tempTimetable) ? 
+                    Ok(tempTimetable) : BadRequest("Update Fail");
+            }
+            return BadRequest("Id is null");
         }
         [HttpPost("create-many")]
         public async Task<IActionResult> CreateMany([FromBody] List<TimetableOutputDTO> timetableOutDTO)
