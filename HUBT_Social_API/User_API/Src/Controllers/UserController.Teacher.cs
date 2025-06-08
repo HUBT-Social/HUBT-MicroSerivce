@@ -12,17 +12,12 @@ namespace User_API.Src.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserTeacher(IUserService userService,
-        IOutSourceService outSourceService,
+    public class UserTeacher(
         ITempService tempService,
-        IHelperService helperService,
-        IChatService chatService) : ControllerBase
+        IHelperService helperService) : ControllerBase
     {
-        private readonly IUserService _userService = userService;
-        private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly ITempService _tempService = tempService;
         private readonly IHelperService _helperService = helperService;
-        private readonly IChatService _chatService = chatService;
 
 
         [HttpPost("timetable")]
@@ -34,7 +29,7 @@ namespace User_API.Src.Controllers
                 ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(request.ClassName);
                 if (classScheduleVersionDTO.ClassName == string.Empty)
                     return BadRequest(LocalValue.Get(KeyStore.TimetableNotSetYet));
-                TimetableOutputDTO response = await _tempService.StoreIn(request);
+                TimetableOutputDTO response = await _tempService.StoreInTimeTable(request);
 
                 await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
 
@@ -53,30 +48,19 @@ namespace User_API.Src.Controllers
         }
 
         [HttpPut("timetable")]
-        public async Task<IActionResult> UpdateClassSchedule([FromBody] TimetableOutputDTO request)
+        public async Task<IActionResult> UpdateClassSchedule([FromBody] UpdateTimetableRequest request)
         {
 
             try
             {
-                ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(request.ClassName);
-                if (classScheduleVersionDTO.ClassName == string.Empty)
-                    return BadRequest(LocalValue.Get(KeyStore.TimetableNotSetYet));
-                TimetableOutputDTO response = await _tempService.StoreIn(request);
-
-                await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
-
-                if (response.Id != string.Empty)
-                    return Ok(response);
-
+                TimetableOutputDTO timetableOutputDTO = await _tempService.UpdateTimetable(request);
+                return Ok(timetableOutputDTO);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
             }
-
-
-            return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
         }
         [HttpPost("extract-questions")]
         public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel request)

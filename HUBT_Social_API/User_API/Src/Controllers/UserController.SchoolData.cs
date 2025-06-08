@@ -25,7 +25,6 @@ namespace User_API.Src.Controllers
     public class UserShoolDataController(IUserService userService,
         IOutSourceService outSourceService,
         ITempService tempService,
-        IHelperService helperService,
         IChatService chatService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
@@ -60,7 +59,7 @@ namespace User_API.Src.Controllers
                     Endtime = DateTime.UtcNow.Date.AddMonths(2),
                 };
 
-                List<TimetableOutputDTO> timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
+                List<TimetableOutputDTO> timetableOutputDTOs = await _tempService.GetListOfTimeTableByClassName(studentDTO.TenLop);
 
                 //if (classScheduleVersionDTO.ClassName == string.Empty && timetableOutputDTOs.Count == 0)
                 //{
@@ -151,7 +150,7 @@ namespace User_API.Src.Controllers
                         }
                     }
                     userTimetableOutput.GenerateReformTimetables(couresDTOs);
-                    userTimetableOutput.ReformTimetables = await _tempService.StoreIn(userTimetableOutput.ReformTimetables);
+                    userTimetableOutput.ReformTimetables = await _tempService.StoreInTimeTable(userTimetableOutput.ReformTimetables);
                 }
                 else
                 {
@@ -187,7 +186,7 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId);
+            TimetableOutputDTO timeTableDTO = await _tempService.GetTimetable(timetableId);
             CouresDTO couresDTO = await _tempService.GetCourses(timeTableDTO.ClassName,timeTableDTO.CourseId);
 
             if (timeTableDTO.Id == string.Empty || couresDTO.Id == string.Empty)

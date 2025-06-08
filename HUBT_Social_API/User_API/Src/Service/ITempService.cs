@@ -12,11 +12,13 @@ namespace User_API.Src.Service
 {
     public interface ITempService : IBaseService
     {
-        Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request);
-        Task<List<TimetableOutputDTO>> StoreIn(List<TimetableOutputDTO> request);
+        Task<TimetableOutputDTO> StoreInTimeTable(TimetableOutputDTO request);
+        Task<List<TimetableOutputDTO>> StoreInTimeTable(List<TimetableOutputDTO> request);
 
-        Task<TimetableOutputDTO> Get(string id);
-        Task<List<TimetableOutputDTO>> GetList(string className);
+        Task<TimetableOutputDTO> GetTimetable(string id);
+
+        Task<TimetableOutputDTO> UpdateTimetable(UpdateTimetableRequest request);
+        Task<List<TimetableOutputDTO>> GetListOfTimeTableByClassName(string className);
         Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className);
         Task<List<CouresDTO>> GetCourses(string className);
         Task<CouresDTO> GetCourses(string className, string id);

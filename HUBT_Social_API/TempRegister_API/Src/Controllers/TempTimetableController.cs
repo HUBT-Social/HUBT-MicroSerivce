@@ -81,8 +81,9 @@ namespace TempRegister_API.Src.Controllers
                 }
                 tempTimetable.StartTime = request.NewStartTime;
                 tempTimetable.EndTime = request.NewEndTime;
+                TimetableOutputDTO timetableOutputDTO = _mapper.Map<TimetableOutputDTO>(tempTimetable);
                 return await _tempTimeTable.Update(tempTimetable) ? 
-                    Ok(tempTimetable) : BadRequest("Update Fail");
+                    Ok(timetableOutputDTO) : BadRequest("Update Fail");
             }
             return BadRequest("Id is null");
         }
