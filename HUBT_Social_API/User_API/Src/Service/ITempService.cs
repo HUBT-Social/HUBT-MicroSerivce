@@ -15,12 +15,13 @@ namespace User_API.Src.Service
         Task<TimetableOutputDTO> StoreInTimeTable(TimetableOutputDTO request);
         Task<List<TimetableOutputDTO>> StoreInTimeTable(List<TimetableOutputDTO> request);
 
-        Task<TimetableOutputDTO> GetTimetable(string id);
 
         Task<TimetableOutputDTO> UpdateTimetable(UpdateTimetableRequest request);
         Task<List<TimetableOutputDTO>> GetListOfTimeTableByClassName(string className);
+        Task<List<TimetableOutputDTO>> GetTimetable(string id = "",string className = "", string coursesId= "");
+
         Task<ClassScheduleVersionDTO> GetClassScheduleVersion(string className);
-        Task<List<CouresDTO>> GetCourses(string? userName, string? className, string? id);
+        Task<List<CouresDTO>> GetCourses(string userName = "", string className = "", string id = "");
 
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(string className,DateTime expireTime);
         Task<ClassScheduleVersionDTO> StoreClassScheduleVersion(ClassScheduleVersionDTO request);

@@ -45,21 +45,22 @@ namespace User_API.Src.Controllers
             if (userDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
-            StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
-            if (studentDTO == null)
-                return NotFound();
-
             try
             {
-                ClassScheduleVersionDTO? classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
+                ClassScheduleVersionDTO? classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(userDTO.UserName);
 
                 UserTimetableOutput userTimetableOutput = new()
                 {
                     Starttime = DateTime.UtcNow.Date,
                     Endtime = DateTime.UtcNow.Date.AddMonths(2),
                 };
-
-                List<TimetableOutputDTO> timetableOutputDTOs = await _tempService.GetListOfTimeTableByClassName(studentDTO.TenLop);
+                List<CouresDTO> couresDTOs = await _tempService.GetCourses(userDTO.UserName);
+                List<TimetableOutputDTO> timetableOutputDTOs = [];
+                foreach (CouresDTO couresDTO in couresDTOs)
+                {
+                    List<TimetableOutputDTO> newTimeTableDTOs = await _tempService.GetTimetable("","",couresDTO.Id);
+                    timetableOutputDTOs.AddRange(newTimeTableDTOs);
+                }
 
                 //if (classScheduleVersionDTO.ClassName == string.Empty && timetableOutputDTOs.Count == 0)
                 //{
@@ -75,21 +76,24 @@ namespace User_API.Src.Controllers
                 //    return Ok(userTimetableOutput);
 
                 //}
-                
+
                 if (classScheduleVersionDTO.ClassName == string.Empty)
                 {
-                    classScheduleVersionDTO.ClassName = studentDTO.TenLop;
+                    classScheduleVersionDTO.ClassName = userDTO.UserName;
                     classScheduleVersionDTO.ExpireTime = userTimetableOutput.Endtime;
                     classScheduleVersionDTO = await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
                 }
-                if (timetableOutputDTOs.Count == 0)
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+
+                if (timetableOutputDTOs.Count == 0 && studentDTO != null)
                 {
+                    
                     List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
                     List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO.TenLop);
                     if (timeTableDTOs == null || subjectDTOs == null)
                         return BadRequest();
 
-                    List<CouresDTO> couresDTOs = [];
+                    List<CouresDTO> newCouresDTOs = [];
                     Random random = new();
                     Queue<int> lastPickedIndices = new(); // Track the last few picked indices
                    
@@ -145,11 +149,11 @@ namespace User_API.Src.Controllers
                                 Console.WriteLine("Khong them nhom chat duoc ");
                             
                             CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
-                            couresDTOs.Add(couresDTO);
+                            newCouresDTOs.Add(couresDTO);
 
                         }
                     }
-                    userTimetableOutput.GenerateReformTimetables(couresDTOs);
+                    userTimetableOutput.GenerateReformTimetables(newCouresDTOs);
                     userTimetableOutput.ReformTimetables = await _tempService.StoreInTimeTable(userTimetableOutput.ReformTimetables);
                 }
                 else
@@ -186,7 +190,10 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            TimetableOutputDTO timeTableDTO = await _tempService.GetTimetable(timetableId);
+            List<TimetableOutputDTO> timeTableDTOs = await _tempService.GetTimetable(timetableId,"");
+            TimetableOutputDTO? timeTableDTO = timeTableDTOs.FirstOrDefault();
+            if (timeTableDTO == null)
+                return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
             List<CouresDTO> couresDTOs = await _tempService.GetCourses(studentDTO.MaSV, timeTableDTO.ClassName, timeTableDTO.CourseId);
             CouresDTO? couresDTO = couresDTOs.FirstOrDefault();
             if (timeTableDTO.Id == string.Empty || couresDTO == null)

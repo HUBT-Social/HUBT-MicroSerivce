@@ -31,31 +31,42 @@ namespace TempRegister_API.Src.Controllers
 
         private readonly IMongoService<TempClassScheduleVersion> _tempClassScheduleVersion = tempClassScheduleVersion;
         [HttpGet]
-        public async Task<IActionResult> GetTimetable([FromQuery] string? id, [FromQuery] string? className)
+        public async Task<IActionResult> GetTimetable([FromQuery] string? id, [FromQuery] string? className ,[FromQuery] string? coursesId)
         {
+            if (string.IsNullOrEmpty(id) && string.IsNullOrEmpty(className) && string.IsNullOrEmpty(coursesId))
+            {
+                return BadRequest("At least one query parameter must be provided.");
+            }
+            Expression<Func<TempTimetable, bool>> predicate = cs => true;
+
+            if (!string.IsNullOrEmpty(coursesId))
+            {
+                predicate = predicate.And(cs =>
+                    cs.CourseId.Equals(coursesId));
+            }
+
+            if (!string.IsNullOrEmpty(className))
+            {
+                predicate = predicate.And(cs =>
+                    cs.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase));
+            }
+
             if (!string.IsNullOrEmpty(id))
             {
-                TempTimetable? timetable = await _tempTimeTable.GetById(id);
-                if (timetable != null)
-                {
-                    TimetableOutputDTO timetableOutputDTO = _mapper.Map<TimetableOutputDTO>(timetable);
-                    return Ok(timetableOutputDTO);
-                }
-                return NotFound(new { message = "Timetable not found" });
+                predicate = predicate.And(cs =>
+                    cs.Id.Equals(id));
             }
-            else if (!string.IsNullOrEmpty(className))
+
+            List<TempTimetable> timeTables = await _tempTimeTable.Find(predicate).ToListAsync();
+
+            if (timeTables.Count != 0)
             {
-                List<TempTimetable> timetables = await _tempTimeTable.Find(
-                    t => t.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase)
-                    ).ToListAsync();
-                if (timetables.Count != 0)
-                {
-                    List<TimetableOutputDTO> timetableOutputDTOs = _mapper.Map<List<TimetableOutputDTO>>(timetables);
-                    return Ok(timetableOutputDTOs);
-                }
-                return NotFound("No timetables found for the specified class name");
+                List<TimetableOutputDTO> timeTableDTO = _mapper.Map<List<TimetableOutputDTO>>(timeTables);
+                return Ok(timeTableDTO);
             }
-            return BadRequest("Either id or className must be provided");
+
+            return NotFound("No courses found with the given filters.");
+            
         }
 
         [HttpPost]
@@ -228,13 +239,13 @@ namespace TempRegister_API.Src.Controllers
 
             List<TempCourse> courses = await _tempCourse.Find(predicate).ToListAsync();
 
-            if (courses.Count == 0)
+            if (courses.Count != 0)
             {
-                return NotFound("No courses found with the given filters.");
+                var courseDTOs = _mapper.Map<List<CouresDTO>>(courses);
+                return Ok(courseDTOs);
             }
 
-            var courseDTOs = _mapper.Map<List<CouresDTO>>(courses);
-            return Ok(courseDTOs);
+            return NotFound("No courses found with the given filters.");
         }
     }
 }
