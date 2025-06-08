@@ -187,9 +187,9 @@ namespace User_API.Src.Controllers
                 return NotFound();
 
             TimetableOutputDTO timeTableDTO = await _tempService.GetTimetable(timetableId);
-            CouresDTO couresDTO = await _tempService.GetCourses(timeTableDTO.ClassName,timeTableDTO.CourseId);
-
-            if (timeTableDTO.Id == string.Empty || couresDTO.Id == string.Empty)
+            List<CouresDTO> couresDTOs = await _tempService.GetCourses(studentDTO.MaSV, timeTableDTO.ClassName, timeTableDTO.CourseId);
+            CouresDTO? couresDTO = couresDTOs.FirstOrDefault();
+            if (timeTableDTO.Id == string.Empty || couresDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
 
             

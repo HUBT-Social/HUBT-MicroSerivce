@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Core.Operations;
+using System.Linq.Expressions;
 using TempRegister_API.Src.Models;
 
 namespace TempRegister_API.Src.Controllers
@@ -56,6 +57,7 @@ namespace TempRegister_API.Src.Controllers
             }
             return BadRequest("Either id or className must be provided");
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TimetableOutputDTO timetableOutDTO)
         {
@@ -193,29 +195,46 @@ namespace TempRegister_API.Src.Controllers
 
         }
         [HttpGet("courses")]
-        public async Task<IActionResult> GetCourse([FromQuery] string className, [FromQuery] string? coursesId)
+        public async Task<IActionResult> GetCourse(
+            [FromQuery] string? userName,
+            [FromQuery] string? className,
+            [FromQuery] string? coursesId)
         {
-            if (!string.IsNullOrEmpty(className))
+            if (string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(className) && string.IsNullOrEmpty(coursesId))
             {
-                List<TempCourse> courses = await _tempCourse.Find(cs =>
-                            cs.TimeTableDTO.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase)
-                            ).ToListAsync();
-
-                if (courses.Count > 0)
-                {
-                    if (!coursesId.IsNullOrEmpty())
-                    {
-                        courses = courses.Where(courses => courses.Id.Equals(coursesId, StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-                    }
-                    List<CouresDTO> courseDTOs = _mapper.Map<List<CouresDTO>>(courses);
-                
-                    return Ok(courseDTOs);
-                }
+                return BadRequest("At least one query parameter must be provided.");
             }
 
-            return BadRequest("Either id or className must be provided");
-                
+            Expression<Func<TempCourse, bool>> predicate = cs => true;
+
+            if (!string.IsNullOrEmpty(userName))
+            {
+                predicate = predicate.And(cs =>
+                    cs.StudentIDs.Contains(userName) ||
+                    cs.TeacherIDs.Contains(userName));
+            }
+
+            if (!string.IsNullOrEmpty(className))
+            {
+                predicate = predicate.And(cs =>
+                    cs.TimeTableDTO.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(coursesId))
+            {
+                predicate = predicate.And(cs =>
+                    cs.Id.Equals(coursesId));
+            }
+
+            List<TempCourse> courses = await _tempCourse.Find(predicate).ToListAsync();
+
+            if (courses.Count == 0)
+            {
+                return NotFound("No courses found with the given filters.");
+            }
+
+            var courseDTOs = _mapper.Map<List<CouresDTO>>(courses);
+            return Ok(courseDTOs);
         }
     }
 }
