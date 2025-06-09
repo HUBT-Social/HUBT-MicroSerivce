@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using FirebaseAdmin.Messaging;
+using Hangfire;
 using HUBT_Social_Base.Service;
 using HUBT_Social_Core.Decode;
 using HUBT_Social_Core.Models.DTOs.EmailDTO;
@@ -8,12 +9,12 @@ using HUBT_Social_Core.Settings;
 using HUBT_Social_Email_Service.Services;
 using HUBT_Social_Firebase.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using MongoDB.Bson;
 using Notation_API.Src.Repository;
 using Notation_API.Src.Services;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.ComponentModel.DataAnnotations;
 
 namespace Notation_API.Src.Controllers
@@ -28,7 +29,7 @@ namespace Notation_API.Src.Controllers
         private readonly IHttpCloudService _httpCloudService;
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<NotationController> _logger;
-        private readonly JwtSetting  _jwtSettings;
+        private readonly JwtSetting _jwtSettings;
         private readonly IEmailNotification _emailNotification;
 
         // Constants for validation and configuration
@@ -44,7 +45,7 @@ namespace Notation_API.Src.Controllers
             IHttpCloudService httpCloudService,
             INotificationRepository notificationRepository,
             ILogger<NotationController> logger,
-            IOptions<JwtSetting>  jwtSettings,
+            IOptions<JwtSetting> jwtSettings,
             IEmailNotification emailNotification)
 
         {
@@ -57,46 +58,165 @@ namespace Notation_API.Src.Controllers
             _emailNotification = emailNotification;
         }
 
-        [HttpPost("send-to-one")]
-        public async Task<IActionResult> SendNotificationToOne([FromBody] SendMessageRequest request)
+        [HttpPost("send-notification")]
+        public async Task<IActionResult> SendNotification([FromBody] SendNotificationGeneralRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            List<MessageRequest> messages = new List<MessageRequest>();
+            if (request.Topic is not null)
+            {
+                SendNotificationToTopicRequest sendNotificationToTopicRequest = new()
+                {
+                    Topic = request.Topic,
+                    Body = request.Body,
+                    Data = request.Data,
+                    ImageUrl = request.ImageUrl,
+                    RequestId = request.RequestId,
+                    Title = request.Title
+                };
+                sendNotificationToTopicRequest.Topic = request.Topic;
+                messages.Add(sendNotificationToTopicRequest);
+            }
+
+            if (request.Token is not null)
+            {
+                SendNotificationToOneDeviceRequest sendNotificationToTopicRequest = new()
+                {
+                    Token = request.Token,
+                    Body = request.Body,
+                    Data = request.Data,
+                    ImageUrl = request.ImageUrl,
+                    RequestId = request.RequestId,
+                    Title = request.Title
+                };
+                sendNotificationToTopicRequest.Token = request.Token;
+                messages.Add(sendNotificationToTopicRequest);
+            }
+
+            if (request.Tokens is not null)
+            {
+                SendNotificationToMultiDevicesRequest sendNotificationToTopicRequest = new()
+                {
+                    Tokens = request.Tokens,
+                    Body = request.Body,
+                    Data = request.Data,
+                    ImageUrl = request.ImageUrl,
+                    RequestId = request.RequestId,
+                    Title = request.Title
+                };
+                sendNotificationToTopicRequest.Tokens = request.Tokens;
+                messages.Add(sendNotificationToTopicRequest);
+            }
+
             try
             {
-                await _fireBaseNotificationService.SendNotificationAsync(request);
-                _logger.LogInformation("Successfully sent notification to single user");
+                if (messages.Count > 0)
+                {
+                    foreach (var notification in messages)
+                    {
+                        await _fireBaseNotificationService.SendNotificationAsync(request);
+                    }
+                }
+                _logger.LogInformation("Successfully sent notification");
                 return Ok(new { message = LocalValue.Get(KeyStore.NotificationSend), timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send notification to single user with token: {Token}", request.Token);
+                _logger.LogError(ex, "Failed to send notification");
                 return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
             }
         }
 
-        [HttpPost("send-to-many")]
-        public async Task<IActionResult> SendNotificationToMany([FromBody] SendGroupMessageRequest request)
+        //[HttpPost("send-to-one")]
+        //public async Task<IActionResult> SendNotificationToOne([FromBody] SendMessageRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    try
+        //    {
+        //        await _fireBaseNotificationService.SendNotificationAsync(request);
+        //        _logger.LogInformation("Successfully sent notification to single user");
+        //        return Ok(new { message = LocalValue.Get(KeyStore.NotificationSend), timestamp = DateTime.UtcNow });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Failed to send notification to single user with token: {Token}", request.Token);
+        //        return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
+        //    }
+        //}
+
+        //[HttpPost("send-to-many")]
+        //public async Task<IActionResult> SendNotificationToMany([FromBody] SendGroupMessageRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    try
+        //    {
+        //        await _fireBaseNotificationService.SendNotificationAsync(request);
+        //        _logger.LogInformation($"Successfully sent notification to {request.GroupId}");
+        //        return Ok(new { message = LocalValue.Get(KeyStore.NotificationSend), timestamp = DateTime.UtcNow });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Failed to send notification to multiple users");
+        //        return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
+        //    }
+        //}
+        [HttpPost("send-to-one-username")]
+        public async Task<IActionResult> SendNotificationToGroupChat([FromBody] SendNotificationToOneUserNameRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (request.UserName == null)
+            {
+                return BadRequest(new { error = "UserName cannot be empty" });
+            }
+
             try
             {
-                await _fireBaseNotificationService.SendNotificationAsync(request);
-                _logger.LogInformation($"Successfully sent notification to {request.GroupId}");
-                return Ok(new { message = LocalValue.Get(KeyStore.NotificationSend), timestamp = DateTime.UtcNow });
+                var Token = await _userService.GetFCMFromUserName(request.UserName);
+                if (Token == null)
+                {
+                    return BadRequest(new { error = "No valid FCM tokens found for provided username" });
+                }
+
+                var sendRequest = new SendNotificationToOneDeviceRequest
+                {
+                    Body = request.Body,
+                    ImageUrl = request.ImageUrl,
+                    RequestId = request.RequestId,
+                    Title = request.Title,
+                    Type = request.Type,
+                    Data = request.Data,
+                    Token = Token
+                };
+
+                try
+                {
+                    var response = await _fireBaseNotificationService.SendNotificationAsync(sendRequest);
+                    return Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send notification to FCM token:");
+                    return StatusCode(500, "Failed to send notification");
+                }
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send notification to multiple users");
+                _logger.LogError(ex, "Error sending notification to usernam");
                 return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
             }
         }
 
-        [HttpPost("send-to-group-chat")]
-        public async Task<IActionResult> SendNotificationToGroupChat([FromBody] SendNotationToGroupChatRequest request)
+        [HttpPost("send-to-multi-username")]
+        public async Task<IActionResult> SendNotificationToGroupChat([FromBody] SendNotificationToMultiUserNamesRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -114,59 +234,32 @@ namespace Notation_API.Src.Controllers
                     return BadRequest(new { error = "No valid FCM tokens found for provided usernames" });
                 }
 
-                var sendRequest = new SendMessageRequest
+                var sendRequest = new SendNotificationToMultiDevicesRequest
                 {
                     Body = request.Body,
                     ImageUrl = request.ImageUrl,
                     RequestId = request.RequestId,
                     Title = request.Title,
-                    Type = request.Type
+                    Type = request.Type,
+                    Data = request.Data,
+                    Tokens = fcmTokens
                 };
 
-                // Use parallel processing for better performance
-                var tasks = fcmTokens.Select(async fcm =>
+                try
                 {
-                    var individualRequest = new SendMessageRequest
-                    {
-                        Body = sendRequest.Body,
-                        ImageUrl = sendRequest.ImageUrl,
-                        RequestId = sendRequest.RequestId,
-                        Title = sendRequest.Title,
-                        Type = sendRequest.Type,
-                        Token = fcm
-                    };
-
-                    try
-                    {
-                        await _fireBaseNotificationService.SendNotificationAsync(individualRequest);
-                        return new { Token = fcm, Success = true, Error = (string)null };
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Failed to send notification to FCM token: {Token}", fcm);
-                        return new { Token = fcm, Success = false, Error = ex.Message };
-                    }
-                });
-
-                var results = await Task.WhenAll(tasks);
-                var successCount = results.Count(r => r.Success);
-                var failedCount = results.Count(r => !r.Success);
-
-                _logger.LogInformation("Group chat notification sent: {Success} successful, {Failed} failed",
-                    successCount, failedCount);
-
-                return Ok(new
+                    var response = await _fireBaseNotificationService.SendNotificationAsync(sendRequest);
+                    return Ok(response);
+                }
+                catch (Exception ex)
                 {
-                    message = LocalValue.Get(KeyStore.NotificationSend),
-                    successCount,
-                    failedCount,
-                    totalCount = fcmTokens.Count,
-                    timestamp = DateTime.UtcNow
-                });
+                    _logger.LogWarning(ex, "Failed to send notification to FCM token:");
+                    return StatusCode(500, "Failed to send notification");
+                }
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending notification to group chat");
+                _logger.LogError(ex, "Error sending notification to multi username");
                 return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
             }
         }
@@ -262,7 +355,181 @@ namespace Notation_API.Src.Controllers
                 return StatusCode(500, new { error = "Internal server error occurred" });
             }
         }
+        [HttpPost("send-by-academic")]
+        public async Task<IActionResult> SendNotificationByAcademic([FromBody] SendByAcademic request)
+        {
+            // Validate the request
+            var validationResult = ValidateSendByAcademicRequest(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { errors = validationResult.Errors });
+            }
 
+            try
+            {
+                // Normalize request
+                NormalizeAcademicRequest(request);
+
+                // Get recipients based on user IDs
+                var condition = new ConditionRequest
+                {
+                    UserNames = request.SendAll ? [] : request.Recipients,
+                    SendAll = request.SendAll,
+                    IncludeFcmTokens = request.Channels.Contains("push"),
+                    IncludePhoneNumbers = request.Channels.Contains("sms"),
+                    IncludeEmails = request.Channels.Contains("email")
+
+                };
+
+                var recipients = await GetRecipientsByChannels(condition);
+
+                if (request.SendAll && !recipients.HasAnyRecipients())
+                {
+                    return BadRequest(new { error = "No recipients found for the specified users and delivery channels" });
+                }
+
+                // Create message request
+                var sendRequest = new MessageRequest
+                {
+                    Body = request.Body,
+                    Title = request.Type, // Using Type as Title for consistency
+                    Type = request.Type,
+                };
+
+                // Send notifications through multiple channels
+                var results = await SendToMultipleChannels(sendRequest, recipients, request.Channels);
+
+                // Log notification history
+                string? notificationId = await LogAcademicNotificationHistory(request, recipients, results);
+
+                _logger.LogInformation("Academic notification sent successfully to {Count} recipients",
+                 recipients.GetTotalRecipientCount());
+
+                var notificationResponse = new NotificationHistoryResponse
+                {
+                    Id = notificationId,
+                    Title = request.Type,
+                    Body = request.Body,
+                    Type = request.Type,
+                    CreatedBy = request.CreatedBy,
+                    Priority = request.Priority,
+                    Recipients = 0,
+                    Time = DateTime.UtcNow,
+                    Status = "sent"
+                };
+
+                return Ok(notificationResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending academic notification");
+                return StatusCode(500, new { error = "Error sending academic notification" });
+            }
+        }
+
+        private static ValidationResult ValidateSendByAcademicRequest(SendByAcademic request)
+        {
+            var errors = new List<string>();
+
+            if (request == null)
+            {
+                errors.Add("Request cannot be null");
+                return new ValidationResult { IsValid = false, Errors = errors };
+            }
+
+            // Basic validation
+            if (string.IsNullOrWhiteSpace(request.Body))
+                errors.Add("Body is required");
+
+            if (string.IsNullOrWhiteSpace(request.Type))
+                errors.Add("Type is required");
+
+            if (request.Recipients?.Any() != true && request.SendAll == false)
+                errors.Add("At least one recipient is required");
+
+            // Channels validation
+            if (request.Channels?.Any() == true)
+            {
+                var invalidChannels = request.Channels
+                    .Where(c => !ValidChannels.Contains(c, StringComparer.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (invalidChannels.Any())
+                {
+                    errors.Add($"Invalid delivery channels: {string.Join(", ", invalidChannels)}. Valid channels: {string.Join(", ", ValidChannels)}");
+                }
+            }
+
+            // Priority validation
+            if (!string.IsNullOrEmpty(request.Priority) &&
+                !ValidPriorities.Contains(request.Priority, StringComparer.OrdinalIgnoreCase))
+            {
+                errors.Add($"Invalid priority. Valid priorities: {string.Join(", ", ValidPriorities)}");
+            }
+
+            return new ValidationResult { IsValid = errors.Count == 0, Errors = errors };
+        }
+
+        private void NormalizeAcademicRequest(SendByAcademic request)
+        {
+            // Set timestamp if not provided
+            if (request.Timestamp == default)
+            {
+                request.Timestamp = DateTime.UtcNow;
+            }
+
+            // Default delivery channels
+            if (request.Channels?.Any() != true)
+            {
+                request.Channels = ["push"];
+            }
+            if (string.IsNullOrEmpty(request.CreatedBy))
+            {
+                request.CreatedBy = Request.ExtractTokenInfo(_jwtSettings)?.Username ?? "system";
+            }
+
+            // Normalize channel names to lowercase
+            request.Channels = request.Channels
+                .Select(c => c.ToLower())
+                .Distinct()
+                .ToList();
+
+            // Default priority
+            if (string.IsNullOrEmpty(request.Priority))
+            {
+                request.Priority = "medium";
+            }
+        }
+
+        private async Task<string?> LogAcademicNotificationHistory(SendByAcademic request, NotificationRecipients recipients, Dictionary<string, NotificationResultDto> results)
+        {
+            try
+            {
+                var history = new NotificationHistory
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Title = request.Type,
+                    Body = request.Body,
+                    Type = request.Type,
+                    Priority = request.Priority,
+                    DeliveryChannels = request.Channels,
+                    CreatedBy = request.CreatedBy,
+                    CreatedAt = request.Timestamp,
+                    Recipients = recipients.Count,
+                    Results = results
+                };
+
+                await _notificationRepository.SaveHistoryAsync(history);
+                _logger.LogDebug("Academic notification history logged successfully");
+
+                return history.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error logging academic notification history");
+                return null;
+            }
+        }
         private ValidationResult ValidateSendByConditionRequest(SendByConditionRequest request)
         {
             var errors = new List<string>();
@@ -373,14 +640,36 @@ namespace Notation_API.Src.Controllers
 
                 _logger.LogInformation("Notification scheduled successfully with ID: {Id}", scheduledNotification.Id);
 
-                return Ok(new
+                var history = new NotificationHistory
                 {
-                    message = "Notification scheduled successfully",
-                    scheduledId = scheduledNotification.Id,
-                    hangfireJobId,
-                    scheduledTime = request.ScheduledTime,
-                    timestamp = DateTime.UtcNow
-                });
+                    Id = Guid.NewGuid().ToString(),
+                    Title = request.Title,
+                    Body = request.Body,
+                    Type = request.Type,
+                    Priority = request.Priority,
+                    DeliveryChannels = request.DeliveryChannels,
+                    CreatedBy = request.CreatedBy,
+                    CreatedAt = request.Timestamp.Value,
+                    Status = "Scheduled"
+                };
+
+                await _notificationRepository.SaveHistoryAsync(history);
+                _logger.LogDebug("Notification history logged successfully");
+
+                var notificationResponse = new NotificationHistoryResponse
+                {
+                    Id = history.Id,
+                    Title = request.Title,
+                    Body = request.Body,
+                    Type = request.Type,
+                    Priority = request.Priority,
+                    CreatedBy = request.CreatedBy,
+                    Recipients = 0,
+                    Time = DateTime.UtcNow,
+                    Status = "Scheduled"
+                };
+
+                return Ok(notificationResponse);
             }
             catch (Exception ex)
             {
@@ -425,7 +714,7 @@ namespace Notation_API.Src.Controllers
                     SendAll = request.SendAll,
                     IncludeFcmTokens = request.DeliveryChannels.Contains("push"),
                     IncludePhoneNumbers = request.DeliveryChannels.Contains("sms"),
-                    IncludeEmails   = request.DeliveryChannels.Contains("email")
+                    IncludeEmails = request.DeliveryChannels.Contains("email")
                 };
 
                 var recipients = await GetRecipientsByChannels(condition);
@@ -438,18 +727,25 @@ namespace Notation_API.Src.Controllers
                 var sendRequest = await CreateSendMessageRequest(request);
                 var results = await SendToMultipleChannels(sendRequest, recipients, request.DeliveryChannels);
 
-                await LogNotificationHistory(request, recipients, results);
+                string? notificationId = await LogNotificationHistory(request, recipients, results);
 
                 _logger.LogInformation("Immediate notification sent successfully to {Count} recipients",
                     recipients.GetTotalRecipientCount());
 
-                return Ok(new
+                var notificationResponse = new NotificationHistoryResponse
                 {
-                    message = "Notifications sent successfully",
-                    results,
-                    recipientsSummary = recipients.GetSummary(),
-                    timestamp = DateTime.UtcNow
-                });
+                    Id = notificationId,
+                    Title = request.Title,
+                    Body = request.Body,
+                    Type = request.Type,
+                    Priority = request.Priority,
+                    CreatedBy = request.CreatedBy,
+                    Recipients = 0,
+                    Time = DateTime.UtcNow,
+                    Status = "sent"
+                };
+
+                return Ok(notificationResponse);
             }
             catch (Exception ex)
             {
@@ -489,12 +785,12 @@ namespace Notation_API.Src.Controllers
             return sendRequest;
         }
 
-        private async Task<Dictionary<string, object>> SendToMultipleChannels(
+        private async Task<Dictionary<string, NotificationResultDto>> SendToMultipleChannels(
             MessageRequest request,
             NotificationRecipients recipients,
             List<string> channels)
         {
-            var results = new Dictionary<string, object>();
+            var results = new Dictionary<string, NotificationResultDto>();
             var tasks = new List<Task>();
 
             foreach (var channel in channels)
@@ -522,78 +818,60 @@ namespace Notation_API.Src.Controllers
             return recipients;
         }
 
-        private async Task<object> SendPushNotifications(MessageRequest request, List<string> fcmTokens)
+        private async Task<NotificationResultDto> SendPushNotifications(MessageRequest request, List<string> fcmTokens)
         {
             if (!fcmTokens?.Any() == true)
             {
-                return new { TotalCount = 0, SuccessfulCount = 0, FailedCount = 0, Message = "No FCM tokens provided" };
+                return new NotificationResultDto();
             }
 
-            var semaphore = new SemaphoreSlim(10, 10); // Limit concurrent requests
-            var successCount = 0;
-            var failedTokens = new List<string>();
-
-            var tasks = fcmTokens.Select(async token =>
+            try
             {
-                await semaphore.WaitAsync();
-                try
+                SendNotificationToMultiDevicesRequest sendNotificationToMultiDevicesRequest = new()
                 {
-                    var tokenRequest = new SendMessageRequest
-                    {
-                        Body = request.Body,
-                        ImageUrl = request.ImageUrl,
-                        RequestId = request.RequestId,
-                        Title = request.Title,
-                        Type = request.Type,
-                        Token = token
-                    };
+                    Body = request.Body,
+                    Data = request.Data,
+                    ImageUrl = request.ImageUrl,
+                    RequestId = request.RequestId,
+                    Title = request.Title,
+                    Tokens = fcmTokens,
+                    Type = request.Type,
+                };
 
-                    await _fireBaseNotificationService.SendNotificationAsync(tokenRequest);
-                    Interlocked.Increment(ref successCount);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to send push notification to token: {Token}", token);
-                    failedTokens.Add(token);
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            });
-
-            await Task.WhenAll(tasks);
-
-            return new
+                var response = await _fireBaseNotificationService.SendNotificationAsync(sendNotificationToMultiDevicesRequest);
+                return response;
+            }
+            catch (Exception ex)
             {
-                TotalCount = fcmTokens.Count,
-                SuccessfulCount = successCount,
-                FailedCount = failedTokens.Count,
-                FailedTokens = failedTokens.Take(10).ToList() // Limit logged failed tokens
-            };
+                _logger.LogWarning(ex, "Failed to send push notification to token");
+            }
+            return new NotificationResultDto();
         }
 
-        private async Task<object> SendSmsNotifications(MessageRequest request, List<string> phoneNumbers)
+        private async Task<NotificationResultDto> SendSmsNotifications(MessageRequest request, List<string> phoneNumbers)
         {
             // TODO: Implement SMS service with proper provider integration
             _logger.LogInformation("SMS notification would be sent to {Count} numbers", phoneNumbers?.Count ?? 0);
 
-            return new
+            return new NotificationResultDto()
             {
-                TotalCount = phoneNumbers?.Count ?? 0,
-                SuccessfulCount = 0,
-                FailedCount = 0,
-                Message = "SMS sending not implemented yet"
+                Success = 0,
+                Failure = phoneNumbers.Count,
+                TargetType = "sms",
+                Total = phoneNumbers.Count
             };
         }
 
-        private async Task<object> SendEmailNotifications(MessageRequest request, List<string> emails)
+        private async Task<NotificationResultDto> SendEmailNotifications(MessageRequest request, List<string> emails)
         {
             if (emails == null || emails.Count == 0)
             {
-                return new
+                return new NotificationResultDto()
                 {
-                    Message = "Không có email nào được tìm thấy."
+                    Success = 0,
+                    Failure = emails.Count,
+                    TargetType = "mail",
+                    Total = emails.Count
                 };
             }
 
@@ -609,30 +887,34 @@ namespace Notation_API.Src.Controllers
 
                 bool success = await _emailNotification.SendNotificationAsync(emailRequest);
 
-                return new
+                return new NotificationResultDto()
                 {
-                    TotalCount = emails.Count,
-                    SuccessfulCount = success ? emails.Count : 0,
-                    FailedCount = success ? 0 : emails.Count,
-                    Message = success ? "Gửi email thành công." : "Tất cả email gửi thất bại."
+                    Success = 0,
+                    Failure = emails.Count,
+                    TargetType = "mail",
+                    Total = emails.Count
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new
+                return new NotificationResultDto()
                 {
-                    Message = $"Lỗi khi gửi email: {ex.Message}"
+                    Success = 0,
+                    Failure = emails.Count,
+                    TargetType = "mail",
+                    Total = emails.Count
                 };
             }
         }
 
-        private async Task LogNotificationHistory(SendByConditionRequest request, NotificationRecipients recipients, Dictionary<string, object> results)
+        private async Task<string?> LogNotificationHistory(SendByConditionRequest request, NotificationRecipients recipients, Dictionary<string, NotificationResultDto> results)
         {
             try
             {
+                string notificationId = Guid.NewGuid().ToString();
                 var history = new NotificationHistory
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    Id = notificationId,
                     Title = request.Title,
                     Body = request.Body,
                     Type = request.Type,
@@ -640,16 +922,19 @@ namespace Notation_API.Src.Controllers
                     DeliveryChannels = request.DeliveryChannels,
                     CreatedBy = request.CreatedBy,
                     CreatedAt = request.Timestamp.Value,
-                    Recipients = recipients,
+                    Recipients = recipients.Count,
+                    Status = results.Count != 0 ? "sent" : "faild",
                     Results = results
                 };
 
                 await _notificationRepository.SaveHistoryAsync(history);
                 _logger.LogDebug("Notification history logged successfully");
+                return notificationId;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error logging notification history");
+                return null;
             }
         }
 
@@ -748,7 +1033,21 @@ namespace Notation_API.Src.Controllers
                 return StatusCode(500, new { error = "Error cancelling scheduled notification" });
             }
         }
-
+        [HttpDelete("delete/id={id}")]
+        public async Task<IActionResult> DeleteNotificationById(string id)
+        {
+            if(string.IsNullOrEmpty(id))
+            {
+                return BadRequest("Id must be not null");
+            }
+            bool isDeletedSuccess = await _notificationRepository.DeleteNotificationByIdAsync(id);
+            if(isDeletedSuccess)
+            {
+                return Ok(id);
+            }
+            return BadRequest("Error to delete, please check current id and try later");
+        }
+        
         [HttpGet("scheduled")]
         public async Task<IActionResult> GetScheduledNotifications(
             [FromQuery, Range(1, int.MaxValue)] int page = 1,
@@ -784,31 +1083,29 @@ namespace Notation_API.Src.Controllers
         }
 
         [HttpGet("history")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetNotificationHistory(
-            [FromQuery, Range(1, int.MaxValue)] int page = 1,
-            [FromQuery, Range(1, MaxPageSize)] int pageSize = DefaultPageSize,
-            [FromQuery] string? type = null,
-            [FromQuery] DateTime? fromDate = null,
-            [FromQuery] DateTime? toDate = null)
+            [FromQuery, Range(0, int.MaxValue)] int startAt = 1,
+            [FromQuery, Range(1, MaxPageSize)] int pageSize = DefaultPageSize)
         {
             try
             {
-                pageSize = Math.Min(pageSize, MaxPageSize);
-
-                var result = await _notificationRepository.GetNotificationHistoryAsync(page, pageSize, type, fromDate, toDate);
-
-                return Ok(new
-                {
-                    data = result,
-                    pagination = new
+                var result = await _notificationRepository.GetNotificationHistoryAsync(startAt, pageSize);
+                List<NotificationHistoryResponse> notificationHistory = result.Select(notification =>
+                    new NotificationHistoryResponse
                     {
-                        page,
-                        pageSize,
-                        hasNext = result?.Count == pageSize,
-                        filters = new { type, fromDate, toDate }
-                    },
-                    timestamp = DateTime.UtcNow
-                });
+                        Id = notification.Id,
+                        Body = notification.Body,
+                        Recipients = notification.Recipients,
+                        Status = notification.Status,
+                        Priority = notification.Priority,
+                        CreatedBy = notification.CreatedBy,
+                        Time = notification.CreatedAt,
+                        Title = notification.Title,
+                        Type = notification.Type
+                    }
+                ).ToList();
+                return Ok(notificationHistory);
             }
             catch (Exception ex)
             {
@@ -841,15 +1138,5 @@ namespace Notation_API.Src.Controllers
                    (recipients.Emails?.Count ?? 0);
         }
 
-        public static object GetSummary(this NotificationRecipients recipients)
-        {
-            return new
-            {
-                fcmTokens = recipients.FcmTokens?.Count ?? 0,
-                phoneNumbers = recipients.PhoneNumbers?.Count ?? 0,
-                emails = recipients.Emails?.Count ?? 0,
-                total = recipients.GetTotalRecipientCount()
-            };
-        }
     }
 }

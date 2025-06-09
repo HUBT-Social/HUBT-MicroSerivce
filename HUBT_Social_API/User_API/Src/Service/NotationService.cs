@@ -16,8 +16,8 @@ namespace User_API.Src.Service
     {
         public async Task SendNotation(string accessToken,AUserDTO userDTO)
         {
-            string path = $"api/notation/send-to-one";
-            SendMessageRequest request = new()
+            string path = $"api/notification/send-to-one";
+            SendNotificationToOneDeviceRequest request = new()
             {
                 Title = LocalValue.Get(KeyStore.NotationSomeOneLoginYouAccountTitle),
                 Body = $"{KeyStore.NotationSomeOneLoginYouAccountBody} {DateTime.UtcNow:HH:mm}",

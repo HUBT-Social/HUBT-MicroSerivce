@@ -9,6 +9,7 @@ using HUBT_Social_Base.ASP_Extentions;
 using System.Collections.Generic;
 using System.Net;
 using HUBT_Social_Core.Models.Requests.Firebase;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Notation_API.Src.Services
 {
@@ -106,6 +107,19 @@ namespace Notation_API.Src.Services
 
             return new NotificationRecipients();
 
+        }
+
+        public async Task<string?> GetFCMFromUserName(string userName)
+        {
+            string path = $"user/get?userName={userName}";
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET, null, null);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string? users = response.ConvertTo<string>();
+
+                return users;
+            }
+            return null;
         }
     }
 }

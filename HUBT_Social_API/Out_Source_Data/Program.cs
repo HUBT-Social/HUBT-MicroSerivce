@@ -17,6 +17,22 @@ namespace Out_Source_Data
         {
             builder.Services.AddControllers();
         }
+        private static void ConfigureCors(WebApplicationBuilder builder)
+        {
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp", policy =>
+                {
+                    policy.WithOrigins(
+                        "https://chatuitest.onrender.com",
+                        "https://hubt-social-web.onrender.com",
+                        "http://localhost:5173")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+                });
+            });
+        }
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +40,9 @@ namespace Out_Source_Data
             // Add services to the container.
             InitConfigures(builder);
             InitServices(builder);
+            ConfigureCors(builder);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 
 
             var app = builder.Build();
@@ -40,7 +58,7 @@ namespace Out_Source_Data
 
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowReactApp");
             app.UseAuthorization();
             app.UseLocalization();
 

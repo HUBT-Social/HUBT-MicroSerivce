@@ -5,8 +5,8 @@ namespace Chat_Data_API.Src.Service
 {
     public interface INotition : IBaseService
     {
-        Task SendNotationToOne(SendMessageRequest request, string accessToken);
-        Task SendNotationToMany(SendGroupMessageRequest request, string accessToken);
-        Task SendNotationToGroupChat(SendNotationToGroupChatRequest request, string accessToken);
+        Task SendNotationToOne(SendNotificationToOneUserNameRequest request, string accessToken);
+        Task SendNotationToMany(SendNotificationToMultiUserNamesRequest request, string accessToken);
+        Task SendNotationToGroupChat(SendNotificationToMultiUserNamesRequest request, string accessToken);
     }
 }

@@ -12,7 +12,10 @@ namespace HUBT_Social_Core.Models.Requests.Firebase
         public List<string> PhoneNumbers { get; set; } = [];
         public List<string> Emails { get; set; } = [];
         public bool Any() => FcmTokens.Count != 0 || PhoneNumbers.Count != 0 || Emails.Count != 0;
+        public int Count =>  Math.Max(FcmTokens.Count, Math.Max(PhoneNumbers.Count, Emails.Count));
+
     }
+
     public class RecipientFilterRequest
     {
         public bool IncludeEmails { get; set; }

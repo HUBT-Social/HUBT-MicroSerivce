@@ -62,30 +62,34 @@ namespace Identity_API.Src.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetTeacher([FromQuery] string roleName, [FromQuery] int page = 0)
         {
-
-            var response = await _identityService.GetUserByRole(roleName, page);
-
-            if (response.Item1.Count > 0)
+            try
             {
+                var response = await _identityService.GetUserByRole(roleName, page);
+
+                // Luôn trả về OK, không quan tâm có data hay không
                 var userDTOs = response.Item1.Select(user => {
                     AUserDTO u = _mapper.Map<AUserDTO>(user);
                     u.Status = string.IsNullOrEmpty(u.FCMToken) ? "Inactive" : "Active";
                     return u;
                 }).ToList();
 
-                return Ok(
-                    new GetUserByRoleResponses()
-                    {
-                        AUserDTOs = userDTOs,
-                        HasMore = response.Item2,
-                        Message = response.Item3
-                    });
+                return Ok(new GetUserByRoleResponses()
+                {
+                    AUserDTOs = userDTOs,
+                    HasMore = response.Item2,
+                    Message = response.Item3 // Có thể là null hoặc thông báo
+                });
             }
-            return BadRequest(
-                    new GetUserByRoleResponses()
-                    {
-                        Message = response.Item3
-                    });
+            catch (Exception ex)
+            {
+                // Chỉ trả BadRequest khi có exception thực sự
+                return BadRequest(new GetUserByRoleResponses()
+                {
+                    AUserDTOs = [],
+                    HasMore = false,
+                    Message = "Có lỗi xảy ra: " + ex.Message
+                });
+            }
         }
 
         [HttpGet("users-in-list-userName")]

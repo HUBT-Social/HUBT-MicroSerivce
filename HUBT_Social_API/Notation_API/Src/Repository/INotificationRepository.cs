@@ -11,7 +11,8 @@ namespace Notation_API.Src.Repository
         Task UpdateScheduledNotificationStatusAsync(string id, string status);
         Task<PagedResult<ScheduledNotification>> GetScheduledNotificationsAsync(int page, int pageSize, string? status = null, string? createdBy = null);
         Task SaveHistoryAsync(NotificationHistory history);
-        Task<List<NotificationHistory>> GetNotificationHistoryAsync(int page, int pageSize, string? type = null, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<NotificationHistory>> GetNotificationHistoryAsync(int startAt, int pageSize);
+        Task<bool> DeleteNotificationByIdAsync(string id);
     }
 
     public class PagedResult<T>

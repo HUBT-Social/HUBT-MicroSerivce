@@ -51,7 +51,7 @@ namespace CloudServiceCenter.src.Controller
             List<IFormFile> files = new List<IFormFile>();
             foreach (var req in request)
             {
-                var formFile = FileHelper.Base64ToFormFile(req.Base64String, req.FileName);
+                var formFile = FileHelper.Base64ToFormFile(req.FileData, req.FileName);
                 if(formFile != null) {  files.Add(formFile); }
             }
             if(files.Count == 0) { return BadRequest(); }
@@ -61,9 +61,9 @@ namespace CloudServiceCenter.src.Controller
         [HttpPost("upload-base64-file")]
         public async Task<IActionResult> UpFile([FromBody] UploadBase64Request request)
         {
-            if (string.IsNullOrEmpty(request.Base64String) || string.IsNullOrEmpty(request.FileName))
+            if (string.IsNullOrEmpty(request.FileData) || string.IsNullOrEmpty(request.FileName))
                 return BadRequest("Invalid input.");
-            var formFile = FileHelper.Base64ToFormFile(request.Base64String, request.FileName);
+            var formFile = FileHelper.Base64ToFormFile(request.FileData, request.FileName);
             if(formFile == null) { return BadRequest(); }
             var result = await _clouldService.UploadFileAsync(formFile);
             return Ok(result);

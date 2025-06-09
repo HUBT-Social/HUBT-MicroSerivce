@@ -7,75 +7,132 @@ namespace HUBT_Social_Firebase.Services;
 
 public class FireBaseNotificationService : IFireBaseNotificationService
 {
-  
-    public async Task SendNotificationAsync(MessageRequest request)
+    public async Task<NotificationResultDto> SendNotificationAsync(MessageRequest request)
     {
-        Message? message = new()
+        var dataPayload = new Dictionary<string, string>();
+
+        if (!string.IsNullOrEmpty(request.Type))
+            dataPayload["type"] = request.Type;
+
+        if (!string.IsNullOrEmpty(request.RequestId))
+            dataPayload["id"] = request.RequestId;
+
+        if (request.Data != null)
         {
-            Notification = new Notification
-            {
-                Title = request.Title,
-                Body = request.Body,
-                ImageUrl = request.ImageUrl 
-            },
-            Android = new AndroidConfig
-            {
-                Notification = new AndroidNotification
-                {
-                    ImageUrl = request.ImageUrl,
-                    Title = request.Title,
-                    Body = request.Body
-                }
-            },
-            Apns = new ApnsConfig
-            {
-                Aps = new Aps
-                {
-                    Alert = new ApsAlert
-                    {
-                        Title = request.Title,
-                        Body = request.Body
-                    },
-                    Sound = "default",
-                    Badge = 1,
-                    MutableContent = true
-                },
-                Headers = new Dictionary<string, string>
-                    {
-                        { "apns-priority", "10" }
-                    },
-                FcmOptions = new ApnsFcmOptions
-                {
-                    ImageUrl = request.ImageUrl
-                }
-            },
-            Data = new Dictionary<string, string?>
-                {
-                    { "type", request.Type },
-                    { "id", request.RequestId }
-                }
+            foreach (var kv in request.Data)
+                dataPayload[kv.Key] = kv.Value;
+        }
+
+        var notification = new Notification
+        {
+            Title = request.Title,
+            Body = request.Body,
+            ImageUrl = request.ImageUrl
         };
 
-        if (request is SendGroupMessageRequest request1)
+        var androidNotification = new AndroidNotification
         {
-            message.Topic = request1.GroupId;
-        }
-        else if (request is SendMessageRequest requestType)
-        {
-            message.Token = requestType.Token;
-        }
+            Title = request.Title,
+            Body = request.Body,
+            ImageUrl = request.ImageUrl
+        };
 
-
-        if (message != null)
+        var apns = new ApnsConfig
         {
+            Aps = new Aps
+            {
+                Alert = new ApsAlert
+                {
+                    Title = request.Title,
+                    Body = request.Body
+                },
+                Sound = "default",
+                Badge = 1,
+                MutableContent = true
+            },
+            Headers = new Dictionary<string, string> { { "apns-priority", "10" } },
+            FcmOptions = new ApnsFcmOptions { ImageUrl = request.ImageUrl }
+        };
+
+        // ✅ 1. Gửi tới Topic
+        if (request is SendNotificationToTopicRequest request1)
+        {
+            var message = new Message
+            {
+                Topic = request1.Topic,
+                Notification = notification,
+                Data = dataPayload,
+                Android = new AndroidConfig { Notification = androidNotification },
+                Apns = apns
+            };
+
             var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
-            Console.WriteLine($"Successfully sent message: {message.ToJson()}");
+            Console.WriteLine($"[Topic] Sent: {response}");
+
+            return new NotificationResultDto
+            {
+                TargetType = "Topic",
+                Total = 1,
+                Success = 1,
+                Failure = 0
+            };
         }
-        else
+
+        // ✅ 2. Gửi tới 1 token
+        if (request is SendNotificationToOneDeviceRequest request2)
         {
-            Console.WriteLine("Failed to send message: Invalid request type.");
+            var message = new Message
+            {
+                Token = request2.Token,
+                Notification = notification,
+                Data = dataPayload,
+                Android = new AndroidConfig { Notification = androidNotification },
+                Apns = apns
+            };
+
+            var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+            Console.WriteLine($"[Token] Sent: {response}");
+
+            return new NotificationResultDto
+            {
+                TargetType = "Token",
+                Total = 1,
+                Success = 1,
+                Failure = 0
+            };
         }
+
+        // ✅ 3. Gửi tới nhiều token
+        if (request is SendNotificationToMultiDevicesRequest request3)
+        {
+            var multicastMessage = new MulticastMessage
+            {
+                Tokens = request3.Tokens,
+                Notification = notification,
+                Data = dataPayload,
+                Android = new AndroidConfig { Notification = androidNotification },
+                Apns = apns
+            };
+
+            var batchResponse = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(multicastMessage);
+
+            int success = batchResponse.FailureCount;
+            int failure = batchResponse.SuccessCount;
+
+            Console.WriteLine($"[Multicast] Sent to {success}/{request3.Tokens.Count} tokens.");
+
+            return new NotificationResultDto
+            {
+                TargetType = "Tokens",
+                Total = request3.Tokens.Count,
+                Success = success,
+                Failure = failure
+            };
+        }
+
+        throw new ArgumentException("You must provide either a Topic, a Token, or a list of Tokens.");
     }
+
 
     public async Task<bool> SubscribeTopicAsync(string topic, string token)
     {
