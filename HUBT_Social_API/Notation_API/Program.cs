@@ -89,11 +89,7 @@ namespace Notation_API
         {
             try
             {
-                var mongoConnectionString = builder.Environment.IsDevelopment()
-                    ? builder.Configuration.GetConnectionString("MongoDbHangfire")
-                    : builder.Configuration.GetConnectionString("MongoDbHangfireProduction");
-
-                mongoConnectionString ??= "mongodb://localhost:27017/hangfire_jobs";
+                var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDbHangfireProduction");
 
                 builder.Services.AddHangfire(config => config
                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -123,11 +119,8 @@ namespace Notation_API
         {
             try
             {
-                var mongoConnectionString = builder.Environment.IsDevelopment()
-                    ? builder.Configuration.GetConnectionString("MongoDb")
-                    : builder.Configuration.GetConnectionString("MongoDbProduction");
+                var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDBNotitonProduction");
 
-                mongoConnectionString ??= "mongodb://localhost:27017/notation_db";
 
                 // Register MongoClient và IMongoDatabase
                 builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
@@ -235,13 +228,7 @@ namespace Notation_API
 
                 // Test Job
                 backgroundJobClient.Enqueue(() => Console.WriteLine("🔥 Hangfire MongoDB đã hoạt động!"));
-
-                // Optional: Recurring job (mỗi phút)
-                RecurringJob.AddOrUpdate(
-                    "hello-job",
-                    () => Console.WriteLine("⏰ Hello từ Hangfire mỗi phút!"),
-                    Cron.Minutely);
-
+              
                 Console.WriteLine("✅ Hangfire jobs registered successfully");
             }
             catch (Exception ex)
