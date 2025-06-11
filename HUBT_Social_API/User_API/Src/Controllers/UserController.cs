@@ -9,6 +9,7 @@ using HUBT_Social_Core.Models.DTOs.IdentityDTO;
 using HUBT_Social_Core.Models.DTOs.UserDTO;
 using HUBT_Social_Core.Models.OutSourceDataDTO;
 using HUBT_Social_Core.Models.Requests.Firebase;
+using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,8 @@ namespace User_API.Src.Controllers
         private readonly INotationService _notationService = notationService; 
         private readonly IHttpCloudService _cloudService = cloudService;
         private readonly IOutSourceService _outSourceService = outSourceService;
+        private readonly IUserService _userService = userService;
+
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string? username)
         {
@@ -163,9 +166,21 @@ namespace User_API.Src.Controllers
                     students = await _outSourceService.GetStudentByClassName(className);
                 else
                     students = await _outSourceService.GetStudentByClassName(studentDTO?.TenLop ?? "");
-                
+                List<AUserDTO> aUserDTOs = [];
+                foreach (StudentDTO student in students)
+                {
+                    ResponseDTO response = await _userService.FindUserByUserName(accessToken, student.MaSV);
+                    AUserDTO? aUserDTO = response.ConvertTo<AUserDTO>();
+                    if (aUserDTO != null)
+                    {
+                        aUserDTOs.Add(aUserDTO);
+                    }
+                }
+                List<StudentClass> studentClasses = aUserDTOs?
+                    .Select(aUser =>  new StudentClass(aUser))
+                    .ToList() ?? [];
 
-                return Ok(students);
+                return Ok(studentClasses);
             }
 
             if (result.StatusCode == HttpStatusCode.Unauthorized)

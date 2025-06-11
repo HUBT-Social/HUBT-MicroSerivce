@@ -35,16 +35,16 @@ namespace User_API.Src.Models
         public string ChatRoomId { get; set; }
 
         public List<AUserDTO> TeacherIDs;
-        public List<TimetableMember> StudentMembers => GenderMembers(studentDTOs);
+        public List<UserOutPut> StudentMembers => GenderMembers(studentDTOs);
 
-        public List<TimetableMember> TeacherleMembers => GenderMembers(TeacherIDs);
+        public List<UserOutPut> TeacherleMembers => GenderMembers(TeacherIDs);
 
-        private static List<TimetableMember> GenderMembers(List<AUserDTO> aUsers)
+        private static List<UserOutPut> GenderMembers(List<AUserDTO> aUsers)
         {
-            List<TimetableMember> members = [];
+            List<UserOutPut> members = [];
             foreach (var student in aUsers)
             {
-                members.Add(new TimetableMember
+                members.Add(new UserOutPut
                 {
                     AvatarUrl = student.AvataUrl ?? "",
                     UserName = student.UserName,
@@ -54,7 +54,7 @@ namespace User_API.Src.Models
             return members;
         }
     }
-    public class TimetableMember
+    public class UserOutPut
     {
         public string AvatarUrl { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
