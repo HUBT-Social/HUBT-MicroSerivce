@@ -259,11 +259,14 @@ namespace User_API.Src.Controllers
         [HttpGet("questions")]
         public async Task<IActionResult> GetQuestions([FromQuery] string? major, [FromQuery] int page = 0, [FromQuery] int limit = 0)
         {
-            
-            List<ExamDTO> questions = await _tempService.GetExams(major,page,limit);
-            return Ok(questions);
-            
-            return BadRequest("Yêu cầu không hợp lệ.");
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken != null)
+            {
+                List<ExamDTO> questions = await _tempService.GetExams(major,page,limit);
+                return Ok(questions);
+            }
+
+            return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
         }
         [HttpGet("questions-detail")]
         public async Task<IActionResult> GetQuestionsDetail([FromQuery] string id)
