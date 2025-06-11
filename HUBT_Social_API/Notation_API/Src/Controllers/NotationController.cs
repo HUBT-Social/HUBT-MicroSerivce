@@ -63,7 +63,7 @@ namespace Notation_API.Src.Controllers
                 {
                     return BadRequest(LocalValue.Get(KeyStore.NotificationSendError));
                 }
-                SendMessageRequest sendRequest = new SendMessageRequest
+                SendMessageRequest sendRequest = new ()
                 {
                     Body = request.Body,
                     ImageUrl = request.ImageUrl,
@@ -112,9 +112,7 @@ namespace Notation_API.Src.Controllers
                 {
                     return BadRequest("At least one condition (UserNames, ClassCodes, FacultyCodes, or CourseCodes) is required when SendAll is false.");
                 }
-
-                // Map to ConditionRequest (fix swapped fields)
-                var condition = new ConditionRequest
+                ConditionRequest condition = new ()
                 {
                     ClassCodes = request.ClassCodes,
                     CourseCodes = request.CourseCodes, // Fixed: Correct mapping
@@ -132,7 +130,7 @@ namespace Notation_API.Src.Controllers
                 }
 
                 // Prepare notification request
-                var sendRequest = new SendMessageRequest
+                SendMessageRequest sendRequest = new()
                 {
                     Body = request.Body,
                     RequestId = request.RequestId,

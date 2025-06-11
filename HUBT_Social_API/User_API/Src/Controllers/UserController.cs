@@ -13,6 +13,7 @@ using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -109,6 +110,109 @@ namespace User_API.Src.Controllers
             }
             return BadRequest(result.Message);
 
+        }
+        [HttpGet("get-score")]
+        public async Task<IActionResult> GetScore()
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                List<ScoreDTO>? scoreDTOs = await _outSourceService.GetStudentScoreByMasv(userDTO.UserName);
+                List<StudentScoreOutput> studentScoreOutputs = scoreDTOs?
+                    .Select(score => new StudentScoreOutput(score))
+                    .ToList() ?? [];
+                return Ok(studentScoreOutputs);
+            }
+
+
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+        }
+        [HttpGet("get-class-info")]
+        public async Task<IActionResult> GetClassInfo([FromQuery] string? className)
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                List<StudentDTO> students; 
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+
+                
+                if (!string.IsNullOrEmpty(className))
+                    students = await _outSourceService.GetStudentByClassName(className);
+                else
+                    students = await _outSourceService.GetStudentByClassName(studentDTO?.TenLop ?? "");
+                
+
+                return Ok(students);
+            }
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
+        }
+        [HttpGet("get-class-info/score")]
+        public async Task<IActionResult> GetClassInfoScore([FromQuery] string? className)
+        {
+            string? accessToken = Request.Headers.ExtractBearerToken();
+            if (accessToken == null)
+            {
+                return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
+            }
+
+            ResponseDTO result = await _identityService.GetUser(accessToken);
+
+            AUserDTO? userDTO = result.ConvertTo<AUserDTO>();
+            if (userDTO != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                List<StudentDTO> students;
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+
+
+                if (!string.IsNullOrEmpty(className))
+                    students = await _outSourceService.GetStudentByClassName(className);
+                else
+                    students = await _outSourceService.GetStudentByClassName(studentDTO?.TenLop ?? "");
+
+                ClassAgvScore classAgv = new();
+                foreach (StudentDTO student in students)
+                {
+                    AVGScoreDTO? scoreDTO = await _outSourceService.GetAVGScoreByMasv(student.MaSV);
+                    classAgv.AddScore(scoreDTO?.DiemTB10 ?? 0);
+                }
+
+
+                return Ok(classAgv);
+            }
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(result.Message);
+            }
+            return BadRequest(result.Message);
         }
         [HttpGet("get-user-courese")]
         public async Task<IActionResult> GetUserCourese()

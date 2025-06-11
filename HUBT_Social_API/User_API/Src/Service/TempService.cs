@@ -16,7 +16,7 @@ namespace User_API.Src.Service
 {
     public class TempService(IHttpService httpService, string basePath) : BaseService(httpService, basePath), ITempService
     {
-        public async Task<TimetableOutputDTO> Get(string id)
+        public async Task<TimetableOutputDTO> GetTimetable(string id)
         {
             string path = APIEndPoint.TempUrls.TempTimetableTimetable
                 .BuildUrl(
@@ -25,7 +25,7 @@ namespace User_API.Src.Service
             ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
             return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
         }
-        public async Task<List<TimetableOutputDTO>> GetList(string className)
+        public async Task<List<TimetableOutputDTO>> GetListOfTimeTableByClassName(string className)
         {
             string path = APIEndPoint.TempUrls.TempTimetableTimetable
                 .BuildUrl(
@@ -35,12 +35,12 @@ namespace User_API.Src.Service
             return responseDTO.ConvertTo<List<TimetableOutputDTO>>() ?? [];
         }
 
-        public async Task<TimetableOutputDTO> StoreIn(TimetableOutputDTO request)
+        public async Task<TimetableOutputDTO> StoreInTimeTable(TimetableOutputDTO request)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableTimetable, ApiType.POST, request);
             return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
         }
-        public async Task<List<TimetableOutputDTO>> StoreIn(List<TimetableOutputDTO >request)
+        public async Task<List<TimetableOutputDTO>> StoreInTimeTable(List<TimetableOutputDTO >request)
         {
             ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableCreateTimetable, ApiType.POST, request);
             return responseDTO.ConvertTo<List<TimetableOutputDTO>>() ?? [];
@@ -71,27 +71,19 @@ namespace User_API.Src.Service
             return responseDTO.ConvertTo<ClassScheduleVersionDTO>() ?? new();
         }
 
-        public async Task<CouresDTO> GetCourses(string className, string id)
+        public async Task<List<CouresDTO>> GetCourses(string userName = "", string className ="", string id="")
         {
             string path = APIEndPoint.TempUrls.TempTimetableGetCourse
                 .BuildUrl(
-                    new Dictionary<string, string> { { "className", className }, { "coursesId", id } }
-                );
-            ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
-            CouresDTO? couresDTO = responseDTO.ConvertTo<List<CouresDTO>>()?.FirstOrDefault();
-            return couresDTO ?? new();
-
-        }
-        public async Task<List<CouresDTO>> GetCourses(string className)
-        {
-            string path = APIEndPoint.TempUrls.TempTimetableGetCourse
-                .BuildUrl(
-                    new Dictionary<string, string> { { "className", className } }
+                    new Dictionary<string, string> { 
+                        { "className", className },
+                        { "userName", userName  },
+                        { "coursesId", id }
+                    }
                 );
             ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
 
             return responseDTO.ConvertTo<List<CouresDTO>>() ?? [];
-
         }
 
         public async Task<CouresDTO> StoreCourses(CreateTempCourseRequest request)
@@ -174,5 +166,31 @@ namespace User_API.Src.Service
             return [];
 
         }
+
+        public async Task<TimetableOutputDTO> UpdateTimetable(UpdateTimetableRequest request)
+        {
+            ResponseDTO responseDTO = await SendRequestAsync(APIEndPoint.TempUrls.TempTimetableTimetable, ApiType.PUT, request);
+            if (responseDTO.StatusCode == HttpStatusCode.OK)
+            {
+                return responseDTO.ConvertTo<TimetableOutputDTO>() ?? new();
+            }
+            return new();
+        }
+
+        public async Task<List<TimetableOutputDTO>> GetTimetable(string id = "", string className = "", string coursesId = "")
+        {
+            string path = APIEndPoint.TempUrls.TempTimetableTimetable
+                .BuildUrl(
+                    new Dictionary<string, string> {
+                        { "className", className},
+                        { "id", id },
+                        { "coursesId", coursesId}
+                    }
+                );
+            ResponseDTO responseDTO = await SendRequestAsync(path, ApiType.GET);
+
+            return responseDTO.ConvertTo<List<TimetableOutputDTO>>() ?? [];
+        }
+    
     }
 }

@@ -25,13 +25,11 @@ namespace User_API.Src.Controllers
     public class UserShoolDataController(IUserService userService,
         IOutSourceService outSourceService,
         ITempService tempService,
-        IHelperService helperService,
         IChatService chatService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
         private readonly IOutSourceService _outSourceService = outSourceService;
         private readonly ITempService _tempService = tempService;
-        private readonly IHelperService _helperService = helperService;
         private readonly IChatService _chatService = chatService;
         [HttpGet("timetable")]
         public async Task<IActionResult> GetUserTimeTable()
@@ -47,21 +45,22 @@ namespace User_API.Src.Controllers
             if (userDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
-            StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
-            if (studentDTO == null)
-                return NotFound();
-
             try
             {
-                ClassScheduleVersionDTO? classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
+                ClassScheduleVersionDTO? classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(userDTO.UserName);
 
                 UserTimetableOutput userTimetableOutput = new()
                 {
                     Starttime = DateTime.UtcNow.Date,
                     Endtime = DateTime.UtcNow.Date.AddMonths(2),
                 };
-
-                List<TimetableOutputDTO> timetableOutputDTOs = await _tempService.GetList(studentDTO.TenLop);
+                List<CouresDTO> couresDTOs = await _tempService.GetCourses(userDTO.UserName);
+                List<TimetableOutputDTO> timetableOutputDTOs = [];
+                foreach (CouresDTO couresDTO in couresDTOs)
+                {
+                    List<TimetableOutputDTO> newTimeTableDTOs = await _tempService.GetTimetable("","",couresDTO.Id);
+                    timetableOutputDTOs.AddRange(newTimeTableDTOs);
+                }
 
                 //if (classScheduleVersionDTO.ClassName == string.Empty && timetableOutputDTOs.Count == 0)
                 //{
@@ -77,21 +76,24 @@ namespace User_API.Src.Controllers
                 //    return Ok(userTimetableOutput);
 
                 //}
-                
+
                 if (classScheduleVersionDTO.ClassName == string.Empty)
                 {
-                    classScheduleVersionDTO.ClassName = studentDTO.TenLop;
+                    classScheduleVersionDTO.ClassName = userDTO.UserName;
                     classScheduleVersionDTO.ExpireTime = userTimetableOutput.Endtime;
                     classScheduleVersionDTO = await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
                 }
-                if (timetableOutputDTOs.Count == 0)
+                StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
+
+                if (timetableOutputDTOs.Count == 0 && studentDTO != null)
                 {
+                    
                     List<TimeTableDTO>? timeTableDTOs = await _outSourceService.GetTimeTableByClassName(studentDTO.TenLop);
                     List<SubjectDTO>? subjectDTOs = await _outSourceService.GetCouresAsync(studentDTO.TenLop);
                     if (timeTableDTOs == null || subjectDTOs == null)
                         return BadRequest();
 
-                    List<CouresDTO> couresDTOs = [];
+                    List<CouresDTO> newCouresDTOs = [];
                     Random random = new();
                     Queue<int> lastPickedIndices = new(); // Track the last few picked indices
                    
@@ -147,12 +149,12 @@ namespace User_API.Src.Controllers
                                 Console.WriteLine("Khong them nhom chat duoc ");
                             
                             CouresDTO couresDTO = await _tempService.StoreCourses(createTempCourseRequest);
-                            couresDTOs.Add(couresDTO);
+                            newCouresDTOs.Add(couresDTO);
 
                         }
                     }
-                    userTimetableOutput.GenerateReformTimetables(couresDTOs);
-                    userTimetableOutput.ReformTimetables = await _tempService.StoreIn(userTimetableOutput.ReformTimetables);
+                    userTimetableOutput.GenerateReformTimetables(newCouresDTOs);
+                    userTimetableOutput.ReformTimetables = await _tempService.StoreInTimeTable(userTimetableOutput.ReformTimetables);
                 }
                 else
                 {
@@ -188,10 +190,13 @@ namespace User_API.Src.Controllers
             if (studentDTO == null)
                 return NotFound();
 
-            TimetableOutputDTO timeTableDTO = await _tempService.Get(timetableId);
-            CouresDTO couresDTO = await _tempService.GetCourses(timeTableDTO.ClassName,timeTableDTO.CourseId);
-
-            if (timeTableDTO.Id == string.Empty || couresDTO.Id == string.Empty)
+            List<TimetableOutputDTO> timeTableDTOs = await _tempService.GetTimetable(timetableId,"");
+            TimetableOutputDTO? timeTableDTO = timeTableDTOs.FirstOrDefault();
+            if (timeTableDTO == null)
+                return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
+            List<CouresDTO> couresDTOs = await _tempService.GetCourses(studentDTO.MaSV, timeTableDTO.ClassName, timeTableDTO.CourseId);
+            CouresDTO? couresDTO = couresDTOs.FirstOrDefault();
+            if (timeTableDTO.Id == string.Empty || couresDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
 
             
@@ -251,58 +256,6 @@ namespace User_API.Src.Controllers
 
             return BadRequest(LocalValue.Get(KeyStore.TimetableMemberNotfound));
         }
-        [HttpPost("timetable")]
-        public async Task<IActionResult> CreateClassSchedule([FromBody] TimetableOutputDTO request)
-        {
-            
-            try
-            {
-                ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(request.ClassName);
-                if (classScheduleVersionDTO.ClassName == string.Empty)
-                    return BadRequest(LocalValue.Get(KeyStore.TimetableNotSetYet));
-                TimetableOutputDTO response = await _tempService.StoreIn(request);
-                
-                await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
-
-                if (response.Id != string.Empty)
-                    return Ok(response);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
-            }
-
-
-            return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
-        }
-        [HttpPost("extract-questions")]
-        public async Task<IActionResult> ExtractQuestions([FromForm] FileUploadModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Đầu vào không Hợp lệ");
-
-            if (request == null || request.File.Length == 0)
-                return BadRequest("File không hợp lệ.");
-            Question[] questions = await _helperService.ExtractQuestions(request.File);
-            if (questions.Length > 0)
-            {
-                QuizDetail examDTO = new()
-                    {
-                        Title = request.Title,
-                        Description = request.Description,
-                        Image = request.ImageUrl,
-                        Major = request.Major,
-                        Credits = request.Credits,
-                        Questions = questions
-                    };
-                ExamDTO result = await _tempService.StoreExam(examDTO);
-                Console.Write(result);
-                return Ok(examDTO);
-            }
-        return BadRequest("Khong tim thay cau hoi.");
-        }
         [HttpGet("questions")]
         public async Task<IActionResult> GetQuestions([FromQuery] string? major, [FromQuery] int page = 0, [FromQuery] int limit = 0)
         {
@@ -331,17 +284,6 @@ namespace User_API.Src.Controllers
             }
             return BadRequest("Cây hỏi không đổi được.");
         }
-        public class FileUploadModel
-        {
-            [Required]
-            public string Title { get; set; } = string.Empty;
-            public string Description { get; set; } = "Môn học giúp bạn có thể cải thiện kỹ năng";
-            public string ImageUrl { get; set; } = "https://cdn.pixabay.com/photo/2016/10/25/12/28/chemistry-1762804_1280.png";
-            [Required]
-            public string Major { get; set; } = string.Empty;
-            public int Credits { get; set; } = 2;
-            [Required]
-            public IFormFile File { get; set; } = null!;
-        }
+        
     }
 }
