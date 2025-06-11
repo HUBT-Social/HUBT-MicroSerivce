@@ -47,6 +47,38 @@
       "SwaggerKey": "user-service"
     },
     {
+      "UpstreamPathTemplate": "/api/user/get-class-info/score",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/user/get-class-info/score",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{User__Host}",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "SwaggerKey": "user-service"
+    },
+    {
+      "UpstreamPathTemplate": "/api/user/get-class-info",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/user/get-class-info",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "{User__Host}",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "SwaggerKey": "user-service"
+    },
+    {
       "UpstreamPathTemplate": "/api/user/get-user-courese",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/user/get-user-courese",
