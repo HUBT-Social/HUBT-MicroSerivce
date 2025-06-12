@@ -290,12 +290,7 @@ namespace User_API.Src.Controllers
 
                 if (responseUserRoleDTO != null)
                 {
-                    return Ok(new
-                    {
-                        users = responseUserRoleDTO.AUserDTOs,
-                        hasMore = responseUserRoleDTO.HasMore,
-                        message = responseUserRoleDTO.Message
-                    });
+                    return Ok(responseUserRoleDTO);
                 }
             }
             return BadRequest(result.Message);

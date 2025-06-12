@@ -93,6 +93,48 @@ namespace Out_Source_Data.Src.Controllers
             AVGScoreDTO aVGScoreDTO = _mapper.Map<AVGScoreDTO>(aGVScore);
             return Ok(aVGScoreDTO);
         }
+
+        [HttpGet("getSliceScore")]
+        public async Task<IActionResult> GetSliceScore([FromQuery] int page)
+        {
+            if (page < 0)
+            {
+                return BadRequest("Page không hợp lệ.");
+            }
+
+            const int pageSize = 100;
+
+            long totalCount = await _aGVScore.Count();
+            long skip = page * pageSize;
+
+            if (skip >= totalCount)
+            {
+                return Ok(new GetScoreSlideResponse
+                {
+                    scores = [],
+                    hasMore = false
+                });
+            }
+
+            var filter = Builders<Diemtb>.Filter.Empty;
+            var scores = await _aGVScore.GetSlide(page, pageSize, filter);
+
+            List<AVGScoreDTO> scoresResult = scores.Select(score => _mapper.Map<AVGScoreDTO>(score)).ToList();
+
+            //GetScoreSlideResponse response = new()
+            //{
+            //    scores = scoresResult,
+            //    hasMore = skip + pageSize < totalCount
+            //};
+
+            return Ok(new
+            {
+                scores = scoresResult,
+                hasMore = skip + pageSize < totalCount
+            });
+        }
+
+
         [HttpGet("thoikhoabieu")]
         public async Task<IActionResult> GetStudentTimeTable([FromQuery] string? className, [FromQuery] string? thu, [FromQuery] string? id)
         {

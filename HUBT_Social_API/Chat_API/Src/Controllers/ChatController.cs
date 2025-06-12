@@ -1,6 +1,7 @@
 ﻿using Amazon.Runtime.Internal;
 using Amazon.SecurityToken.Model.Internal.MarshallTransformations;
 using Chat_API.Src.Interfaces;
+using CloudinaryDotNet;
 using Hangfire.Mongo.Dto;
 using HUBT_Social_Base.ASP_Extentions;
 using HUBT_Social_Chat_Resources.Dtos.Collections.Enum;
@@ -207,32 +208,49 @@ namespace Chat_API.Src.Controllers
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
 
-            List<string> groupIds = [];
+            List<string> groupIds = new();
             int page = 1;
             const int pageSize = 10;
+            const int maxPages = 100; // giới hạn số lần lặp để tránh vòng lặp vô tận
 
-            while (true)
+            while (page <= maxPages)
             {
-                var courses = await _courseService.GetCourse(page);
+                List<CreateGroupByCourse>? courses;
+                try
+                {
+                    courses = await _courseService.GetCourse(page);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Lỗi khi lấy danh sách khóa học trang {page}: {ex.Message}");
+                    break; // hoặc continue nếu muốn bỏ qua và tiếp tục
+                }
 
                 if (courses == null || courses.Count == 0)
                     break;
 
                 foreach (var course in courses)
                 {
-                    string? groupId = await CreateGroupByCourse(course, token);
-                    if (groupId == null)
-                        continue;
-
-                    groupIds.Add(groupId);
-
-                    bool updated = await _courseService.PutStatus(course.Id);
-                    if (updated)
+                    try
                     {
-                        Console.WriteLine($"Updated tempCourse: {course.Id}");
+                        string? groupId = await CreateGroupByCourse(course, token);
+                        if (!string.IsNullOrEmpty(groupId))
+                        {
+                            groupIds.Add(groupId);
+
+                            bool updated = await _courseService.PutStatus(course.Id);
+                            if (updated)
+                                Console.WriteLine($"✅ Đã cập nhật trạng thái cho khóa học: {course.Id}");
+                            else
+                                Console.WriteLine($"⚠️ Không thể cập nhật khóa học: {course.Id}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Lỗi khi tạo nhóm cho khóa học {course.Id}: {ex.Message}");
+                        continue;
                     }
                 }
-
                 if (courses.Count < pageSize)
                     break;
 
@@ -241,10 +259,11 @@ namespace Chat_API.Src.Controllers
 
             return Ok(new
             {
-                message = $"Created {groupIds.Count} group chat!",
+                message = $"✅ Đã tạo {groupIds.Count} nhóm chat!",
                 ids = groupIds
             });
         }
+
 
         private async Task<string?> CreateGroupByCourse(CreateGroupByCourse request,string accesstoken)
         {

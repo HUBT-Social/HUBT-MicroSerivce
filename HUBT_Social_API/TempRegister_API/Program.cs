@@ -1,4 +1,4 @@
-
+﻿
 using HUBT_Social_Core.ASP_Extensions;
 using TempRegister_API.Configurations;
 
@@ -28,7 +28,17 @@ namespace TempRegister_API
             InitConfigures(builder);
             InitServices(builder);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetIsOriginAllowed(_ => true); // hoặc cụ thể domain mobile
+                });
+            });
 
             var app = builder.Build();
 
@@ -42,7 +52,7 @@ namespace TempRegister_API
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAll");
             app.UseAuthorization();
             app.UseLocalization();
 

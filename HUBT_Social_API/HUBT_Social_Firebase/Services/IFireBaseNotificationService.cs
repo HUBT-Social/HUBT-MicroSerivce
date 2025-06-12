@@ -4,7 +4,7 @@ namespace HUBT_Social_Firebase.Services;
 
 public interface IFireBaseNotificationService
 {
-    Task SendNotificationAsync(MessageRequest request);
+    Task<NotificationResultDto> SendNotificationAsync(MessageRequest request);
 
     Task<bool> SubscribeTopicAsync(string topic, string token);
     Task<bool> SubscribeTopicAsync(string topic, List<string> tokens);

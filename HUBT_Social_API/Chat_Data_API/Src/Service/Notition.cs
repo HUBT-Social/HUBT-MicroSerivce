@@ -8,31 +8,31 @@ namespace Chat_Data_API.Src.Service
 {
     public class Notition(IHttpService httpService, string basePath) : BaseService(httpService, basePath), INotition
     {
-        public async Task SendNotationToGroupChat(SendNotationToGroupChatRequest request, string accessToken)
+        public async Task SendNotationToGroupChat(SendNotificationToMultiUserNamesRequest request, string accessToken)
         {
             try
             {
-                string path = $"api/notation/send-to-group-chat";
+                string path = $"api/notification/send-to-multi-username";
                 await SendActionResultRequestAsync(path, ApiType.POST, request, accessToken);
             }
             catch { }
         }
 
-        public async Task SendNotationToMany(SendGroupMessageRequest request, string accessToken)
+        public async Task SendNotationToMany(SendNotificationToMultiUserNamesRequest request, string accessToken)
         {
             try
             {
-                string path = $"api/notation/send-to-many";
+                string path = $"api/notification/send-to-multi-username";
                 await SendActionResultRequestAsync(path, ApiType.POST, request, accessToken);
             }
             catch { }
         }
 
-        public async Task SendNotationToOne(SendMessageRequest request,string accessToken)
+        public async Task SendNotationToOne(SendNotificationToOneUserNameRequest request, string accessToken)
         {
             try
             {
-                string path = $"api/notation/send-to-one";
+                string path = $"api/notification/send-to-one-username";
                 await SendActionResultRequestAsync(path, ApiType.POST, request, accessToken);
             }
             catch { }

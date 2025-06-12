@@ -6,6 +6,7 @@ using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Settings;
 using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using HUBT_Social_MongoDb_Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Core.Operations;
 using System.Linq.Expressions;
+using System.Xml;
 using TempRegister_API.Src.Models;
 
 namespace TempRegister_API.Src.Controllers
@@ -69,6 +71,112 @@ namespace TempRegister_API.Src.Controllers
             
         }
 
+        [HttpGet("classes/available")]
+        public async Task<IActionResult> GetAvailableClasses()
+        {
+            var timetable = await _tempClassScheduleVersion.GetAll();
+            if (timetable == null)
+            {
+                return BadRequest("Khong tim duoc du lieu hop le!");
+            }
+
+            var classScheduleVersionDTO = _mapper.Map<List<ClassScheduleVersionDTO>>(timetable);
+            DateTime currentTime = DateTime.Now;
+            var classAvailable = classScheduleVersionDTO
+                .Where(schedule => schedule.ExpireTime > currentTime)
+                .Select(schedule => schedule.ClassName) // Adjust this based on the actual property you want to return
+                .ToList();
+
+            return Ok(classAvailable);
+        }
+        [HttpPut("change-schedule-timetable")]
+        public async Task<IActionResult> ChangeScheduleTimeTable(string id, DateTime? newStartTime, DateTime? newEndTime, string? zoomID, string? room)
+        {
+            // Validate input parameters
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest(new { message = "ID không được để trống." });
+            }
+
+            // Check if at least one parameter is provided
+            if (!newStartTime.HasValue && !newEndTime.HasValue && string.IsNullOrEmpty(zoomID) && string.IsNullOrEmpty(room))
+            {
+                return BadRequest(new { message = "Phải cung cấp ít nhất một trường để cập nhật (thời gian, ZoomID hoặc phòng)." });
+            }
+
+            // Validate time constraints if provided
+            DateTime now = DateTime.UtcNow; // Use UTC for consistency
+            if (newStartTime.HasValue && newStartTime < now)
+            {
+                return BadRequest(new { message = "Thời gian bắt đầu không thể là quá khứ." });
+            }
+
+            if (newEndTime.HasValue && newEndTime < now)
+            {
+                return BadRequest(new { message = "Thời gian kết thúc không thể là quá khứ." });
+            }
+
+            // Retrieve timetable
+            TempTimetable? timetable = await _tempTimeTable.GetById(id);
+            if (timetable == null)
+            {
+                return NotFound(new { message = "Không tìm thấy buổi học hợp lệ." });
+            }
+
+            // Validate time constraints with existing times if only one is provided
+            DateTime startTime = newStartTime ?? timetable.StartTime;
+            DateTime endTime = newEndTime ?? timetable.EndTime;
+
+            if (endTime <= startTime)
+            {
+                return BadRequest(new { message = "Thời gian kết thúc phải sau thời gian bắt đầu." });
+            }
+
+            // Check for changes
+            bool hasChanges = false;
+            if (newStartTime.HasValue && newStartTime.Value != timetable.StartTime)
+            {
+                timetable.StartTime = newStartTime.Value;
+                hasChanges = true;
+            }
+            if (newEndTime.HasValue && newEndTime.Value != timetable.EndTime)
+            {
+                timetable.EndTime = newEndTime.Value;
+                hasChanges = true;
+            }
+            if (!string.IsNullOrEmpty(zoomID) && zoomID != timetable.ZoomID)
+            {
+                timetable.ZoomID = zoomID;
+                hasChanges = true;
+            }
+            if (!string.IsNullOrEmpty(room) && room != timetable.Room)
+            {
+                timetable.Room = room;
+                hasChanges = true;
+            }
+
+            // If no changes, return success without updating
+            if (!hasChanges)
+            {
+                return Ok(timetable); // No changes needed, return current timetable
+            }
+
+            try
+            {
+                bool updateSuccessful = await _tempTimeTable.Update(timetable);
+                if (updateSuccessful)
+                {
+                    return Ok(timetable);
+                }
+                return StatusCode(500, new { message = "Lỗi cập nhật thời khóa biểu." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (use your logging framework, e.g., ILogger)
+                return StatusCode(500, new { message = "Đã xảy ra lỗi khi cập nhật thời khóa biểu.", error = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TimetableOutputDTO timetableOutDTO)
         {
@@ -110,6 +218,36 @@ namespace TempRegister_API.Src.Controllers
                 return Ok(timetable);
             }
             return BadRequest(LocalValue.Get(KeyStore.UnableToStoreInDatabase));
+        }
+        [HttpDelete]
+        public async Task<IActionResult> DeleteTimeTable(string id)
+        {
+            // Validate input parameters
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest(new { message = "ID không được để trống." });
+            }
+            // Retrieve timetable
+            TempTimetable? timetable = await _tempTimeTable.GetById(id);
+            if (timetable == null)
+            {
+                return NotFound(new { message = "Không tìm thấy buổi học hợp lệ." });
+            }
+
+            try
+            {
+                bool deleteSuccessful = await _tempTimeTable.Delete(timetable);
+                if (deleteSuccessful)
+                {
+                    return Ok(new { message = "Xóa thời khóa biểu thành công." });
+                }
+                return StatusCode(500, new { message = "Lỗi xoa thời khóa biểu." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (use your logging framework, e.g., ILogger)
+                return StatusCode(500, new { message = "Đã xảy ra lỗi khi xoa thời khóa biểu.", error = ex.Message });
+            }
         }
         [HttpGet("classscheduleversion")]
         public async Task<IActionResult> GetClassScheduleVersion([FromQuery] string className)

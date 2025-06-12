@@ -46,11 +46,11 @@ namespace HUBT_Social_Base.Service
 
             UploadBase64Request base64Resquest = new()
             {
-                Base64String = base64StringWithPrefix,
+                FileData = base64StringWithPrefix,
                 FileName = request.file.FileName
             };
 
-           return await GetUrlFormBase6(base64Resquest);
+            return await GetUrlFormBase6(base64Resquest);
         }
     }
 }

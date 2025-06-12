@@ -5,11 +5,11 @@ using HUBT_Social_Core.Settings.@enum;
 using Microsoft.AspNetCore.Mvc;
 using HUBT_Social_Core.Models.Requests;
 using HUBT_Social_Core.Models.DTOs.IdentityDTO;
-using Amazon.Runtime.Internal;
 using HUBT_Social_Base.ASP_Extentions;
 using System.Collections.Generic;
 using System.Net;
 using HUBT_Social_Core.Models.Requests.Firebase;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Notation_API.Src.Services
 {
@@ -40,16 +40,17 @@ namespace Notation_API.Src.Services
                 List<AUserDTO>? users = response.ConvertTo<List<AUserDTO>>();
 
                 return users?
-                    .Where(u => u?.FCMToken != null)              // Lọc user có FCMToken
-                    .Select(u => u!.FCMToken!)                    // Lấy FCMToken (non-null sau khi lọc)
+                    .Where(u => u?.FCMToken != null && u?.FCMToken != "")              // Lọc user có FCMToken
+                    .Select(u => u!.FCMToken!)  
+                    .Distinct()
                     .ToList();
             }
             return null;
         }
-        public async Task<List<string>> GetListFMCFromCondition(ConditionRequest request)
+        public async Task<NotificationRecipients> GetNotificationRecipientsFromCondition(ConditionRequest request)
         {
 
-            string path = "get-fmcs-by-condition-admin";
+            string path = "get-notification-recipient";
             if (request.SendAll)
             {
                 path += "?SendAll=true";
@@ -78,6 +79,9 @@ namespace Notation_API.Src.Services
                     path += $"?{string.Join("&", queryParams)}";
                 }
             }
+            if (request.IncludeEmails) { path += "&IncludeEmails=true"; }
+            if (request.IncludePhoneNumbers) { path += "&IncludePhoneNumbers=true"; }
+            if (request.IncludeFcmTokens) { path += "&IncludeFcmTokens=true"; }
 
             ResponseDTO? response = null;
             try
@@ -86,24 +90,37 @@ namespace Notation_API.Src.Services
             }
             catch
             {
-                return new List<string>();
+                return new NotificationRecipients();
             }
 
             if (response?.StatusCode == HttpStatusCode.OK)
             {
                 try
                 {
-                    List<string>? fcmTokens = response.ConvertTo<List<string>>();
-                    return fcmTokens?.Where(token => !string.IsNullOrEmpty(token)).ToList() ?? new List<string>();
+                    NotificationRecipients? recipients = response.ConvertTo<NotificationRecipients>();
+                    return recipients ?? new NotificationRecipients();
                 }
                 catch
                 {
-                    return new List<string>();
+                    return new NotificationRecipients();
                 }
             }
 
-            return new List<string>();
+            return new NotificationRecipients();
 
+        }
+
+        public async Task<string?> GetFCMFromUserName(string userName)
+        {
+            string path = $"user/get?userName={userName}";
+            ResponseDTO response = await SendRequestAsync(path, ApiType.GET, null, null);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string? users = response.ConvertTo<string>();
+
+                return users;
+            }
+            return null;
         }
     }
 }
