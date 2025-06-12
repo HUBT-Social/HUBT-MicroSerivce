@@ -171,7 +171,7 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
         }
         public async Task<(List<TUser>, bool, string?)> GetUserByRole(string roleName, int page = 0)
         {
-            const int pageSize = 100;
+            const int pageSize = 30;
             roleName = roleName.ToUpper();
 
             // Nếu dùng EF Core, có thể dùng FirstOrDefaultAsync

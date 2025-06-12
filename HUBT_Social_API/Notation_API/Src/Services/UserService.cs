@@ -40,8 +40,9 @@ namespace Notation_API.Src.Services
                 List<AUserDTO>? users = response.ConvertTo<List<AUserDTO>>();
 
                 return users?
-                    .Where(u => u?.FCMToken != null)              // Lọc user có FCMToken
-                    .Select(u => u!.FCMToken!)                    // Lấy FCMToken (non-null sau khi lọc)
+                    .Where(u => u?.FCMToken != null && u?.FCMToken != "")              // Lọc user có FCMToken
+                    .Select(u => u!.FCMToken!)  
+                    .Distinct()
                     .ToList();
             }
             return null;

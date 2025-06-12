@@ -151,15 +151,13 @@ namespace Notation_API
         {
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowReactApp", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.WithOrigins(
-                        "https://chatuitest.onrender.com",
-                        "https://hubt-social-web.onrender.com",
-                        "http://localhost:5173")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetIsOriginAllowed(_ => true); // hoặc cụ thể domain mobile
                 });
             });
         }
@@ -201,7 +199,8 @@ namespace Notation_API
 
                 // Middlewares
                 app.UseHttpsRedirection();
-                app.UseCors("AllowReactApp");
+
+                app.UseCors("AllowAll");
                 app.UseAuthentication();
                 app.UseAuthorization();
                 app.UseLocalization();

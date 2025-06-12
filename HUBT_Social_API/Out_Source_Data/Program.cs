@@ -1,4 +1,4 @@
-using Out_Source_Data.Configurations;
+﻿using Out_Source_Data.Configurations;
 using HUBT_Social_Core.ASP_Extensions;
 namespace Out_Source_Data
 {
@@ -21,15 +21,13 @@ namespace Out_Source_Data
         {
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowReactApp", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.WithOrigins(
-                        "https://chatuitest.onrender.com",
-                        "https://hubt-social-web.onrender.com",
-                        "http://localhost:5173")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetIsOriginAllowed(_ => true); // hoặc cụ thể domain mobile
                 });
             });
         }
@@ -58,7 +56,7 @@ namespace Out_Source_Data
 
 
             app.UseHttpsRedirection();
-            app.UseCors("AllowReactApp");
+            app.UseCors("AllowAll");
             app.UseAuthorization();
             app.UseLocalization();
 

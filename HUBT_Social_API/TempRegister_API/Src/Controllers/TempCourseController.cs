@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using TempRegister_API.Src.Models;
 
@@ -47,6 +48,24 @@ namespace TempRegister_API.Src.Controllers
                     results.Add(item);
                 }
                 return Ok(results);
+
+            }
+            return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));
+        }
+
+        [HttpGet("get-usernames-inclass")]
+        public async Task<IActionResult> GetUsernamesInClass(string className)
+        {
+            if (!string.IsNullOrEmpty(className))
+            {
+                var tempCourse = await _tempCourse.Find((e) => e.TimeTableDTO.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase));
+                if (tempCourse == null) { return BadRequest(); };
+                List<string> userName = [];
+
+                userName.AddRange(tempCourse.First().StudentIDs);
+                userName.AddRange(tempCourse.First().TeacherIDs);
+               
+                return userName.Count !=0 ? Ok(userName) : BadRequest();
 
             }
             return BadRequest(LocalValue.Get(KeyStore.InvalidInformation));

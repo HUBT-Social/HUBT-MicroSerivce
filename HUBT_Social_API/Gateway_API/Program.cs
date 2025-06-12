@@ -77,19 +77,21 @@ namespace Gateway_API
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowReactApp", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.WithOrigins("https://chatuitest.onrender.com", "https://hubt-social-web.onrender.com", "http://localhost:5173")  // Chỉ cho phép origin này
-                        .AllowAnyMethod()   // Cho phép bất kỳ phương thức HTTP nào
-                        .AllowAnyHeader()   // Cho phép bất kỳ header nào
-                        .AllowCredentials(); // Cho phép gửi credentials như cookies, authorization headers
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .SetIsOriginAllowed(_ => true); // hoặc cụ thể domain mobile
                 });
             });
 
             builder.Services.AddSignalR();
 
             var app = builder.Build();
-            app.UseCors("AllowReactApp");
+
+            app.UseCors("AllowAll");
 
             // Configure the HTTP request pipeline.
             app.UseSwagger();

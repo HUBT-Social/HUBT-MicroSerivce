@@ -171,6 +171,7 @@ namespace User_API.Src.Controllers
 
             }
         }
+     
         [HttpGet("timetable-info")]
         public async Task<IActionResult> GetTimeTableInfo(string timetableId)
         {
@@ -332,6 +333,7 @@ namespace User_API.Src.Controllers
             }
             return BadRequest("Cây hỏi không đổi được.");
         }
+
         public class FileUploadModel
         {
             [Required]
