@@ -93,9 +93,9 @@ namespace User_API.Src.Models
         {
             DateTime startTime = session.ToLower() switch
             {
-                "sáng" => baseDate.AddHours(7).AddMinutes(30),
-                "chiều" => baseDate.AddHours(13),
-                "tối" => baseDate.AddHours(18),
+                "sáng" => baseDate.AddHours(0).AddMinutes(30),
+                "chiều" => baseDate.AddHours(6),
+                "tối" => baseDate.AddHours(11),
                 _ => throw new ArgumentException("Invalid session value. Expected values are 'Sáng', 'Chiều', or 'Tối'."),
             };
             return startTime;
