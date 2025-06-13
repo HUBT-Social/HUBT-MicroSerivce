@@ -5,7 +5,7 @@
 
         public string Id { get; set; } = string.Empty;
         private DateTime _starttime;
-        private DateTime? _endtime;
+        private DateTime _endtime;
         public DateTime NewStartTime
         {
             get => _starttime;
@@ -15,7 +15,7 @@
             }
         }
 
-        public DateTime? NewEndTime
+        public DateTime NewEndTime
         {
             get => _endtime;
             set
