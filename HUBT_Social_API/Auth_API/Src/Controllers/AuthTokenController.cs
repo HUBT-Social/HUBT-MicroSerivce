@@ -42,10 +42,10 @@ namespace Auth_API.Src.Controllers
             if (result.StatusCode == HttpStatusCode.OK)
             {
                 TokenResponseDTO? tokenResponse = result.ConvertTo<TokenResponseDTO>();
-                return tokenResponse != null ? Ok(tokenResponse) : BadRequest(LocalValue.Get(KeyStore.DataNotAllowNull));
+                return tokenResponse != null ? Ok(tokenResponse) : Unauthorized(LocalValue.Get(KeyStore.DataNotAllowNull));
             }
             Console.WriteLine($"result is not return 200 : {result.Message}");
-            return BadRequest(result.Message);
+            return Unauthorized(result.Message);
 
         }
         [HttpDelete("delete-token")]
