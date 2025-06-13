@@ -38,7 +38,7 @@ namespace Identity_API.Src.Controllers
     {
         private readonly IUserService<AUser, ARole> _identityService = identityService.UserService;
         private readonly IMongoService<AUser> _aUserService;
-        
+
         [HttpGet("userAll")]
         [AllowAnonymous]
         public IActionResult GetUserAll()
@@ -53,7 +53,7 @@ namespace Identity_API.Src.Controllers
                 var userDTOs = listUser.Select(user => _mapper.Map<AUserDTO>(user)).ToList();
 
                 return Ok(userDTOs);
-                
+
             }
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
@@ -62,30 +62,34 @@ namespace Identity_API.Src.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetTeacher([FromQuery] string roleName, [FromQuery] int page = 0)
         {
-
-            var response = await _identityService.GetUserByRole(roleName, page);
-
-            if (response.Item1.Count > 0)
+            try
             {
+                var response = await _identityService.GetUserByRole(roleName, page);
+
+                // Luôn trả về OK, không quan tâm có data hay không
                 var userDTOs = response.Item1.Select(user => {
                     AUserDTO u = _mapper.Map<AUserDTO>(user);
                     u.Status = string.IsNullOrEmpty(u.FCMToken) ? "Inactive" : "Active";
                     return u;
-                    }).ToList();
+                }).ToList();
 
-                return Ok(
-                    new GetUserByRoleResponses()
-                    {
-                        AUserDTOs = userDTOs,
-                        HasMore = response.Item2,
-                        Message = response.Item3
-                    });
+                return Ok(new GetUserByRoleResponses()
+                {
+                    AUserDTOs = userDTOs,
+                    HasMore = response.Item2,
+                    Message = response.Item3 // Có thể là null hoặc thông báo
+                });
             }
-            return BadRequest(
-                    new GetUserByRoleResponses()
-                    {
-                        Message = response.Item3
-                    });
+            catch (Exception ex)
+            {
+                // Chỉ trả BadRequest khi có exception thực sự
+                return BadRequest(new GetUserByRoleResponses()
+                {
+                    AUserDTOs = [],
+                    HasMore = false,
+                    Message = "Có lỗi xảy ra: " + ex.Message
+                });
+            }
         }
 
         [HttpGet("users-in-list-userName")]
@@ -159,7 +163,7 @@ namespace Identity_API.Src.Controllers
 
             return Ok(userDTO);
         }
-        [HttpGet("get-fmcs-by-condition-admin")]
+        [HttpGet("get-notification-recipient")]
         //[Authorize(Roles = "Admin")]
         [AllowAnonymous]
         public async Task<IActionResult> GetFCMsUserByCondition([FromQuery] ConditionRequest request)
@@ -176,8 +180,12 @@ namespace Identity_API.Src.Controllers
                 {
                     return BadRequest("At least one condition (UserNames, FacultyCodes, CourseCodes, or ClassCodes) is required when SendAll is false.");
                 }
+                if(!(request.IncludeEmails || request.IncludePhoneNumbers || request.IncludeFcmTokens))
+                {
+                    return BadRequest("At least one channel (push, sms, email) ");
+                }
 
-                List<string> fcms;
+               
                 List<AUser> usersToProcess;
 
                 // Handle SendAll case
@@ -259,16 +267,19 @@ namespace Identity_API.Src.Controllers
                     }
                 }
 
-                // Extract distinct FCM tokens
-                fcms = usersToProcess
-                    .Where(u => !string.IsNullOrEmpty(u.FCMToken))
-                    .Select(u => u.FCMToken!)
-                    .Distinct()
-                    .ToList();
+                FilterRecipientsSmart(
+                    usersToProcess,
+                    new RecipientFilterRequest
+                    {
+                        IncludeEmails = request.IncludeEmails,
+                        IncludeFcmTokens = request.IncludeFcmTokens,
+                        IncludePhoneNumbers = request.IncludePhoneNumbers,
+                    },
+                    out NotificationRecipients recipients);
 
-                if (fcms.Any())
+                if (recipients.Any())
                 {
-                    return Ok(fcms);
+                    return Ok(recipients);
                 }
 
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
@@ -278,6 +289,39 @@ namespace Identity_API.Src.Controllers
                 return StatusCode(500, "Server error");
             }
         }
+
+        private static void FilterRecipientsSmart(List<AUser> users, RecipientFilterRequest request, out NotificationRecipients result)
+        {
+            var emailSet = new HashSet<string>();
+            var phoneSet = new HashSet<string>();
+            var fcmSet = new HashSet<string>();
+
+            foreach (var user in users)
+            {
+                if (request.IncludeEmails && !string.IsNullOrWhiteSpace(user.Email))
+                {
+                    emailSet.Add(user.Email);
+                }
+
+                if (request.IncludePhoneNumbers && !string.IsNullOrWhiteSpace(user.PhoneNumber))
+                {
+                    phoneSet.Add(user.PhoneNumber);
+                }
+
+                if (request.IncludeFcmTokens && !string.IsNullOrWhiteSpace(user.FCMToken))
+                {
+                    fcmSet.Add(user.FCMToken);
+                }
+            }
+
+            result = new NotificationRecipients
+            {
+                Emails = [.. emailSet],
+                PhoneNumbers = [.. phoneSet],
+                FcmTokens = [.. fcmSet]
+            };
+        }
+
 
 
         [HttpPut("update-user")]
@@ -471,7 +515,6 @@ namespace Identity_API.Src.Controllers
             }
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
         }
-        [HttpPut("user/change-password")]
 
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequestDTO changePasswordDTO)

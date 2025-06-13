@@ -169,9 +169,9 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             var userlist  = _userManager.Users.ToList<TUser>();
             return userlist ?? null;
         }
-        public async Task<(List<TUser>, bool, string)> GetUserByRole(string roleName, int page = 0)
+        public async Task<(List<TUser>, bool, string?)> GetUserByRole(string roleName, int page = 0)
         {
-            const int pageSize = 100;
+            const int pageSize = 30;
             roleName = roleName.ToUpper();
 
             // Nếu dùng EF Core, có thể dùng FirstOrDefaultAsync
@@ -180,38 +180,28 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
                 .FirstOrDefault();
 
             if (role == null)
-                return (new List<TUser>(), false, "Role không hợp lệ.");
+                return ([], false, "Role không hợp lệ.");
 
             List<TUser> users;
             int totalCount;
             bool hasMore;
 
-            if (role.Name != "USER")
+            if (roleName != "USER")
             {
-                // Với role cụ thể: Lấy tất cả users có role đó, rồi phân trang trong memory
-                // Nếu TUser không có property Roles, dùng cách này:
-                var allUsersWithRole = new List<TUser>();
-                foreach (var user in _userManager.Users.ToList())
-                {
-                    var userRoles = await _userManager.GetRolesAsync(user);
-                    if (userRoles.Contains(role.Name))
-                    {
-                        allUsersWithRole.Add(user);
-                    }
-                }
+                var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
+                totalCount = usersInRole.Count;
 
-                totalCount = allUsersWithRole.Count;
-
-                // Kiểm tra page có hợp lệ không
                 if (page * pageSize >= totalCount)
                 {
-                    return (new List<TUser>(), false, "");
+                    return ([], false, "This page is no info.");
                 }
 
-                users = allUsersWithRole
+                var pagedUsers = usersInRole
                     .Skip(page * pageSize)
                     .Take(pageSize)
                     .ToList();
+
+                return (pagedUsers, true, null);
             }
             else
             {
@@ -221,18 +211,17 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
                 // Kiểm tra page có hợp lệ không
                 if (page * pageSize >= totalCount)
                 {
-                    return (new List<TUser>(), false, "");
+                    return ([], false, "This page is no info.");
                 }
 
-                users = _userManager.Users
+                users = [.. _userManager.Users
                     .Skip(page * pageSize)
-                    .Take(pageSize)
-                    .ToList();
+                    .Take(pageSize)];
             }
 
             hasMore = (page + 1) * pageSize < totalCount;
 
-            return (users, hasMore, "");
+            return (users, hasMore,null);
         }
 
         public async Task<bool> CheckRole(string userName, string roleName)

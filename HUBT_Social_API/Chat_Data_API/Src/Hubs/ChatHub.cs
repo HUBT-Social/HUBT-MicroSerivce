@@ -223,7 +223,7 @@ namespace Chat_Data_API.Src.Hubs
                         .ToList();
 
                     Console.WriteLine("SendItemChat 12");
-                    var notifyRequest = new SendNotationToGroupChatRequest
+                    var notifyRequest = new SendNotificationToMultiUserNamesRequest
                     {
                         UserNames = receiverUsernames,
                         RequestId = inputRequest.RequestId,

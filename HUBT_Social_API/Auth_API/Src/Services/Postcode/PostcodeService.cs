@@ -38,7 +38,7 @@ namespace Auth_API.Src.Services.Postcode
             } 
             return null;
         }
-        private async Task<ResponseDTO> SendPostcodeAsync(EmailRequest request)
+        private async Task<ResponseDTO> SendPostcodeAsync(SendPostCodeRequest request)
         {
             return await SendRequestAsync(APIEndPoint.PostCodeUrls.PostSendPostCode, ApiType.POST, request);
         }
@@ -59,7 +59,7 @@ namespace Auth_API.Src.Services.Postcode
                 return resultCreatePostcode;
             }
 
-            var emailRequest = new EmailRequest
+            var emailRequest = new SendPostCodeRequest
             {
                 Code = postCodeDTO.Code,
                 Subject = LocalValue.Get(KeyStore.EmailVerificationCodeSubject),

@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="HTML_Template\OTPVerify.html" />
+	<EmbeddedResource Include="HTML_Template\Notification_Template.html" />
   </ItemGroup>
 
 </Project>

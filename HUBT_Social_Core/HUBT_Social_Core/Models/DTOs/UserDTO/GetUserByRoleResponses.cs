@@ -11,6 +11,6 @@ namespace HUBT_Social_Core.Models.DTOs.UserDTO
     {
         public List<AUserDTO> AUserDTOs { get; set; } = [];
         public bool HasMore { get; set; } = false;
-        public string Message { get; set; } = string.Empty;
+        public string? Message { get; set; } = string.Empty;
     }
 }

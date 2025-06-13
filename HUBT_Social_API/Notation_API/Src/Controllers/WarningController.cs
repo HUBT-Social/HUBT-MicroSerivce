@@ -46,7 +46,7 @@ namespace Notation_API.Src.Controllers
 
                 if ((year > 3 && result.DiemTB4 < 2.2) || (year == 2 && result.DiemTB4 < 2) || (year == 1 && result.DiemTB4 < 1.8))
                 {
-                    SendMessageRequest message = new()
+                    SendNotificationGeneralRequest message = new()
                     {
                         Token = userDTO.FCMToken,
                         Title = "Cảnh báo điểm số!!!",
@@ -56,7 +56,7 @@ namespace Notation_API.Src.Controllers
                 }
                 else
                 {
-                    SendMessageRequest message = new()
+                    SendNotificationGeneralRequest message = new()
                     {
                         Token = userDTO.FCMToken,
                         Title = "điểm số của bạn",

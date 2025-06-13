@@ -173,6 +173,7 @@ namespace User_API.Src.Controllers
 
             }
         }
+     
         [HttpGet("timetable-info")]
         public async Task<IActionResult> GetTimeTableInfo(string timetableId)
         {
