@@ -78,7 +78,7 @@ namespace Auth_API.Src.Services.Identity
 
         public async Task<AUserDTO?> CurrentUser(string accessToken)
         {
-            string path = $"user";
+            string path = APIEndPoint.IdentityUrls.GetCurrentUser;
             ResponseDTO result = await SendRequestAsync(path, ApiType.GET, null, accessToken);
             if (result.StatusCode == HttpStatusCode.OK && result.ConvertTo<AUserDTO>() is AUserDTO user)
                 return user;
