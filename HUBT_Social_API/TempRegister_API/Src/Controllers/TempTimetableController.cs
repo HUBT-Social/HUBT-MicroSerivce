@@ -372,7 +372,7 @@ namespace TempRegister_API.Src.Controllers
             if (!string.IsNullOrEmpty(coursesId))
             {
                 predicate = predicate.And(cs =>
-                    cs.Id.Equals(coursesId));
+                    cs.CourseID.Equals(coursesId));
             }
 
             List<TempCourse> courses = await _tempCourse.Find(predicate).ToListAsync();
