@@ -59,7 +59,7 @@ namespace Out_Source_Data.Src.Controllers
         [HttpGet("sinhvien/{className}")]
         public async Task<IActionResult> GetStudentList([FromRoute] string className)
         {
-            List<SinhVien> students = await _student.Find(p=> p.TenLop == className).ToListAsync();
+            List<SinhVien> students = await _student.Find(p=> p.TenLop.Equals(className, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
             if (students == null || students.Count == 0) return NotFound(LocalValue.Get(KeyStore.UserNotFound));
             List<StudentDTO> studentDTOs = _mapper.Map<List<StudentDTO>>(students);
             return Ok(studentDTOs);

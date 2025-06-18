@@ -50,7 +50,7 @@ namespace User_API.Src.Models
                     {
                         ReformTimetable reformTimetable = new(couresDTO.TimeTableDTO, currentDate);
                         TimetableOutputDTO timetableOutputDTO = reformTimetable;
-                        timetableOutputDTO.CourseId = couresDTO.Id;
+                        timetableOutputDTO.CourseId = couresDTO.CourseID;
                         ReformTimetables.Add(reformTimetable);    
                     }
                 }
