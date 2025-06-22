@@ -159,6 +159,7 @@ namespace Identity_API.Src.Controllers
             return Ok(userDTOs);
         }
         [HttpGet("user")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUser()
         {
             var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);

@@ -58,7 +58,7 @@ namespace User_API.Src.Controllers
                 List<TimetableOutputDTO> timetableOutputDTOs = [];
                 foreach (CouresDTO couresDTO in couresDTOs)
                 {
-                    List<TimetableOutputDTO> newTimeTableDTOs = await _tempService.GetTimetable("","",couresDTO.Id);
+                    List<TimetableOutputDTO> newTimeTableDTOs = await _tempService.GetTimetable("",couresDTO.TimeTableDTO.ClassName,couresDTO.CourseID);
                     timetableOutputDTOs.AddRange(newTimeTableDTOs);
                 }
 
@@ -246,10 +246,7 @@ namespace User_API.Src.Controllers
             if (userDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
-            StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
-            if (studentDTO == null)
-                return NotFound();
-            ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(studentDTO.TenLop);
+            ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(userDTO.UserName);
 
             if (classScheduleVersionDTO.ClassName != string.Empty)
                 return Ok(classScheduleVersionDTO.VersionKey == Key);

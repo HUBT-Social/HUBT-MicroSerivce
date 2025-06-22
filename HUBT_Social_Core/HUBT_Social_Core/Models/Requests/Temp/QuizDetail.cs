@@ -21,10 +21,7 @@ namespace HUBT_Social_Core.Models.Requests.Temp
             this.Image = examDTO.Image;
             this.Major = examDTO.Major;
             this.Credits = examDTO.Credits;
-        }
-        public int QuestionCount
-        {
-            get => Questions.Length;
+            this.QuestionCount = Questions.Length;
         }
 
         public Question[] Questions { get; set; } = [];

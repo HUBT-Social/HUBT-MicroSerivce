@@ -146,8 +146,8 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
                 TUser? user = await _userManager.FindByIdAsync(refreshUserId);
                 if (user != null)
                 {
-                    var existingRefreshToken = await _tokenManager.Find(t => t.UserId == user.Id.ToString() && t.RefreshTo == refreshToken).FirstOrDefaultAsync();
-                    if (existingRefreshToken != null)
+                    var existingRefreshToken = await _tokenManager.Find(t => t.UserId == user.Id.ToString()).FirstOrDefaultAsync();
+                    if (existingRefreshToken != null && existingRefreshToken.RefreshTo == refreshToken)
                     {
                         return await GenerateTokenAsync(user);
                     }
