@@ -138,7 +138,23 @@ namespace User_API.Src.Controllers
 
             try
             {
+
                 TimetableOutputDTO timetableOutputDTO = await _tempService.UpdateTimetable(request);
+                List<CouresDTO> courses = await _tempService.GetCourses("", timetableOutputDTO.ClassName, timetableOutputDTO.CourseId);
+                CouresDTO? course = courses.FirstOrDefault();
+                if (course == null)
+                    return BadRequest("Course not found in this class");
+                foreach (string user in course.StudentIDs.Concat(course.TeacherIDs))
+                {
+                    ClassScheduleVersionDTO classScheduleVersionDTO = await _tempService.GetClassScheduleVersion(user);
+                    if (classScheduleVersionDTO.ClassName == string.Empty)
+                        classScheduleVersionDTO = new ClassScheduleVersionDTO
+                        {
+                            ClassName = user,
+                            ExpireTime = DateTime.Now.AddMonths(2)
+                        };
+                    await _tempService.StoreClassScheduleVersion(classScheduleVersionDTO);
+                }
                 return Ok(timetableOutputDTO);
             }
             catch (Exception ex)
