@@ -58,7 +58,7 @@ namespace User_API.Src.Controllers
                 List<TimetableOutputDTO> timetableOutputDTOs = [];
                 foreach (CouresDTO couresDTO in couresDTOs)
                 {
-                    List<TimetableOutputDTO> newTimeTableDTOs = await _tempService.GetTimetable("","",couresDTO.CourseID);
+                    List<TimetableOutputDTO> newTimeTableDTOs = await _tempService.GetTimetable("",couresDTO.TimeTableDTO.ClassName,couresDTO.CourseID);
                     timetableOutputDTOs.AddRange(newTimeTableDTOs);
                 }
 
