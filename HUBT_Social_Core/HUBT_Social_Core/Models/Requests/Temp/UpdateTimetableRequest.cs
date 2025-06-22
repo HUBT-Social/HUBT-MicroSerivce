@@ -25,6 +25,8 @@
                 _endtime = value;
             }
         }
-
+        public string Subject { get; set; } = string.Empty;
+        public string Room { get; set; } = string.Empty;
+        public string ZoomID { get; set; } = string.Empty;
     }
 }

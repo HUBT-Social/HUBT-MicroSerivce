@@ -202,6 +202,9 @@ namespace TempRegister_API.Src.Controllers
                 }
                 tempTimetable.StartTime = request.NewStartTime;
                 tempTimetable.EndTime = request.NewEndTime;
+                tempTimetable.Subject = request.Subject;
+                tempTimetable.Room = request.Room;
+                tempTimetable.ZoomID = request.ZoomID;
                 TimetableOutputDTO timetableOutputDTO = _mapper.Map<TimetableOutputDTO>(tempTimetable);
                 return await _tempTimeTable.Update(tempTimetable) ? 
                     Ok(timetableOutputDTO) : BadRequest("Update Fail");
