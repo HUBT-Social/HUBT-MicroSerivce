@@ -39,6 +39,8 @@ namespace HUBT_Social_Core.Settings
             public static readonly string GetUserInListUserName = $"{EndPointIdentity}/users-in-list-userName";
             public static readonly string GetCurrentUser = $"{EndPointIdentity}/user";
             public static readonly string GetUserFromEUI = $"{EndPointIdentity}/user/get";
+            public static readonly string GetUsersInClass = $"{EndPointIdentity}/users-in-class";
+            public static readonly string GetAllClassName = $"{EndPointIdentity}/all-className";
             public static readonly string GetUserFromRoleName = $"{EndPointIdentity}/user-by-role";
             public static readonly string PutUpdateUser = $"{EndPointIdentity}/update-user";
             public static readonly string PutUpdateUserClassName = $"{EndPointIdentity}/add-className";

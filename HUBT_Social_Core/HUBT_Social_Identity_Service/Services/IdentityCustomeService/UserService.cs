@@ -239,6 +239,6 @@ namespace HUBT_Social_Identity_Service.Services.IdentityCustomeService
             return roles.Contains(roleName);
         }
 
-
+        
     }
 }

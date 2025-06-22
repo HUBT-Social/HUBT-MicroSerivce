@@ -12,6 +12,8 @@ namespace User_API.Src.Service
     {
         Task<ResponseDTO> GetUser(string accessToken);
         Task<ResponseDTO> GetUserByRole(string roleName,int page);
+        Task<ResponseDTO> GetAllClassName();
+        Task<ResponseDTO> GetUsersInClass(string className);
         Task<ResponseDTO> FindUserByUserName(string accessToken, string userName);
         Task<ResponseDTO> PromoteUserAccountAsync(string accessToken, PromoteUserRequestDTO request);
         Task<ResponseDTO> UpdateAvatarUrlAsync(string accessToken, string request);

@@ -13,6 +13,7 @@ using HUBT_Social_Core.Models.Requests.Temp;
 using HUBT_Social_Core.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -295,6 +296,56 @@ namespace User_API.Src.Controllers
             }
             return BadRequest(result.Message);
         }
+        [HttpGet("get-all-className")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllClassName()
+        {
+            ResponseDTO response = await _identityService.GetAllClassName();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<string>? classNames = response.ConvertTo<List<string>>();
+
+                if (classNames != null)
+                {
+                    return Ok(classNames);
+                }
+            }
+            return BadRequest();
+        }
+        [HttpGet("get-users-in-class")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUsersInClass([FromQuery] List<string> classNames)
+        {
+            if(classNames != null && classNames.Count != 0)
+            {
+                List<ClassMember> listUsers = [];
+                foreach (string className in classNames)
+                {
+                    ResponseDTO response = await _identityService.GetUsersInClass(className);
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        List<AUserDTO>? users = response.ConvertTo<List<AUserDTO>>();
+
+                        if (users != null)
+                        {
+                            ClassMember classMember = new()
+                            {
+                                className = className,
+                                member = users
+                            };
+                            listUsers.Add(classMember);
+                        }
+                    }
+                }
+                if(listUsers.Count != 0)
+                {
+                    return Ok(listUsers);
+                }
+                
+            }
+            return BadRequest();
+        }
+
         [HttpGet("user-find")]
         public async Task<IActionResult> GetAllUser(string usename)
         {

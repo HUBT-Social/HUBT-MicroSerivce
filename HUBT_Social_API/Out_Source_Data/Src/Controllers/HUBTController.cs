@@ -201,6 +201,23 @@ namespace Out_Source_Data.Src.Controllers
 
             return BadRequest();
         }
+        [HttpGet("course/{courseName}")]
+        public async Task<IActionResult> GetInfoSubject([FromRoute] string courseName)
+        {
+            MonHoc? hocPhan = await _subject.Find(hp => hp.TenMon == courseName).FirstOrDefaultAsync();
+            if (hocPhan == null)
+                return BadRequest();
+            try
+            {
+                SubjectDTO coure = _mapper.Map<SubjectDTO>(hocPhan);
+                return Ok(coure);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return BadRequest();
+        }
 
         //[HttpPost("create")]
         //public async Task<IActionResult> CreateStudentData()

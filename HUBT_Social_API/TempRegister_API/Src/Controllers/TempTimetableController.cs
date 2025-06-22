@@ -196,7 +196,7 @@ namespace TempRegister_API.Src.Controllers
             if (!request.Id.IsNullOrEmpty())
             {
                 TempTimetable? tempTimetable = await _tempTimeTable.GetById(request.Id);
-                if (tempTimetable == null)
+                if (tempTimetable == null)  
                 {
                     return NotFound("Timetable not found");
                 }
@@ -343,7 +343,52 @@ namespace TempRegister_API.Src.Controllers
             return BadRequest("Database exit");
 
         }
-        [HttpGet("courses")]
+        [HttpGet("courseId")]
+        public async Task<IActionResult> GetCourse(
+            [FromQuery] string? className)
+        {
+            if (string.IsNullOrEmpty(className))
+            {
+                return BadRequest("At least one query parameter must be provided.");
+            }
+
+            Expression<Func<TempCourse, bool>> predicate = cs => true;
+
+            if (!string.IsNullOrEmpty(className))
+            {
+                predicate = predicate.And(cs =>
+                    cs.TimeTableDTO.ClassName.Equals(className, StringComparison.CurrentCultureIgnoreCase));
+            }
+            List<TempCourse> courses = await _tempCourse.Find(predicate).ToListAsync();
+
+            if (courses.Count != 0)
+            {
+                var courseDTOs = _mapper.Map<List<CouresDTO>>(courses);
+                List<CourseNameIdResponse> result = [];
+                foreach (var courseDTO in courseDTOs)
+                {
+                    result.Add(new CourseNameIdResponse
+                    {
+                        id = courseDTO.Id,
+                        name = courseDTO.TimeTableDTO.Subject,
+                        code = courseDTO.Id
+
+                    });
+                }
+                return Ok(result);
+            }
+
+            return NotFound("No courses found with the given filters.");
+        }
+        public class CourseNameIdResponse
+        {
+            public string id { get; set; } = string.Empty;
+            public string name { get; set; } = string.Empty;
+            public string code { get; set; } = string.Empty;
+        }
+
+
+            [HttpGet("courses")]
         public async Task<IActionResult> GetCourse(
             [FromQuery] string? userName,
             [FromQuery] string? className,

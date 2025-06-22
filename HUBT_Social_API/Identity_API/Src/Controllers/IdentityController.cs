@@ -14,6 +14,7 @@ using HUBT_Social_MongoDb_Service.Services;
 using Identity_API.Src.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -91,6 +92,53 @@ namespace Identity_API.Src.Controllers
                 });
             }
         }
+
+
+        [HttpGet("users-in-class")]
+        [AllowAnonymous]
+        public IActionResult GetUsersInClass([FromQuery] string className)
+        {
+            if (string.IsNullOrEmpty(className)) return BadRequest("Class name must be not null");
+
+            List<AUser>? listUser = _identityService.GetAll();
+
+            if (listUser == null) return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+            if (listUser.Count > 0)
+            {
+                var userInClass = listUser.Where(u => u.ClassName == className)
+                                          .Select(user => _mapper.Map<AUserDTO>(user))
+                                          .ToList();
+                if (userInClass.Count > 0)
+                {
+                    return Ok(userInClass);
+                }
+            }
+            return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+        }
+
+        [HttpGet("all-className")]
+        [AllowAnonymous]
+        public IActionResult GetAllClassName()
+        {
+            List<AUser>? listUser = _identityService.GetAll();
+
+            if (listUser == null) return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
+
+            if (listUser.Count > 0)
+            {
+                var classNames = listUser.Where(u => !string.IsNullOrEmpty(u.ClassName))
+                                          .Select(u => u.ClassName)
+                                          .Distinct()
+                                          .ToList();
+                if (classNames.Count > 0)
+                {
+                    return Ok(classNames);
+                }
+            }
+            return BadRequest("Unable to find any class name in database");
+        }
+
 
         [HttpGet("users-in-list-userName")]
         [AllowAnonymous]
@@ -180,12 +228,12 @@ namespace Identity_API.Src.Controllers
                 {
                     return BadRequest("At least one condition (UserNames, FacultyCodes, CourseCodes, or ClassCodes) is required when SendAll is false.");
                 }
-                if(!(request.IncludeEmails || request.IncludePhoneNumbers || request.IncludeFcmTokens))
+                if (!(request.IncludeEmails || request.IncludePhoneNumbers || request.IncludeFcmTokens))
                 {
                     return BadRequest("At least one channel (push, sms, email) ");
                 }
 
-               
+
                 List<AUser> usersToProcess;
 
                 // Handle SendAll case
@@ -351,13 +399,13 @@ namespace Identity_API.Src.Controllers
 
                 if (!string.IsNullOrEmpty(updateRequest.AvataUrl))
                     user.AvataUrl = updateRequest.AvataUrl;
-                
+
                 if (!string.IsNullOrEmpty(updateRequest.Status))
                     user.Status = updateRequest.Status;
 
                 if (!string.IsNullOrEmpty(updateRequest.FCMToken))
                     user.FCMToken = updateRequest.FCMToken;
-                
+
                 if (updateRequest.Gender != null)
                     user.Gender = updateRequest.Gender.Value;
 
@@ -397,19 +445,19 @@ namespace Identity_API.Src.Controllers
             try
             {
 
-                    AUser? user = await _identityService.FindUserByUserNameAsync(request.UserName);
-                if(user == null)
+                AUser? user = await _identityService.FindUserByUserNameAsync(request.UserName);
+                if (user == null)
                 {
                     return NotFound("No users were updated.");
                 }
-                    user.ClassName = request.ClassName;
+                user.ClassName = request.ClassName;
 
                 if (await _identityService.UpdateUserAsync(user))
                 {
                     return Ok($"updated successfully.");
                 }
                 return BadRequest();
-                
+
             }
             catch (Exception)
             {
@@ -425,7 +473,7 @@ namespace Identity_API.Src.Controllers
             var tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
             if (tokenInfo == null)
                 return Unauthorized(LocalValue.Get(KeyStore.UnAuthorize));
-            if(!await _identityService.CheckRole(tokenInfo.Username,"ADMIN"))
+            if (!await _identityService.CheckRole(tokenInfo.Username, "ADMIN"))
             {
                 return BadRequest("Ban khong co quyen admin.");
             }
@@ -498,18 +546,18 @@ namespace Identity_API.Src.Controllers
 
             }
             catch (Exception ex) {
-                return BadRequest("Update thất bại"+ ex);
+                return BadRequest("Update thất bại" + ex);
             }
         }
-        
+
         [HttpDelete("delete-user")]
         public async Task<IActionResult> Delete()
         {
             TokenInfoDTO? tokenInfo = Request.ExtractTokenInfo(_jwtSetting);
-            AUser? user = 
-                tokenInfo != null ? 
+            AUser? user =
+                tokenInfo != null ?
                 await _identityService.FindUserByIdAsync(tokenInfo.UserId) : null;
-            if  (user != null && await _identityService.DeleteUserAsync(user))
+            if (user != null && await _identityService.DeleteUserAsync(user))
             {
                 return Ok(user);
             }
@@ -562,11 +610,12 @@ namespace Identity_API.Src.Controllers
             AUser? user =
                 tokenInfo != null ?
                 await _identityService.FindUserByIdAsync(tokenInfo.UserId) : null;
-            if (user?.UserName != null && await _identityService.PromoteUserAccountAsync(user.UserName,request.UserName,request.RoleName))
+            if (user?.UserName != null && await _identityService.PromoteUserAccountAsync(user.UserName, request.UserName, request.RoleName))
             {
                 return Ok(LocalValue.Get(KeyStore.UserInfoUpdatedSuccess));
             }
             return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
         }
     }
+
 }

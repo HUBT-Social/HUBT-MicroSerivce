@@ -1,6 +1,7 @@
 ﻿
 using HUBT_Social_Core.ASP_Extensions;
 using TempRegister_API.Configurations;
+using User_API.Configurations;
 
 namespace TempRegister_API
 {
@@ -14,6 +15,7 @@ namespace TempRegister_API
             builder.Services.AddMongoCollections(builder.Configuration);
             builder.Services.AddMongoMapper();
             builder.Services.ConfigureLocalization();
+            builder.Services.HttpClientRegisterConfiguration(builder.Configuration);
 
         }
         private static void InitServices(WebApplicationBuilder builder)

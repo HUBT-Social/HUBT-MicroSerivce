@@ -214,6 +214,59 @@ namespace Notation_API.Src.Controllers
                 return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
             }
         }
+        [HttpPost("send-remind-to-multi-username")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SendRemindNotification([FromBody] List<NotificatonRemindRequest> request)
+        {
+
+            if(request == null || request.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach(var item in request)
+            {
+                Console.WriteLine(item.UserName,": ", item.RemindCode," ",item.Content);
+            }
+            try
+            {
+                foreach (var item in request) 
+                {
+                    var Token = await _userService.GetFCMFromUserName(item.UserName);
+                    if (Token == null)
+                    {
+                        continue;
+                    }
+                    Console.WriteLine($"Token:{Token}");
+
+                    var sendRequest = new SendNotificationToOneDeviceRequest
+                    {
+                        Body = item.Content,
+                        Title = "Thông báo nhắc nhở học tập.",
+                        Type = item.RemindCode,
+                        Token = Token
+                    };
+
+                    try
+                    {
+                        var response = await _fireBaseNotificationService.SendNotificationAsync(sendRequest);
+                        return Ok(response);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send notification to FCM token:");
+                        continue;
+                    }
+                
+                }
+                return Ok("Sent");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending notification to usernam");
+                return BadRequest(new { error = LocalValue.Get(KeyStore.NotificationSendError) });
+            }
+        }
 
         [HttpPost("send-to-multi-username")]
         public async Task<IActionResult> SendNotificationToGroupChat([FromBody] SendNotificationToMultiUserNamesRequest request)
@@ -413,7 +466,7 @@ namespace Notation_API.Src.Controllers
                     Type = request.Type,
                     CreatedBy = request.CreatedBy,
                     Priority = request.Priority,
-                    Recipients = 0,
+                    Recipients = results["push"].Success,
                     Time = DateTime.UtcNow,
                     Status = "sent"
                 };
@@ -740,7 +793,7 @@ namespace Notation_API.Src.Controllers
                     Type = request.Type,
                     Priority = request.Priority,
                     CreatedBy = request.CreatedBy,
-                    Recipients = 0,
+                    Recipients = results["push"].Success,
                     Time = DateTime.UtcNow,
                     Status = "sent"
                 };

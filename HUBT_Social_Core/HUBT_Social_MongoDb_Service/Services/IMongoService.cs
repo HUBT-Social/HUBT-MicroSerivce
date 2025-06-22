@@ -17,6 +17,7 @@ namespace HUBT_Social_MongoDb_Service.Services
         Task<bool> Delete(Collection collection);
         Task<bool> Update(Collection collection);
         Task<bool> UpdateByFilter(Expression<Func<Collection, bool>> filterExpression,UpdateDefinition<Collection> update);
+        Task<bool> Replace(FilterDefinition<Collection> filter, Collection newCollection);
         Task<IEnumerable<Collection>> GetAll(int? limit = null);
         Task<IEnumerable<Collection>> GetSlide(int page, int pageSize = 10, FilterDefinition<Collection>? filter = null);
         Task<IEnumerable<Collection>> Find(Expression<Func<Collection, bool>>? predicate = null, int? page = null, int? pageSize = null);

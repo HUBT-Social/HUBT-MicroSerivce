@@ -144,5 +144,19 @@ namespace User_API.Src.Service
         {
             return await SendRequestAsync(APIEndPoint.IdentityUrls.PutUpdateUserClassName, ApiType.PUT, studentClassName, accessToken);
         }
+
+        public async Task<ResponseDTO> GetAllClassName()
+        {
+            return await SendRequestAsync(APIEndPoint.IdentityUrls.GetAllClassName, ApiType.GET);
+        }
+
+        public Task<ResponseDTO> GetUsersInClass(string className)
+        {
+            string path = APIEndPoint.IdentityUrls.GetUsersInClass
+                .BuildUrl(
+                    new Dictionary<string, string> { { "className", className } }
+                );
+            return SendRequestAsync(path, ApiType.GET);
+        }
     }
 }

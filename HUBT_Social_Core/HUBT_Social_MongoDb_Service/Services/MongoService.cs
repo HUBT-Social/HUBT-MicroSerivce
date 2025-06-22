@@ -132,7 +132,26 @@ namespace HUBT_Social_MongoDb_Service.Services
                 return false;
             }
         }
+        public async Task<bool> Replace(FilterDefinition<Collection> filter, Collection newCollection)
+        {
+            try
+            {
+                if (newCollection == null || filter == null)
+                {
+                    Console.WriteLine("Loi dau vao");
+                    return false;
+                }
 
+                var result = await _mongoCollection.ReplaceOneAsync(filter, newCollection);
+                Console.WriteLine($"MatchedCount: {result.MatchedCount}, ModifiedCount: {result.ModifiedCount}");
+                return result.ModifiedCount > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Replace failed: {ex.Message}");
+                return false;
+            }
+        }
 
 
         public async Task<IEnumerable<Collection>> GetAll(int? limit = null)

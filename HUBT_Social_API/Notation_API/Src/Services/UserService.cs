@@ -60,19 +60,37 @@ namespace Notation_API.Src.Services
                 var queryParams = new List<string>();
                 if (request.ClassCodes?.Count > 0)
                 {
-                    queryParams.Add($"ClassCodes={Uri.EscapeDataString(string.Join(",", request.ClassCodes))}");
+                        foreach (var code in request.ClassCodes)
+                        {
+                            queryParams.Add($"ClassCodes={code}");
+                        }
+         
                 }
                 if (request.FacultyCodes?.Count > 0)
                 {
-                    queryParams.Add($"FacultyCodes={Uri.EscapeDataString(string.Join(",", request.FacultyCodes))}");
+                        foreach (var code in request.FacultyCodes)
+                        {
+                            queryParams.Add($"FacultyCodes={code}");
+                        }
+               
                 }
                 if (request.CourseCodes?.Count > 0)
                 {
-                    queryParams.Add($"CourseCodes={Uri.EscapeDataString(string.Join(",", request.CourseCodes))}");
+
+                        foreach(var code in request.CourseCodes)
+                        {
+                            queryParams.Add($"CourseCodes={code}");
+                        }
+                        
                 }
                 if (request.UserNames?.Count > 0)
                 {
-                    queryParams.Add($"UserNames={Uri.EscapeDataString(string.Join(",", request.UserNames))}");
+                   
+                        foreach(var name in request.UserNames)
+                        {
+                            queryParams.Add($"UserNames={name}");
+                        }
+                 
                 }
                 if (queryParams.Count > 0)
                 {
@@ -116,7 +134,7 @@ namespace Notation_API.Src.Services
             ResponseDTO response = await SendRequestAsync(path, ApiType.GET, null, null);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                string? users = response.ConvertTo<string>();
+                string? users = response.ConvertTo<AUserDTO>()?.FCMToken;
 
                 return users;
             }
