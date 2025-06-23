@@ -187,15 +187,11 @@ namespace User_API.Src.Controllers
             if (userDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.UserNotFound));
 
-            StudentDTO? studentDTO = await _outSourceService.GetStudentByMasv(userDTO.UserName);
-            if (studentDTO == null)
-                return NotFound();
-
             List<TimetableOutputDTO> timeTableDTOs = await _tempService.GetTimetable(timetableId,"");
             TimetableOutputDTO? timeTableDTO = timeTableDTOs.FirstOrDefault();
             if (timeTableDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
-            List<CouresDTO> couresDTOs = await _tempService.GetCourses(studentDTO.MaSV, timeTableDTO.ClassName, timeTableDTO.CourseId);
+            List<CouresDTO> couresDTOs = await _tempService.GetCourses(userDTO.UserName, timeTableDTO.ClassName, timeTableDTO.CourseId);
             CouresDTO? couresDTO = couresDTOs.FirstOrDefault();
             if (timeTableDTO.Id == string.Empty || couresDTO == null)
                 return BadRequest(LocalValue.Get(KeyStore.TimetableNotFound));
