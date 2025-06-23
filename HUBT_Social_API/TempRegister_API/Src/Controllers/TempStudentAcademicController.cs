@@ -15,6 +15,7 @@ using HUBT_Social_MongoDb_Service.ASP_Extentions;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using HUBT_Social_Core.Models.Requests.Firebase;
+using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace TempRegister_API.Src.Controllers
 
@@ -284,7 +285,7 @@ namespace TempRegister_API.Src.Controllers
         }
 
         [HttpPut("update-new-semester")]
-        public async Task<IActionResult> UpdateSemester(string id, [FromBody] SemesterResult result)
+        public async Task<IActionResult> UpdateSemester(string id, [FromBody] SemesterRequest result)
         {
             // Kiểm tra điều kiện đầu vào
             var validationResult = ValidateValueUpdateSemester(id, result);
@@ -296,15 +297,22 @@ namespace TempRegister_API.Src.Controllers
             if (studentAcademic == null) { return BadRequest("Khong tim thay nguoi dung voi id tuong ung!"); }
 
             var lastSemsterResult = studentAcademic.SemesterResults.LastOrDefault();
+            SemesterResult semesterResult = new()
+            {
+                Year = result.Year,
+                SemesterIndex = result.SemesterIndex,
+                Subjects = result.Subjects,
+            };
+            GenarateSemesterResult(studentAcademic, semesterResult);
 
-            studentAcademic.SemesterResults.Add(result);
+            studentAcademic.SemesterResults.Add(semesterResult);
 
             _ = Task.Run(() =>
             {
-                var notificationcontent = CheckSemesterResult(id, lastSemsterResult,result);
+                var notificationcontent = CheckSemesterResult(id, studentAcademic, semesterResult);
                 if (notificationcontent != null) 
                 {
-                    _notifiService.SendRemindNotication(notificationcontent).ContinueWith(task =>
+                    _ = _notifiService.SendRemindNotication(notificationcontent).ContinueWith(task =>
                     {
                         if (task.IsFaulted)
                         {
@@ -319,10 +327,56 @@ namespace TempRegister_API.Src.Controllers
 
             return updateSuccesed ? Ok("Updated semester successful.") : BadRequest("Update faild.");
         }
-        private static List<NotificatonRemindRequest>? CheckSemesterResult(string id, SemesterResult? lastResult, SemesterResult newResult)
+
+        private static void GenarateSemesterResult(TempStudentAcademic studentAcademic, SemesterResult newResult)
+        {
+            SemesterResult? lastResult = studentAcademic.SemesterResults.LastOrDefault();
+
+            int subjectCount = newResult.Subjects.Count;
+            double totalScore = 0.0;
+            int total_F_Score = 0;
+
+            if (lastResult == null)
+            {
+                newResult.Subjects.ForEach(s => {
+                    double score4 = ConvertScore10ToGPA4(s.GradePoint);
+                    totalScore += score4;
+                    string scoreLetter = ConvertScore10ToLetter(s.GradePoint);
+                    s.LetterGrade = scoreLetter;
+                    if (scoreLetter == "F")
+                    {
+                        total_F_Score += 1;
+                    }
+                });
+                double DTBHKorGPA = totalScore/ newResult.Subjects.Count();
+                newResult.GPA = DTBHKorGPA;
+                newResult.ĐTBCHK = DTBHKorGPA;
+                newResult.TotalFailedCreditsSoFar = total_F_Score;
+                return;
+            };
+
+            total_F_Score = lastResult.TotalFailedCreditsSoFar;
+            newResult.Subjects.ForEach(s => {
+                double score4 = ConvertScore10ToGPA4(s.GradePoint);
+                totalScore += score4;
+                string scoreLetter = ConvertScore10ToLetter(s.GradePoint);
+                s.LetterGrade = scoreLetter;
+                if (scoreLetter == "F")
+                {
+                    total_F_Score += 1;
+                }
+            });
+            double DTBHK = totalScore / newResult.Subjects.Count();
+            int semmesterCount = studentAcademic.SemesterResults.Count();
+            newResult.GPA = (DTBHK+ lastResult.GPA* semmesterCount) / (semmesterCount+1);
+            newResult.ĐTBCHK = DTBHK;
+            newResult.TotalFailedCreditsSoFar = total_F_Score;
+            return;
+        }
+        private static List<NotificatonRemindRequest>? CheckSemesterResult(string id, TempStudentAcademic studentAcademic, SemesterResult newResult)
         {
             var result = new List<NotificatonRemindRequest>();
-
+            SemesterResult? lastResult = studentAcademic.SemesterResults.LastOrDefault();
             // Kiểm tra id hợp lệ
             if (string.IsNullOrEmpty(id))
             {
@@ -337,61 +391,77 @@ namespace TempRegister_API.Src.Controllers
                 return null;
             }
 
+            bool isDtbtlLow = false;
+            bool dtbhkLow = false;
+            bool isFailedCreditsHigh = false;
+            double dtbtlThreshold = 0;
+
             // Hàm hỗ trợ kiểm tra điều kiện cảnh báo học tập
             bool IsStudyWarning(SemesterResult semester)
             {
                 // Điều kiện ĐTBCHK theo năm học
-                double dtbchkThreshold = semester.Year switch
+                dtbtlThreshold = semester.Year switch
                 {
                     1 => 1.2,
                     2 => 1.4,
                     3 => 1.6,
                     _ => 1.8 // Năm 4 và các năm tiếp theo
                 };
-                bool isDtbchkLow = semester.ĐTBCHK < dtbchkThreshold;
+                isDtbtlLow = semester.GPA < dtbtlThreshold;
 
                 // Điều kiện GPA theo học kỳ
-                bool isGpaLow = (semester.Year == 1 && semester.SemesterIndex == 1)
-                    ? semester.GPA < 0.8
-                    : semester.GPA < 1.0;
+                dtbhkLow = (semester.Year == 1 && semester.SemesterIndex == 1)
+                    ? semester.ĐTBCHK < 0.8
+                    : semester.ĐTBCHK < 1.0;
 
                 // Điều kiện tín chỉ F
-                bool isFailedCreditsHigh = semester.TotalFailedCreditsSoFar > 24;
+                isFailedCreditsHigh = semester.TotalFailedCreditsSoFar > 24;
 
-                return isDtbchkLow || isGpaLow || isFailedCreditsHigh;
+                return isDtbtlLow || dtbhkLow || isFailedCreditsHigh;
+                
             }
+
+            bool isWarning = IsStudyWarning(newResult);
 
             // Hàm hỗ trợ tạo nội dung kết quả học kỳ
             string FormatSemesterResult(SemesterResult semester)
             {
                 var subjects = string.Join("; ", semester.Subjects.Select(s => $"{s.SubjectName}: {s.LetterGrade} ({s.GradePoint})"));
-                return $"Kết quả học kỳ {semester.Year}-{semester.SemesterIndex}: GPA = {semester.GPA}, ĐTBCHK = {semester.ĐTBCHK}, Tổng tín chỉ F = {semester.TotalFailedCreditsSoFar}. Danh sách môn học: {subjects} .";
+                return $"Kết quả học kỳ {semester.Year}-{semester.SemesterIndex}: GPA = {semester.GPA}, ĐTBCHK = {semester.ĐTBCHK}, Tổng tín chỉ F = {semester.TotalFailedCreditsSoFar}";
             }
+
+            string extraContent = studentAcademic.Status == StudentStatus.Warning
+                        ? "Tuy nhiên đây là lần thứ hai liên tiếp bạn bị cảnh báo học tập, đo đó rất tiêc khi phải thông báo rằng bạn đã bị buộc thôi học, vui lòng liên hệ phía nhà trường để giải quyết. Xin cảm ơn."
+                        : "Vui lòng chú ý học tập hơn cho kì học tiếp theo, nếu kì sau bạn còn bị cảnh báo thì sẽ phải buộc thôi học. Xin cảm ơn";
 
             if (lastResult == null)
             {
                 // Trường hợp chỉ có newResult
-                if (IsStudyWarning(newResult))
+                if (isWarning)
                 {
                     // Cảnh báo học tập với giọng điệu nghiêm túc, khẩn cấp
                     var warningDetails = new List<string>();
-                    if (newResult.ĐTBCHK < (newResult.Year == 1 ? 1.2 : newResult.Year == 2 ? 1.4 : newResult.Year == 3 ? 1.6 : 1.8))
+                    if (isDtbtlLow)
                     {
-                        warningDetails.Add($"Điểm trung bình tích lũy của bạn ({newResult.ĐTBCHK}) đang thấp hơn ngưỡng {(newResult.Year == 1 ? 1.2 : newResult.Year == 2 ? 1.4 : newResult.Year == 3 ? 1.6 : 1.8)} yêu cầu cho năm học {newResult.Year}.");
+                        warningDetails.Add($"Điểm trung bình tích lũy của bạn ({newResult.GPA}) đang thấp hơn ngưỡng {dtbtlThreshold} yêu cầu cho năm học {newResult.Year}.");
                     }
-                    if ((newResult.Year == 1 && newResult.SemesterIndex == 1 && newResult.GPA < 0.8) || newResult.GPA < 1.0)
+                    if (dtbhkLow)
                     {
                         warningDetails.Add($"Điểm trung bình học kỳ ({newResult.GPA}) không đạt mức {(newResult.Year == 1 && newResult.SemesterIndex == 1 ? 0.8 : 1.0)} theo quy định.");
                     }
                     if (newResult.TotalFailedCreditsSoFar > 24)
                     {
-                        warningDetails.Add($"Bạn đã tích lũy {newResult.TotalFailedCreditsSoFar} tín chỉ F, vượt quá giới hạn 24 tín chỉ, dẫn đến nguy cơ bị buộc thôi học.");
+                        warningDetails.Add($"Bạn đã tích lũy {newResult.TotalFailedCreditsSoFar} tín chỉ F, vượt quá giới hạn 24 tín chỉ cho phép");
                     }
+
+
+                    studentAcademic.Status = StudentStatus.Warning;
+
                     result.Add(
                         new NotificatonRemindRequest {
                             UserName = id,
                             RemindCode = "learning_alerts",
-                            Content = $"Cảnh báo học tập nghiêm trọng cho kỳ {newResult.Year}-{newResult.SemesterIndex}: {string.Join(" ", warningDetails)} Bạn cần cải thiện ngay kết quả học tập để tránh rủi ro. Hãy liên hệ cố vấn học tập để được hỗ trợ!"
+                            Content = $"Cảnh báo học tập: Bạn vừa hoàn thành kì học đầu tiên rất tiêc khi phải nhắc nhở bạn rằng: {string.Join(" ", warningDetails)} {extraContent}"
                         });
                 }
                 else if (newResult.GPA >= 3.0)
@@ -401,9 +471,10 @@ namespace TempRegister_API.Src.Controllers
                     {
                         UserName = id,
                         RemindCode = "normal",
-                        Content = $"Chúc mừng bạn đã xuất sắc đạt GPA {newResult.GPA} trong kỳ {newResult.Year}-{newResult.SemesterIndex}! Đây là thành tích tuyệt vời, hãy tiếp tục phát huy nhé!"
+                        Content = $"Kết quả học tập: Chúc mừng bạn đã xuất sắc đạt GPA cao cho học kì đầu tiên! {FormatSemesterResult(newResult)} Đây là thành tích tuyệt vời, hãy tiếp tục phát huy nhé!"
                     });
-                    
+                    studentAcademic.Status = StudentStatus.Active;
+
                 }
                 else
                 {
@@ -412,8 +483,9 @@ namespace TempRegister_API.Src.Controllers
                     {
                         UserName = id,
                         RemindCode = "normal",
-                        Content = $"Thông báo kết quả học kỳ {newResult.Year}-{newResult.SemesterIndex}: {FormatSemesterResult(newResult)} Vui lòng kiểm tra chi tiết và tiếp tục nỗ lực trong kỳ tới."
+                        Content = $"Thông báo kết quả học kỳ đầu tiên: {FormatSemesterResult(newResult)} Vui lòng kiểm tra chi tiết và tiếp tục nỗ lực trong kỳ tới."
                     });
+                    studentAcademic.Status = StudentStatus.Active;
                 }
             }
             else
@@ -421,40 +493,34 @@ namespace TempRegister_API.Src.Controllers
                 // Trường hợp có cả lastResult và newResult
                 bool isProgress = newResult.GPA > lastResult.GPA || newResult.ĐTBCHK > lastResult.ĐTBCHK;
                 bool isRegress = newResult.GPA < lastResult.GPA || newResult.ĐTBCHK < lastResult.ĐTBCHK;
-                bool isAtRiskOfExpulsion = IsStudyWarning(lastResult) && IsStudyWarning(newResult);
 
-                if (isAtRiskOfExpulsion)
+                if (isWarning)
                 {
-                    // Cảnh báo thôi học với giọng điệu nghiêm trọng, khẩn cấp
-                    result.Add(new NotificatonRemindRequest
-                    {
-                        UserName = id,
-                        RemindCode = "learning_alerts",
-                        Content = $"Cảnh báo nghiêm trọng: Bạn đã bị cảnh báo học tập liên tiếp ở hai kỳ ({lastResult.Year}-{lastResult.SemesterIndex} và {newResult.Year}-{newResult.SemesterIndex}). Bạn đang đối mặt với nguy cơ bị buộc thôi học. Hãy liên hệ ngay Phòng Công tác Sinh viên để được hướng dẫn!"
-                    });
-                }
-                else if (IsStudyWarning(newResult))
-                {
-                    // Cảnh báo học tập với giọng điệu nghiêm túc
+                    // Cảnh báo học tập với giọng điệu nghiêm túc, khẩn cấp
                     var warningDetails = new List<string>();
-                    if (newResult.ĐTBCHK < (newResult.Year == 1 ? 1.2 : newResult.Year == 2 ? 1.4 : newResult.Year == 3 ? 1.6 : 1.8))
+                    if (isDtbtlLow)
                     {
-                        warningDetails.Add($"ĐTBCHK của bạn ({newResult.ĐTBCHK}) thấp hơn ngưỡng {(newResult.Year == 1 ? 1.2 : newResult.Year == 2 ? 1.4 : newResult.Year == 3 ? 1.6 : 1.8)} theo quy định năm {newResult.Year}.");
+                        warningDetails.Add($"Điểm trung bình tích lũy của bạn ({newResult.GPA}) đang thấp hơn ngưỡng {dtbtlThreshold} yêu cầu cho năm học {newResult.Year}.");
                     }
-                    if ((newResult.Year == 1 && newResult.SemesterIndex == 1 && newResult.GPA < 0.8) || newResult.GPA < 1.0)
+                    if (dtbhkLow)
                     {
-                        warningDetails.Add($"GPA kỳ này ({newResult.GPA}) không đạt mức {(newResult.Year == 1 && newResult.SemesterIndex == 1 ? 0.8 : 1.0)} theo quy định.");
+                        warningDetails.Add($"Điểm trung bình học kỳ ({newResult.GPA}) không đạt mức {(newResult.Year == 1 && newResult.SemesterIndex == 1 ? 0.8 : 1.0)} theo quy định.");
                     }
                     if (newResult.TotalFailedCreditsSoFar > 24)
                     {
-                        warningDetails.Add($"Tổng tín chỉ F ({newResult.TotalFailedCreditsSoFar}) đã vượt quá 24, bạn đang gặp rủi ro lớn.");
+                        warningDetails.Add($"Bạn đã tích lũy {newResult.TotalFailedCreditsSoFar} tín chỉ F, vượt quá giới hạn 24 tín chỉ cho phép");
                     }
-                    result.Add(new NotificatonRemindRequest
-                    {
-                        UserName = id,
-                        RemindCode = "learning_alerts",
-                        Content = $"Cảnh báo học tập kỳ {newResult.Year}-{newResult.SemesterIndex}: {string.Join(" ", warningDetails)} Bạn cần nỗ lực hơn để cải thiện kết quả. Hãy liên hệ cố vấn học tập ngay để được hỗ trợ!"
-                    });
+
+
+                    studentAcademic.Status = StudentStatus.Warning;
+
+                    result.Add(
+                        new NotificatonRemindRequest
+                        {
+                            UserName = id,
+                            RemindCode = "learning_alerts",
+                            Content = $"Cảnh báo học tập: Bạn vừa hoàn thành học kì {newResult.SemesterIndex} của năm {newResult.Year} rất tiêc khi phải nhắc nhở bạn rằng: {string.Join(" ", warningDetails)} {extraContent}"
+                        });
                 }
                 else if (isProgress)
                 {
@@ -463,8 +529,9 @@ namespace TempRegister_API.Src.Controllers
                     {
                         UserName = id,
                         RemindCode = "normal",
-                        Content = $"Thật tuyệt vời! Bạn đã có tiến bộ vượt bậc trong kỳ {newResult.Year}-{newResult.SemesterIndex}! GPA tăng từ {lastResult.GPA} lên {newResult.GPA}, ĐTBCHK tăng từ {lastResult.ĐTBCHK} lên {newResult.ĐTBCHK}. Hãy tiếp tục giữ vững phong độ này nhé!"
+                        Content = $"Thật tuyệt vời! Bạn đã có tiến bộ vượt bậc trong kỳ {newResult.SemesterIndex} của năm {newResult.Year}! GPA tăng từ {lastResult.GPA} lên {newResult.GPA}, ĐTBCHK tăng từ {lastResult.ĐTBCHK} lên {newResult.ĐTBCHK}. Hãy tiếp tục giữ vững phong độ này nhé!"
                     });
+                    studentAcademic.Status = StudentStatus.Active;
                 }
                 else if (isRegress)
                 {
@@ -473,8 +540,9 @@ namespace TempRegister_API.Src.Controllers
                     {
                         UserName = id,
                         RemindCode = "normal",
-                        Content = $"Kết quả kỳ {newResult.Year}-{newResult.SemesterIndex} của bạn có phần giảm sút so với kỳ trước (GPA: {lastResult.GPA} -> {newResult.GPA}, ĐTBCHK: {lastResult.ĐTBCHK} -> {newResult.ĐTBCHK}). Hãy cố gắng hơn trong kỳ tới để lấy lại phong độ nhé! (type = StudyAlert)."
+                        Content = $"Kết quả kỳ {newResult.SemesterIndex} của năm {newResult.Year} của bạn có phần giảm sút so với kỳ trước (GPA: {lastResult.GPA} -> {newResult.GPA}, ĐTBCHK: {lastResult.ĐTBCHK} -> {newResult.ĐTBCHK}). Hãy cố gắng hơn trong kỳ tới để lấy lại phong độ nhé! (type = StudyAlert)."
                     });
+                    studentAcademic.Status = StudentStatus.Active;
                 }
                 else
                 {
@@ -483,15 +551,16 @@ namespace TempRegister_API.Src.Controllers
                     {
                         UserName = id,
                         RemindCode = "normal",
-                        Content = $"Thông báo kết quả học kỳ {newResult.Year}-{newResult.SemesterIndex}: {FormatSemesterResult(newResult)} Vui lòng kiểm tra chi tiết và tiếp tục nỗ lực trong kỳ tới."
+                        Content = $"Thông báo kết quả học kỳ {newResult.SemesterIndex} của năm {newResult.Year}: {FormatSemesterResult(newResult)} Vui lòng kiểm tra chi tiết và tiếp tục nỗ lực trong kỳ tới."
                     });
+                    studentAcademic.Status = StudentStatus.Active;
                 }
             }
 
             return result;
         }
 
-        private IActionResult? ValidateValueUpdateSemester(string id, SemesterResult result)
+        private IActionResult? ValidateValueUpdateSemester(string id, SemesterRequest result)
         {
             // Kiểm tra id không được null hoặc rỗng
             if (string.IsNullOrEmpty(id))
@@ -512,21 +581,9 @@ namespace TempRegister_API.Src.Controllers
             }
 
             // Kiểm tra semesterindex hợp lệ (1 hoặc 2)
-            if (result.SemesterIndex != 1 && result.SemesterIndex != 2)
+            if (result.SemesterIndex >= 1)
             {
-                return BadRequest(new { error = "Học kỳ phải là 1 hoặc 2." });
-            }
-
-            // Kiểm tra gpa hợp lệ (thang điểm 4)
-            if (result.GPA < 0.0 || result.GPA > 4.0)
-            {
-                return BadRequest(new { error = "Điểm trung bình học kỳ (GPA) phải nằm trong khoảng từ 0.0 đến 4.0." });
-            }
-
-            // Kiểm tra đtbchk hợp lệ (thang điểm 4)
-            if (result.ĐTBCHK < 0.0 || result.ĐTBCHK > 4.0)
-            {
-                return BadRequest(new { error = "Điểm trung bình tích lũy (ĐTBCHK) phải nằm trong khoảng từ 0.0 đến 4.0." });
+                return BadRequest(new { error = "Học kỳ phải là 1 trở nên" });
             }
 
             // Kiểm tra subjects không được null hoặc rỗng
@@ -534,30 +591,6 @@ namespace TempRegister_API.Src.Controllers
             {
                 return BadRequest(new { error = "Danh sách môn học không được null hoặc rỗng." });
             }
-
-            // Kiểm tra từng môn học
-            var validLetterGrades = new[] { "A", "B+", "B", "C+", "C", "D", "F" };
-            foreach (var subject in result.Subjects)
-            {
-                // Kiểm tra subjectname không được null hoặc rỗng
-                if (string.IsNullOrEmpty(subject.SubjectName))
-                {
-                    return BadRequest(new { error = "Tên môn học không được để trống." });
-                }
-
-                // Kiểm tra gradepoint hợp lệ
-                if (subject.GradePoint < 0.0 || subject.GradePoint > 4.0)
-                {
-                    return BadRequest(new { error = $"Điểm môn {subject.SubjectName} phải nằm trong khoảng từ 0.0 đến 4.0." });
-                }
-
-                // Kiểm tra lettergrade hợp lệ
-                if (string.IsNullOrEmpty(subject.LetterGrade) || !validLetterGrades.Contains(subject.LetterGrade))
-                {
-                    return BadRequest(new { error = $"Điểm chữ của môn {subject.SubjectName} phải là một trong các giá trị: A, B+, B, C+, C, D, F." });
-                }
-            }
-
             return null;
         }
 

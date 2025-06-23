@@ -102,11 +102,17 @@ using Microsoft.AspNetCore.Mvc;
         public double ĐTBCHK { get; set; }     // ĐTBCTL tính đến học kỳ này
         public int TotalFailedCreditsSoFar { get; set; } // Tổng tín chỉ bị F tính đến hiện tại
     }
+    public class SemesterRequest
+    {
+        public int Year { get; set; }                  // Năm học
+        public int SemesterIndex { get; set; }         // 1 hoặc 2
+        public List<SubjectResult> Subjects { get; set; } = [];
+    }
     public class SubjectResult
     {
         public string SubjectName { get; set; }
         public double GradePoint { get; set; }        // Thang điểm 4
-        public string LetterGrade { get; set; }       // A, B, C, D, F
+        public string? LetterGrade { get; set; }       // A, B, C, D, F
     }
 
     public class TempStudentAcademic

@@ -200,11 +200,24 @@ namespace TempRegister_API.Src.Controllers
                 {
                     return NotFound("Timetable not found");
                 }
-                tempTimetable.StartTime = request.NewStartTime;
-                tempTimetable.EndTime = request.NewEndTime;
-                tempTimetable.Subject = request.Subject;
-                tempTimetable.Room = request.Room;
-                tempTimetable.ZoomID = request.ZoomID;
+                if (request.NewStartTime != tempTimetable.StartTime || request.NewEndTime != tempTimetable.EndTime)
+                {
+                    DateTime currentTime = DateTime.Now;
+                    if (request.NewStartTime < currentTime || request.NewEndTime < request.NewStartTime)
+                    {
+                        return BadRequest("Thời gian mới không được trong quá khứ và thời gian kết thúc phải sau thời gian bắt đầu");
+                    }
+                    tempTimetable.StartTime = request.NewStartTime;
+                    tempTimetable.EndTime = request.NewEndTime;
+                }
+                if (string.IsNullOrEmpty(request.Room))
+                {
+                    tempTimetable.Room = request.Room;
+                }
+                if (string.IsNullOrEmpty(tempTimetable.ZoomID))
+                {
+                    tempTimetable.ZoomID = request.ZoomID;
+                }
                 TimetableOutputDTO timetableOutputDTO = _mapper.Map<TimetableOutputDTO>(tempTimetable);
                 return await _tempTimeTable.Update(tempTimetable) ? 
                     Ok(timetableOutputDTO) : BadRequest("Update Fail");
