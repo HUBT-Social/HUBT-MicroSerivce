@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using User_API.Src.Models;
 using User_API.Src.Service;
-using static User_API.Src.Controllers.UserShoolDataController;
 
 namespace User_API.Src.Controllers
 {

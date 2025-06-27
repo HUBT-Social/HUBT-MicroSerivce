@@ -504,7 +504,7 @@ namespace TempRegister_API.Src.Controllers
                     }
                     if (dtbhkLow)
                     {
-                        warningDetails.Add($"Điểm trung bình học kỳ ({newResult.GPA}) không đạt mức {(newResult.Year == 1 && newResult.SemesterIndex == 1 ? 0.8 : 1.0)} theo quy định.");
+                        warningDetails.Add($"Điểm trung bình học kỳ ({newResult.GPA}) không đạt mức {(newResult.Year == 1 && newResult.SemesterIndex == 1 ? "0.8" : "1.0")} theo quy định.");
                     }
                     if (newResult.TotalFailedCreditsSoFar > 24)
                     {
@@ -581,7 +581,7 @@ namespace TempRegister_API.Src.Controllers
             }
 
             // Kiểm tra semesterindex hợp lệ (1 hoặc 2)
-            if (result.SemesterIndex >= 1)
+            if (result.SemesterIndex <1)
             {
                 return BadRequest(new { error = "Học kỳ phải là 1 trở nên" });
             }
